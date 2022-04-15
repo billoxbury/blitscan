@@ -1,0 +1,12 @@
+DATA_FILE <- "data/bing-tx-master.csv"
+DEFAULT_TEXT_COLUMN <- "title"
+DEFAULT_HOVER_COLUMN <- "abstract"
+DEFAULT_LINK_COLUMN <- "link"
+DEFAULT_USECOLOUR <- TRUE
+DEFAULT_COLOUR_BY <- c("domain", "avian")
+DEFAULT_USESELECT <- TRUE
+DEFAULT_SELECT <- "domain"
+DEFAULT_DATE <- "date"
+DEFAULT_PRIORITY <- "score"
+START_DATE <- "2019-01-01"
+END_DATE <- "2022-12-31"

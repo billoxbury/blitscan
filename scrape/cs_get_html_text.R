@@ -1,0 +1,214 @@
+#!/usr/local/bin/Rscript
+
+# Scrapes domains from google custom search for titles, abstracts and pdf links
+
+library(rvest)
+library(stringr)
+library(dplyr)
+library(purrr)
+library(readr)
+library(lubridate)
+
+#setwd("~/Projects/202201_BI_literature_scanning")
+
+# read data path from command line
+args <- commandArgs(trailingOnly=T)
+
+if(length(args) == 0){
+  cat("Usage: cs_get_text.R csvfile\n")
+  quit(status=1)
+}
+datafile <- args[1]
+
+# datafile <- "data/bing-master-2022-04-11.csv" # <--- DEBUGGING, CHECK DATE
+df <- read_csv(datafile, show_col_types = FALSE)
+
+# recognise dates?
+# NO - leave that to the analysis phase - keep as raw strings
+# at this stage
+
+df$date <- df$date %>% as.character()
+#df <- df %>% mutate(date = as.character(date),
+#                    query_date = as_date(query_date)) 
+
+# normalise the 'domain' field
+df$domain <- df$domain %>% str_remove('^www\\.')
+
+##########################################################
+# XPATH rules
+
+xpathfile <- "data/xpath_rules.csv"
+xpr <- read_csv(xpathfile, show_col_types = FALSE)
+
+# global variables
+ABSTRACTBLOCKS <- 6
+DEDUPE_TITLE <- FALSE
+MAX_DAYS <-  1100
+MAXCALLS <- 1000
+
+##########################################################
+# general function to get title/abstract/PDF link
+get_ta <- function(url_name, idx){
+  # url_name = main link
+  # idx = row index for 
+  # dpath = date
+  # tpath = xpath for title
+  # apath = xpath for abstract
+  # ppath = xpath for pdf link
+  # etc
+  
+  url_conn <-  url(url_name, "rb")
+  page <- read_html(url_conn)
+  close(url_conn)
+  # get date
+  date <- page %>% 
+      html_nodes(xpath = xpr$dpath[idx]) %>%
+      html_attr("content")
+  # get title
+  title_node <- page %>% html_nodes(xpath = xpr$tpath[idx])
+  title <- if(xpr$t_flag[idx]){
+    title_node %>% html_text2()
+  } else {
+    title_node %>% html_attr("content")
+  }
+  # get abstract
+  abstract_node <- page %>% html_nodes(xpath = xpr$apath[idx])
+  abstract <- if(xpr$a_flag[idx]){
+    abstract_node %>% html_text2()
+  } else {
+    abstract_node %>% html_attr("content")
+  }
+  al <- length(abstract)
+  # al = 2 is probably bilingual
+  if(al == 2) abstract <- abstract[1]
+  # al > 2 is probably text sentences
+  if(al > 2) abstract <- str_c(abstract[1:min(al, ABSTRACTBLOCKS)], 
+                               collapse=' ')
+  # get PDF link
+  pdf <- page %>% 
+    html_nodes(xpath = xpr$ppath) %>%
+    html_attr("content")
+  # return
+  list(date = date,
+       title = title,
+       abstract = abstract,
+       pdflink = pdf)
+}
+
+
+# PDF detector
+is_pdf <- function(link){
+  str_detect(link, '\\/pdf\\/|\\.pdf|type=printable') 
+}
+
+# word detector
+n_words <- function(text){
+  if(length(text) == 0){ 
+    0 } else {
+      str_split(text, ' ')[[1]] %>% length()
+    }
+}
+
+add_day_to_month <- function(date){
+  if(str_detect(date, '\\d{4}[\\/|-]\\d{2}')){
+    tmp <- str_split(date, '\\/|-')[[1]]
+    sprintf("%s-%s-01", tmp[1], tmp[2])
+  } else {
+    date
+  }
+}
+
+##########################################################
+# main loop
+
+for(i in 1:nrow(df)){
+
+  if(MAXCALLS < 0) break
+
+  # skip if bad link or already done
+  if(df$BADLINK[i] == 1 | df$GOTTEXT[i] == 1) next
+  # verbose
+  cat(sprintf("%d %d: %s\n", MAXCALLS, i, df$link[i]))
+  
+  # look for XPATH rule
+  if(df$domain[i] %in% xpr$domain){
+    j <- which(xpr$domain == df$domain[i])
+  } else{
+    j <- 2
+    # i.e. pick the PLOS rule, which is fairly generic
+  }
+  
+  link <- df$link[i]
+  # check whether link is PDF:
+  if( is_pdf(link) ){
+    df$pdf_link[i] <- link
+    next
+  } else {
+    MAXCALLS <- MAXCALLS - 1
+    try({
+      out <- get_ta(df$link[i], j)
+      
+      if(is.na(df$date[i]) & length(out$date) > 0){
+          df$date[i] <- add_day_to_month(out$date)
+      }
+      if(n_words(out$title) > 1) df$title[i] <- out$title
+      if(length(out$pdflink) > 0) df$pdf_link[i] <- out$pdflink
+      if(n_words(out$abstract) > 1){
+        df$abstract[i] <- out$abstract
+        # if both title and abstract then set GOTTEXT
+        if(!is.na(out$title)){
+          df$GOTTEXT[i] <- 1
+        }
+      }
+    })
+  }
+}
+
+##########################################################
+# tag links that are past their sell-by
+
+# NOT ALL DATES PARSABLE, SO PARK THIS TO ANALYSIS STAGE
+
+#badlink_condition <- ((df$date < today() - MAX_DAYS) & !is.na(df$date))
+#df$BADLINK[badlink_condition] <- 1
+#cat(sprintf("Marking %d links older than %d days\n", 
+#            sum(badlink_condition),
+#            MAX_DAYS))
+
+
+##########################################################
+# dedupe on title?
+
+if(DEDUPE_TITLE){
+  
+  glist <- df %>% 
+    group_by(title) %>% 
+    group_rows()
+  
+  keep_rows = c()
+  for(g in glist){
+    if(is.na(df$title[g[1]])){
+      keep_rows <- c(keep_rows, g)
+    } else if(length(g) > 1){
+      choice <- which(!is.na(df$title[g]) & !is.na(df$abstract[g]))
+      if(length(choice) > 0){
+        keep_rows <- c(keep_rows, g[choice[1]])
+      } else {
+        keep_rows <- c(keep_rows, g[1])   
+      }
+    } else {
+      keep_rows <- c(keep_rows, g[1])
+    }
+  }
+  
+  # check:
+  # glist <- df[keep_rows,] %>% group_by(title) %>% group_rows()
+  # table(sapply(glist, length))
+}
+
+
+##########################################################
+# write to disk
+
+df %>% write_csv(datafile)
+cat(sprintf("Updated data frame written to %s\n", datafile))
