@@ -29,11 +29,11 @@ Note also that the current step 1 (cloud-based custom web search) is not the onl
 
 In descending order of priority:
 
-1. Decouple the database (and JSON) into cloud storage.
-1. Widen the domain set until the coverage is felt to be realistically representative of the main sources used by BirdLife. (Should be informed by the most-cited sources by BirdLife in the recent past.)
-1. Add a scanning step for tables of contents of selected journals.
-1. Consolidate the acquisition rate from current domains. For example, some are giving large numbers of 503 server errors for reasons that aren't clear.
-1. Explore how to extend the process to subscription domains (as opposed to open access).
-1. Related to the previous point, engage some of the journal publishers directly. Can they be persuaded to offer support as a 'global good'?
-1. Widen the set of text blocks that are extracted from each URL.
-1. Explore the optimisation problem (e.g. as a multi-armed bandit problem on the set of search terms).
+- Decouple the database (and JSON) into cloud storage.
+- Widen the domain set until the coverage is felt to be realistically representative of the main sources used by BirdLife. (Should be informed by the most-cited sources by BirdLife in the recent past.)
+- Add a scanning step for tables of contents of selected journals.
+- Consolidate the acquisition rate from current domains. For example, some are giving large numbers of 503 server errors for reasons that aren't clear.
+- Explore how to extend the process to subscription domains (as opposed to open access).
+- Related to the previous point, engage some of the journal publishers directly. Can they be persuaded to offer support as a 'global good'?
+- Widen the set of text blocks that are extracted from each URL.
+- Explore the optimisation problem (e.g. as a multi-armed bandit problem on the set of search terms).
