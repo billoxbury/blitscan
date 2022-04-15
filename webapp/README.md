@@ -1,2 +1,2 @@
-# BirdLife LitScan: user interface
+# BirdLife LitScan: web app & UI
 
