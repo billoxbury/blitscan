@@ -19,7 +19,7 @@ txfile="data/bing-tx-master.csv"
 dockerpath="webapp"
 
 # custom search - Bing
-#./scrape/custom_search_bing.py $stfile $qfilebing 
+./scrape/custom_search_bing.py $stfile $qfilebing 
 ./scrape/json_to_csv_bing.py $qfilebing $infile $outfile 
 
 # web & pdf scraping
