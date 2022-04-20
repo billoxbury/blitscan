@@ -1,2 +1,34 @@
 # BirdLife LitScan: text processor
 
+The business of this service is to take blocks of text and to determine, using relevant data and machine learning tools, how relevant they are to BirdLife and where the interesting bits are. The results are published as a database indexed by the URLs of the web resources/journal articles.
+
+## How it currently works
+
+It currently runs two scripts:
+
+1. _score_for_topic.py_ looks at each row of the database output by the _scrape_ phase and assigns a score to the text for that row. (This means for the combined title/abstract – but it could mean for any text at all that _scrap_ wishes to include.) This score measures the fit of this text to a pre-built 'topic' – in this case BirdLife species assessment. The topic model uses the file _bli_model.json_ in the _data_ directory. It is explained in the _reports_ folder.
+2. _find_species.py_ then looks at the text in each row to find specific species mentions. This uses a _spacy_ 'entity-ruler' built using the species spreadsheet _BirdLife_species_list_Jan_2022.xlsx_ in the _data_ directory.
+
+The results of these two scripts are added to the same database, for use by the third _webapp_ phase.
+
+## Design thoughts
+
+There are various ways this service could be extended. 
+
+The scoring in step 1 currently uses a 'bag-of-words' model to assign a log-likelihood score. This appears to work quite well (though it would be good to have objective metrics), but could in principle be refined to use deep learning methods which make direct use of word order.
+
+Scoring is currently dependent on the text being in English, and gets screwed by foreign language text. (For example, abstracts from the domain _www.ace-eco.org_ are often given in both English and French.) Language detection and translation using Azure cognitive services needs to be on the roadmap.
+
+Species extraction in step 2 could be extended to extraction of other entity types. References to geographic location would seem to be a prime candidate that could be useful for the BirdLife context.
+
+## TO-DO
+
+In roughly descending order of priority:
+
+- Include in this repo the code used to build the current model (probably in the form of a Jupyter notebook).
+- Include a language detection/tranlation step.
+- Build a benchmark data set for model comparison – e.g. from text sources recently used and cited by BirdLife.
+- Design a process for updating the scoring model from user feedback/corrections e.g. manually upgraded journal articles.
+- Assess how much additional benefit could be got by refining the model using deep learning (e.g. SBERT).
+- Explore the addition of geolocation to the entity extraction step.
+
