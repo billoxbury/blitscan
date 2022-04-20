@@ -13,7 +13,7 @@ The current code runs four steps daily (some in two flavours, Google or Bing):
 
 Both steps 3,4 add the text/data found to the (CSV) database, and this is 'published' (i.e. stored in the _data_ directory for use by the _process_ service).
 
-## Architectural principles
+## Design thoughts
 
 The current use of a local CSV file for the database is a hack and should move to the published database being stored in SQL or Mongo cloud storage.
 
@@ -21,7 +21,7 @@ The JSON file used in steps 1,2 should be thought of as private to the _scrape_ 
 
 Step 1 is amenable to optimisation: currently choices are made in both the choice of domains targeted, and the randomisation of the search terms. (I envisage for future work, application of machine learning to a feedback signal coming from the customer service _process_.)
 
-Otherwise, note that this service makes no assessment of the URLs and text blocks it finds: it's only job is to acquire these efficiently, given a specified set of domains and search terms, and customer feedback.
+Otherwise, note that this service makes no assessment of the URLs and text blocks it finds: its only job is to acquire these efficiently, given a specified set of domains and search terms, and customer feedback.
 
 Note also that the current step 1 (cloud-based custom web search) is not the only way to acquire data. Another step supplementing step 1, for example, might be to directly scrape the contents pages of specified journals. (One for the TO-DO list.)
 

@@ -26,7 +26,7 @@ Species extraction in step 2 could be extended to extraction of other entity typ
 In roughly descending order of priority:
 
 - Include in this repo the code used to build the current model (probably in the form of a Jupyter notebook).
-- Include a language detection/tranlation step.
+- Include a language detection/translation step.
 - Build a benchmark data set for model comparison – e.g. from text sources recently used and cited by BirdLife.
 - Design a process for updating the scoring model from user feedback/corrections e.g. manually upgraded journal articles.
 - Assess how much additional benefit could be got by refining the model using deep learning (e.g. SBERT).
