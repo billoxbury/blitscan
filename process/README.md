@@ -6,10 +6,11 @@ The business of this service is to take blocks of text and to determine, using r
 
 It currently runs two scripts:
 
-1. _score_for_topic.py_ looks at each row of the database output by the _scrape_ phase and assigns a score to the text for that row. (This means for the combined title/abstract – but it could mean for any text at all that _scrap_ wishes to include.) This score measures the fit of this text to a pre-built 'topic' – in this case BirdLife species assessment. The topic model uses the file _bli_model.json_ in the _data_ directory. It is explained in the _reports_ folder.
+1. _score_for_topic.py_ looks at each row of the database output by the _scrape_ phase and assigns a score to the text for that row. (This means for the combined title/abstract – but it could mean for any text at all that _scrap_ wishes to include.) This score measures the fit of this text to a pre-built 'topic' – in this case BirdLife species assessment. The topic model uses the file _bli_model.json_ in the _data_ directory. It is explained in the _reports_ folder, and code is in the subfolder _model_bow.
 2. _find_species.py_ then looks at the text in each row to find specific species mentions. This uses a _spacy_ 'entity-ruler' built using the species spreadsheet _BirdLife_species_list_Jan_2022.xlsx_ in the _data_ directory.
 
 The results of these two scripts are added to the same database, for use by the third _webapp_ phase.
+
 
 ## Design thoughts
 
@@ -25,7 +26,6 @@ Species extraction in step 2 could be extended to extraction of other entity typ
 
 In roughly descending order of priority:
 
-- Include in this repo the code used to build the current model (probably in the form of a Jupyter notebook).
 - Include a language detection/translation step.
 - Build a benchmark data set for model comparison – e.g. from text sources recently used and cited by BirdLife.
 - Design a process for updating the scoring model from user feedback/corrections e.g. manually upgraded journal articles.

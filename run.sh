@@ -55,3 +55,5 @@ echo "Updated LitScan app served at http://"`az container show \
     --name bs-bli-litscan-bing \
     --resource-group BillLitScan \
     --query ipAddress.ip --output tsv`":3838"
+
+##############################################################

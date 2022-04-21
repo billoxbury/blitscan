@@ -28,7 +28,7 @@ The use of _R shiny_ is for legacy reasons and because the author doesn't do PHP
 ## TO-DO
 
 - Secure the app behind _https_. (In the current _R shiny_ implementation this is possible only with a corporate _R_ subscription. A better approach might be a port to another language such as PHP or Node.js) 
+- Decouple the data set from the web app container.
 - Replace the static date with a writable field that the user can manually overwrite.
 - Replace the static traffic light with a dynamic one that can be 'rolled' to a different position.
 - Build a pipeline of user input (date, score or free text) as a pub-sub service to the _process_ phase.
-
