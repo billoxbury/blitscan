@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/bing-master-2022-04-11.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/bing-master-2022-04-22.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
 
 # recognise dates?
@@ -122,7 +122,7 @@ add_day_to_month <- function(date){
 for(i in 1:nrow(df)){
 
   if(MAXCALLS < 0) break
-
+  
   # skip if bad link or already done
   if(df$BADLINK[i] == 1 | df$GOTTEXT[i] == 1) next
   # verbose

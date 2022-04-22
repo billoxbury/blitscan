@@ -55,3 +55,10 @@ for(i in 1:nrow(df_tmp)){
   }
 }
 
+##########################################################
+# write to disk
+
+df_master %>% write_csv(datafile)
+cat(sprintf("Updated data frame written to %s\n", datafile))
+
+
