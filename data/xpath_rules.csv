@@ -1,7 +1,7 @@
 domain,dpath,tpath,t_flag,apath,a_flag,ppath
 nature.com,"//meta[@name=""citation_online_date""]","//meta[@name=""dc.title""]",0,"//meta[@name=""dc.description""]",0,"//meta[@name=""citation_pdf_url""]"
 journals.plos.org,"//meta[@name=""citation_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-conbio.onlinelibrary.wiley.com,"//meta[@name=""citation_publication_date""]","//h1[@class=""citation__title""]",1,"//div[@class=""article-section__content en main""]",1,"//meta[@name=""citation_pdf_url""]"
+conbio.onlinelibrary.wiley.com,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//div[@class=""article-section__content en main""]",1,"//meta[@name=""citation_pdf_url""]"
 avianres.biomedcentral.com,"//meta[@name=""dc.date""]","//meta[@name=""dc.title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
 ace-eco.org,"//meta[@name=""citation_publication_date""]","//meta[@name=""dc.title""]",0,"//div[@id=""abstract_block""]",1,"//meta[@name=""citation_pdf_url""]"
 cambridge.org,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
@@ -16,6 +16,6 @@ omicsonline.org,,"//meta[@name=""citation_title""]",0,"//meta[@name=""descriptio
 orientalbirdclub.org,,"//meta[@itemprop=""name""]",0,"//p[@class=""""]",1,
 nisc.co.za,"//meta[@property=""article:published_time""]","//meta[@property=""og:title""]",0,"//div[@class=""specs abouttext""]",1,
 tandfonline.com,"//meta[@name=""dc.Date""]","//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,
-academic.oup.com,,"//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,
+academic.oup.com,,"//meta[@property=""og:title""]",0,"//section[@class=""abstract""]",1,
 springer.com/journal/10336,,"//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
 meridian.allenpress.com,,"//h1[@class=""wi-article-title article-title-main""]",1,"//section[@class=""abstract""]",1,"//meta[@name=""citation_pdf_url""]"

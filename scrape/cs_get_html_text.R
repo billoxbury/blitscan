@@ -9,8 +9,6 @@ library(purrr)
 library(readr)
 library(lubridate)
 
-#setwd("~/Projects/202201_BI_literature_scanning")
-
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
 
