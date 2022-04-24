@@ -42,7 +42,7 @@ xpr <- read_csv(xpathfile, show_col_types = FALSE)
 ABSTRACTBLOCKS <- 6
 DEDUPE_TITLE <- FALSE
 MAX_DAYS <-  1100
-MAXCALLS <- 1000
+MAXCALLS <- 256
 
 ##########################################################
 # general function to get title/abstract/PDF link

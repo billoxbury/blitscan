@@ -1,5 +1,4 @@
 # Bespoke scraper for (topic-based) PLOS One web pages
-# TO BE INCORPORATED into the main workflow
 
 library(rvest)
 library(stringr)
@@ -43,7 +42,7 @@ scrape_plos_topic <- function(topic, page_nr){
 }
 
 # cycle across all topics
-scrape_plos <- function(topics, MAX_PAGES = 100){
+scrape_plos <- function(topics, MAX_PAGES = 2){
   title <- c()
   link <- c()
   category <- c()

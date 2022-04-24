@@ -24,7 +24,7 @@ Step 1 is amenable to optimisation: currently choices are made in both the choic
 
 Otherwise, note that this service makes no assessment of the URLs and text blocks it finds: its only job is to acquire these efficiently, given a specified set of domains and search terms, and customer feedback.
 
-Note also that the current step 1 (cloud-based custom web search) is not the only way to acquire data. Another step supplementing step 1, for example, might be to directly scrape the contents pages of specified journals. (Done now for PLOS One.)
+Note also that the current step 1 (cloud-based custom web search) is not the only way to acquire data. Another step supplementing step 1, for example, might be to directly scrape the contents pages of specified journals. (Started.)
 
 ## TO-DO
 
@@ -32,7 +32,7 @@ In descending order of priority:
 
 - Decouple the database (and JSON) into cloud storage.
 - Widen the domain set until the coverage is felt to be realistically representative of the main sources used by BirdLife. (Should be informed by the most-cited sources by BirdLife in the recent past.)
-- Add a scanning step for tables of contents of selected journals. (Done for PLOS One.)
+- Add a scanning step for tables of contents of selected journals. (Done for PLOS One, Avian research.)
 - Consolidate the acquisition rate from current domains. For example, some are giving large numbers of 503 server errors for reasons that aren't clear. 
 [UPDATE: the issue here is some journals' use of Cloudflare. I've approached ConBio on this.]
 - Explore how to extend the process to subscription domains (as opposed to open access).

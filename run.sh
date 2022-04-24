@@ -39,7 +39,7 @@ cp $outfile $infile             # <--- $outfile bad links all kept
 cp $txfile $dockerpath/data     # <--- $txfile all bad links removed
 
 # build docker image(s)
-docker build -t litscancontainers.azurecr.io/bs-bli-litscan-bing $dockerpath # Azure (Bing CS)
+docker build -t litscancontainers.azurecr.io/bs-bli-litscan-bing $dockerpath 
 
 # ... and push to cloud
 az acr login -n litscancontainers.azurecr.io
