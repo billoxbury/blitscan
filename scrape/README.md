@@ -12,7 +12,7 @@ The current code runs the following steps daily (some in two flavours, Google or
 4. _cs_get_html_text.R_ For each new URL in the database, requests the HTML and attempts to extract publication date, title, abstract and URL of any PDF. To do this, it reads a database _xpath_rules.csv_ from the data directory. This contains the HTML rules needed for each domain visited.
 5. _cs_get_pdf_text.py_ Same as step 3, but this time following URL to PDF documents. 
 
-Both steps 3,4 add the text/data found to the (CSV) database, and this is 'published' (i.e. stored in the _data_ directory for use by the _process_ service).
+The last two steps both add the text/data found to the (CSV) database, and this is 'published' (i.e. stored in the _data_ directory for use by the _process_ service).
 
 ## Design thoughts
 
