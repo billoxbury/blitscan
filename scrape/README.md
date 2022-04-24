@@ -8,7 +8,7 @@ The current code runs the following steps daily (some in two flavours, Google or
 
 1. _custom_search_***.py_ Takes a list of web domains, plus a list of search terms (see _data_ directory), and runs a (Google or Bing) custom search against a random subset of the search terms. The top ten responses (consisting of URLs plus metadata) are stored in JSON format, indexed by the pair _(query date, search term)_.
 2. _json_to_csv_***.py_ Scans the new URLs in the JSON file, filtering on some simple rules and adding the 'good' ones to a (CSV) database that will be used in steps 3,4.
-3. _journal_indexes_to_csv.R_ adds more URLs to the CSV database by targeted search of journal listings (currently this is just PLOS One).
+3. _journal_indexes_to_csv.R_ adds more URLs to the CSV database by targeted search of journal listings.
 4. _cs_get_html_text.R_ For each new URL in the database, requests the HTML and attempts to extract publication date, title, abstract and URL of any PDF. To do this, it reads a database _xpath_rules.csv_ from the data directory. This contains the HTML rules needed for each domain visited.
 5. _cs_get_pdf_text.py_ Same as step 3, but this time following URL to PDF documents. 
 
