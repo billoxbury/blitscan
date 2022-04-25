@@ -32,7 +32,7 @@ In descending order of priority:
 
 - Decouple the database (and JSON) into cloud storage.
 - Widen the domain set until the coverage is felt to be realistically representative of the main sources used by BirdLife. (Should be informed by the most-cited sources by BirdLife in the recent past.)
-- Add a scanning step for tables of contents of selected journals. (Done for PLOS One, Avian research.)
+- Add a scanning step for tables of contents of selected journals. (Done for PLOS One, Avian Research, Bird Study.)
 - Consolidate the acquisition rate from current domains. For example, some are giving large numbers of 503 server errors for reasons that aren't clear. 
 [UPDATE: the issue here is some journals' use of Cloudflare. I've approached ConBio on this.]
 - Explore how to extend the process to subscription domains (as opposed to open access).

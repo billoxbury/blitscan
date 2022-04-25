@@ -29,12 +29,8 @@ df_master <- read_csv(datafile, show_col_types = FALSE)
 
 cat("Scanning PLOS One\n")
 
-source("./scrape/scrape_PLOS_One.R")
-# create intermediate data frame from scraping the article listings
-df_plos <- scrape_plos(topics)
-df_plos <- tibble(title = df_plos$title, 
-                 link = df_plos$link, 
-                 category = df_plos$category)
+source("./scrape/scan_PLOS_One.R")
+df_plos <- scan_plos(topics)
 
 # add to main data frame
 for(i in 1:nrow(df_plos)){
@@ -67,8 +63,8 @@ for(i in 1:nrow(df_plos)){
 
 cat("Scanning Avian Research\n")
 
-source("./scrape/scrape_avianres.R")
-df_avianres <- scrape_avianres()
+source("./scrape/scan_avianres.R")
+df_avianres <- scan_avianres()
 
 # add to main data frame
 for(i in 1:nrow(df_avianres)){
@@ -95,6 +91,41 @@ for(i in 1:nrow(df_avianres)){
       )
   }
 }
+
+#############
+# Bird Study
+
+cat("Scanning Bird Study\n")
+
+source("./scrape/scan_birdstudy.R")
+df_birdstudy <- scan_birdstudy()
+
+# add to main data frame
+for(i in 1:nrow(df_birdstudy)){
+  if(df_birdstudy$link[i] %in% df_master$link) next
+  if(!(df_birdstudy$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_birdstudy$link[i],
+        link_name = df_birdstudy$title[i],
+        snippet = '',
+        language = 'en',
+        title = df_birdstudy$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'tandfonline.com',
+        search_term = "BirdStudy",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
 
 
 ##########################################################
