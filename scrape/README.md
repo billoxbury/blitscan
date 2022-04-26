@@ -16,7 +16,7 @@ The last two steps both add the text/data found to the (CSV) database, and this 
 
 ## Metrication
 
-The file _scraper_dashboard.Rmd_ is now run as part of the process. This automatically generates the HTML file  _scraper_dashboard.html_ in _reports_.
+The file _scraper_dashboard.Rmd_ is now run as part of the process. This automatically generates the HTML file  _scraper_dashboard.html_ in _reports_. (NOTE: annoyingly GitHub won't render the HTML file, but it's easily downloaded and viewed on your desktop.)
 
 ## Design thoughts
 
