@@ -95,27 +95,27 @@ for(i in 1:nrow(df_avianres)){
 #############
 # Bird Study
 
-cat("Scanning Bird Study\n")
+cat("Scanning Bird Study & Emu\n")
 
-source("./scrape/scan_birdstudy.R")
-df_birdstudy <- scan_birdstudy()
+source("./scrape/scan_birdstudy_emu.R")
+df_birdstudy_emu <- scan_birdstudy_emu()
 
 # add to main data frame
-for(i in 1:nrow(df_birdstudy)){
-  if(df_birdstudy$link[i] %in% df_master$link) next
-  if(!(df_birdstudy$title[i] %in% df_master$title)){
+for(i in 1:nrow(df_birdstudy_emu)){
+  if(df_birdstudy_emu$link[i] %in% df_master$link) next
+  if(!(df_birdstudy_emu$title[i] %in% df_master$title)){
     # add row to the master table
     df_master <- df_master %>%
       add_row(#date = "",
-        link = df_birdstudy$link[i],
-        link_name = df_birdstudy$title[i],
+        link = df_birdstudy_emu$link[i],
+        link_name = df_birdstudy_emu$title[i],
         snippet = '',
         language = 'en',
-        title = df_birdstudy$title[i],
+        title = df_birdstudy_emu$title[i],
         abstract = '',
         pdf_link = '',
         domain = 'tandfonline.com',
-        search_term = "BirdStudy",
+        search_term = "BirdStudyEmu",
         query_date = today(),
         BADLINK = 0,
         DONEPDF = 0,
