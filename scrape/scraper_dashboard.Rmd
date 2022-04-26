@@ -59,7 +59,7 @@ Text retrieval success (1 versus 0) by query date:
 table(df$query_date, df$GOTTEXT)
 ```
 
-How successful is text retrieval from PDF versus from HTML? (But note that HTML gets the first shot and if successful PDF is not attempted.)
+How successful is text retrieval from PDF versus from HTML? (Noting that HTML gets the first shot and if successful PDF is not attempted.)
 
 In the following 2 x 2 table, the columns are text retieval success as above. The rows indicate whether text was retrieved at the PDF stage (1) versus not (0):
 
