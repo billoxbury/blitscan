@@ -14,6 +14,10 @@ The current code runs the following steps daily (some in two flavours, Google or
 
 The last two steps both add the text/data found to the (CSV) database, and this is 'published' (i.e. stored in the _data_ directory for use by the _process_ service).
 
+## Metrication
+
+The file _scraper_dashboard.Rmd_ is now run as part of the process. This automatically generates the HTML file  _scraper_dashboard.html_ in _reports_.
+
 ## Design thoughts
 
 The current use of a local CSV file for the database is a hack and should move to the published database being stored in SQL or Mongo cloud storage.
