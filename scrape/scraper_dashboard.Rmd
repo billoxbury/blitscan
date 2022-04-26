@@ -5,6 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
+_This file is generated automatically as part of the scraper processing._
 
 ```{r set-up-load-data, include=FALSE}
 
