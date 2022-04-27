@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/bing-master-2022-04-22.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/bing-master-2022-04-27.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
 
 # recognise dates?
@@ -26,8 +26,8 @@ df <- read_csv(datafile, show_col_types = FALSE)
 # at this stage
 
 df$date <- df$date %>% as.character()
-#df <- df %>% mutate(date = as.character(date),
-#                    query_date = as_date(query_date)) 
+df <- df %>% mutate(date = as.character(date),
+                    query_date = as_date(query_date)) 
 
 # normalise the 'domain' field
 df$domain <- df$domain %>% str_remove('^www\\.')
@@ -127,7 +127,8 @@ for(i in 1:nrow(df)){
   if(MAXCALLS < 0) break
   
   # skip if bad link or already done
-  if(df$BADLINK[i] == 1 | df$GOTTEXT[i] == 1) next
+  if(df$BADLINK[i] == 1) next
+  if(df$GOTTEXT[i] == 1) next
   # verbose
   cat(sprintf("%d %d: %s\n", MAXCALLS, i, df$link[i]))
   
