@@ -1,4 +1,4 @@
-# Bespoke scanner for Bird Study web pages
+# Bespoke scanner for Bird Study & Emu web pages
 
 library(rvest)
 library(stringr)

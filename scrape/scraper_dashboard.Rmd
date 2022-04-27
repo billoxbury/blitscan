@@ -23,6 +23,35 @@ df <- df %>% mutate(date = as_date(date),
 df$domain <- df$domain %>% str_remove('^www\\.')
 ```
 
+### Journals and domains
+
+As well as using Bing Custom Search to target domains (such as _link.springer.com_) we also directly scan recent 
+issues of specific journals (such as _www.springer.com/journal/10336_, Journal of Ornithology). The custom search 
+gives us wider reach, but the journal scans ensure greater completeness.
+
+Journals currently scanned are the following.
+
+```{r scanned-journals, echo = FALSE}
+Journals <- c('Avian Conservation & Ecology', 
+              'Avian Research',
+              'Bird Conservation International',
+              'Bird Study',
+              'Emu - Austral Ornithology',
+              'Journal of Ornithology',
+              'Ostrich - Journal of African Ornithology',
+              'PLOS One')
+URLs <- c('https://www.ace-eco.org',
+          'https://avianres.biomedcentral.com',
+          'https://cambridge.org/core/journals/bird-conservation-international',
+          'https://www.tandfonline.com/toc/tbis20/current',
+          'https://www.tandfonline.com/toc/temu20/current',
+          'https://www.springer.com/journal/10336',
+          'https://www.nisc.co.za/products/11/journals/ostrich-journal-of-african-ornithology',
+          'https://journals.plos.org')
+
+knitr::kable(data.frame(Journals, URLs))
+```
+
 ### Text retrieval
 
 The following domains did not permit any text or pdf scraping and will be excluded from the analysis below:

@@ -34,7 +34,8 @@ dockerpath="webapp"
 ./process/find_species.py $outfile $txfile $birdfile title,abstract
 
 # scraper metrics (R markdown)
-R -e "rmarkdown::render('.scrape/scraper_dashboard.Rmd', html_document(toc = TRUE))"
+R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
+mv ./scrape/scraper_dashboard.html ./reports
 
 # clean up
 cp $infile $bakfile

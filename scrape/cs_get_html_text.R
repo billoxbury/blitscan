@@ -76,6 +76,9 @@ get_ta <- function(url_name, idx){
   } else {
     abstract_node %>% html_attr("content")
   }
+  # HACK to remove French-language chunk (ACE-ECO):
+  abstract <- str_split(abstract, '\nRÉSUMÉ\n')[[1]][1]
+  
   al <- length(abstract)
   # al = 2 is probably bilingual
   if(al == 2) abstract <- abstract[1]

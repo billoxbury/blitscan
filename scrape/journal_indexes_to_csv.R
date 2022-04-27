@@ -126,6 +126,141 @@ for(i in 1:nrow(df_birdstudy_emu)){
   }
 }
 
+#############
+# Ostrich
+
+cat("Scanning Ostrich\n")
+
+source("./scrape/scan_ostrich.R")
+df_ostrich <- scan_ostrich()
+
+# add to main data frame
+for(i in 1:nrow(df_ostrich)){
+  if(df_ostrich$link[i] %in% df_master$link) next
+  if(!(df_ostrich$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_ostrich$link[i],
+        link_name = df_ostrich$title[i],
+        snippet = '',
+        language = 'en',
+        title = df_ostrich$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'nisc.co.za',
+        search_term = "Ostrich",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
+#############
+# J. Ornithology
+
+cat("Scanning J. Ornithology\n")
+
+source("./scrape/scan_jornithology.R")
+df_jornith <- scan_jornith()
+
+# add to main data frame
+for(i in 1:nrow(df_jornith)){
+  if(df_jornith$link[i] %in% df_master$link) next
+  if(!(df_jornith$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_jornith$link[i],
+        link_name = df_jornith$title[i],
+        snippet = '',
+        language = 'en',
+        title = df_jornith$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'link.springer.com',
+        search_term = "JournalOrnithology",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
+#############
+# Bird Conservation International
+
+cat("Scanning Bird Conservation International\n")
+
+source("./scrape/scan_birdconservation.R")
+df_birdcons <- scan_birdcons()
+
+# add to main data frame
+for(i in 1:nrow(df_birdcons)){
+  if(df_birdcons$link[i] %in% df_master$link) next
+  if(!(df_birdcons$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_birdcons$link[i],
+        link_name = df_birdcons$title[i],
+        snippet = '',
+        language = 'en',
+        title = df_birdcons$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'cambridge.org',
+        search_term = "BirdConservationInternational",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
+#############
+# ACE-ECO
+
+cat("Scanning ACE ECO\n")
+
+source("./scrape/scan_aceeco.R")
+df_aceeco <- scan_aceeco()
+
+# add to main data frame
+for(i in 1:nrow(df_aceeco)){
+  if(df_aceeco$link[i] %in% df_master$link) next
+  if(!(df_aceeco$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_aceeco$link[i],
+        link_name = df_aceeco$title[i],
+        snippet = '',
+        language = 'en',
+        title = df_aceeco$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'ace-eco.org',
+        search_term = "ACE-ECO",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
 
 
 ##########################################################
