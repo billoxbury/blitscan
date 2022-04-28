@@ -97,9 +97,8 @@ def main():
 	global df
 	# apply topic scoring to title/abstract
 	print("Computing item scores")
-	for i in range(df.shape[0]):
-		if df.at[i, 'GOTSCORE'] == 1 or df.at[i, 'BADLINK'] == 1: 
-			continue
+	for i in range(df.shape[0]): 
+		if (df.at[i, 'GOTSCORE'] == 1 or df.at[i, 'BADLINK'] == 1): continue
 		if not (isinstance(df.at[i, 'title'], str) and \
 				isinstance(df.at[i, 'abstract'], str)):
 			df.at[i, 'score'] = LOGZERO

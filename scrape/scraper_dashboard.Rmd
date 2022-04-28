@@ -47,7 +47,7 @@ URLs <- c('https://www.ace-eco.org',
           'https://www.tandfonline.com/toc/temu20/current',
           'https://www.springer.com/journal/10336',
           'https://www.nisc.co.za/products/11/journals/ostrich-journal-of-african-ornithology',
-          'https://journals.plos.org')
+          'https://journals.plos.org/plosone/browse/')
 
 knitr::kable(data.frame(Journals, URLs))
 ```
@@ -69,7 +69,7 @@ for(d in problem_domains$domain){
 }
 ```
 
-Among the remaining domains, the following counts show URLs from which text was retrieved (1) versus not (0):
+Among responsive domains, the following counts show URLs from which text was retrieved (1) versus not (0):
 
 ```{r compare-responsive-domains, echo=FALSE}
 # which (responsive) domains can I get text from?
@@ -138,7 +138,7 @@ df[df$score > -20 & !is.na(df$score),] %>%
            col = "red") 
 ```
 
-Note that the bimodal distribution for *ace-eco.org* is arises as an artefact of the scoring algorithm. (It arises because of the presence of French-language text, and _process_ either needs to account for this in the scoring algorithm, or to incorporate language translation.)
+Note that a bi/multimodal distribution can arise because of the presence of foreign-language text. (This has now been corrected for *ace-eco.org* by removing French text at abstract retrieval.)
 
 
 ### Date range

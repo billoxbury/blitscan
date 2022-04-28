@@ -33,14 +33,14 @@ dockerpath="webapp"
 ./process/score_for_topic.py $outfile $blimodelfile
 ./process/find_species.py $outfile $txfile $birdfile title,abstract
 
-# scraper metrics (R markdown)
-R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
-mv ./scrape/scraper_dashboard.html ./reports
-
 # clean up
 cp $infile $bakfile
 cp $outfile $infile             # <--- $outfile bad links all kept
 cp $txfile $dockerpath/data     # <--- $txfile all bad links removed
+
+# scraper metrics (R markdown)
+R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
+mv ./scrape/scraper_dashboard.html ./reports
 
 # build docker image(s)
 docker build -t litscancontainers.azurecr.io/bs-bli-litscan-bing $dockerpath 
