@@ -97,14 +97,12 @@ pull_species <- function(idx){
        text_main = text)
 }
 
-NTRIES <- 1000
-for(i in 1:NTRIES){
-    
-  # print progress
-  cat(sprintf("%d: %d species\r", i, nrow(df_master)))
+#NTRIES <- 1000
+#for(i in 1:NTRIES){
+for(r in 1:nrow(species_table)){
   
   # randomise selection from the list
-  r <- sample(nrow(species_table), 1)
+  #r <- sample(nrow(species_table), 1)
   
   # check if already done
   meta <- as.character(species_table$SISRecID[r])
@@ -124,6 +122,8 @@ for(i in 1:NTRIES){
           date = new$date,
           text_main = new$text
         )
+      # print progress
+      cat(sprintf("%d: %d species %s\r", r, nrow(df_master), new$status))
     }
   })
 }
@@ -134,3 +134,6 @@ df_master %>%
   write_csv(outfile)
 
 # DONE
+
+
+

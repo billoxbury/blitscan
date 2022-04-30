@@ -143,7 +143,7 @@ Note that a bi/multimodal distribution can arise because of the presence of fore
 
 ### Date range
 
-How well are we able to parse dates for URLs?
+How well are we able to parse publication dates for URLs?
 
 ```{r bad-dates, echo=FALSE}
 
