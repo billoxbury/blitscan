@@ -26,7 +26,7 @@ endpoint = os.environ['BING_CUSTOM_SEARCH_ENDPOINT']
 customConfigId = os.environ['BING_CUSTOM_CONFIG'] 
 
 # set wait time (days) before query term used again
-RECENTDAYS = 30
+RECENTDAYS = 14
 CSLIMIT = 256
 WAITTIME = 0.01  # time between calls: 1 second on F0 free tier, 0.01 second on S1 standard tier
 
