@@ -20,6 +20,8 @@ The file _scraper_dashboard.Rmd_ is now run as part of the process. This automat
 
 ## Design thoughts
 
+We should consider targetting non-English as well as English language results, but depending on the query term/species. We could use BirdLife data zone geo information for this.
+
 The current use of a local CSV file for the database is a hack and should move to the published database being stored in SQL or Mongo cloud storage.
 
 The JSON file used in steps 1,2 should be thought of as private to the _scrape_ service. It is used to track usage of search terms (e.g. so they're not used too often) and for metrics.
@@ -33,7 +35,7 @@ Note also that the current step 1 (cloud-based custom web search) is not the onl
 ## TO-DO
 
 - Add scanners for _Oryx_ and _biorxiv_. Check xpr for domains like _ebird.org_ that are proxied.
-- Add more foreign-language domains.
+- Add more foreign-language domains and demo use of Azure Translator with them.
 - Consolidate the acquisition rate from current domains. For example, some are giving large numbers of 503 server errors for reasons that aren't clear. 
 [UPDATE: the issue here is some journals' use of Cloudflare. I've approached ConBio on this.]
 - Explore how to extend the process to subscription domains (as opposed to open access).
