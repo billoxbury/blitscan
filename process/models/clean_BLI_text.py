@@ -10,7 +10,8 @@ Run with
 ./process/clean_BLI_text.py infile outfile
 
 E.g.
-./process/models/clean_BLI_text.py ./data/master-BLI.csv ./data/master-BLI_OUT.csv
+cp ./data/master-BLI.csv ./data/master-BLI.csv.bak
+./process/models/clean_BLI_text.py ./data/master-BLI.csv ./data/master-BLI.csv
 """
 
 import sys

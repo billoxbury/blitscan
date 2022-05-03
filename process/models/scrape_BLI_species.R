@@ -97,12 +97,10 @@ pull_species <- function(idx){
        text_main = text)
 }
 
-#NTRIES <- 1000
-#for(i in 1:NTRIES){
 for(r in 1:nrow(species_table)){
   
   # randomise selection from the list
-  #r <- sample(nrow(species_table), 1)
+  #r <- sample(9000:nrow(species_table), 1)
   
   # check if already done
   meta <- as.character(species_table$SISRecID[r])
