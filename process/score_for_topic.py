@@ -18,7 +18,6 @@ from datetime import datetime, timedelta
 # global constants
 LOGZERO = -20.0
 
-
 # read command line
 try:
 	datafile = sys.argv[1];			 	del sys.argv[1]

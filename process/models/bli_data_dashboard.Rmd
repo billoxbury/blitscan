@@ -1,0 +1,165 @@
+---
+title: "Exploratory observations on BirdLife species assessments"
+author: "Bill Oxbury"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+This note is an exploratory analysis of the text from BirdLife assessments. That text used to train models for relevance scoring in LitScan inputs, so it's important to undertand what's in it. 
+
+The BirdLife text corpus has been extended from 4,633 species to 11,107 species (as of 2022/05/03). We ask, in particular, if there is sufficient coverage of red-list status higher than _LC_, and to what extent red-list status is reflected in properties of the text.
+
+```{r set-up-load-data, include=FALSE}
+library(stringr)
+library(dplyr)
+library(purrr)
+library(readr)
+library(ggplot2)
+
+datafile <- "../../data/master-BLI-11107.csv"
+df <- read_csv(datafile, show_col_types = FALSE)
+
+# check we have 'text_short' field
+#df$text_short %>%
+#  is.na() %>%
+#  sum()
+```
+
+
+### Species
+
+We start with the species count by red-list status:
+
+```{r species-by-status, fig.width=4, echo=FALSE, warning = FALSE}
+###############################################
+df %>%
+  filter(!is.na(status)) %>%
+  group_by(status) %>%
+  summarise(count = n()) %>%
+  arrange(desc(count)) %>%
+  mutate(proportion = count/sum(count)) %>%
+  mutate(proportion = round(proportion, 4)) %>%
+  knitr::kable(format = "html", table.attr = "style='width:40%;'")
+```
+
+
+### Text
+
+For each species, the training data that is used is a cleaned-up version of the assessment, which excludes citations and other scholarly parentheses. We then have a set of plain sentences which are used as input to the modelling process.
+
+```{r count-functions, echo = FALSE}
+nwords <- function(txt){
+  tmp <- str_split(txt, ' ') %>%
+    first() %>%
+    str_trim()
+  # return
+  tmp[tmp != ''] %>%
+    length()
+}
+
+nsents <- function(txt){
+  sents <- txt %>%
+    str_split('\\.') %>%
+    first() %>%
+    str_trim() 
+  # return
+  sents[sapply(sents, nwords) > 0] %>%
+    length()
+}
+
+df <- df %>% 
+  rowwise() %>%
+  mutate(wsize = nwords(text_short),
+         ssize = nsents(text_short))
+```
+
+We can look at both word count and sentence count. The following plot shows that these are log-linearly correlated, with an average ranging from about 15 to 25 words per sentence.
+
+```{r words-per-sentence, fig.height = 4, fig.width = 8, echo=FALSE, warning = FALSE}
+
+df %>% ggplot(aes(y = wsize, 
+                  x = ssize,
+                  color = status)) +
+  geom_point(
+    #color = 'blue',
+    size = 0.5,
+    alpha = 0.5) +
+  #geom_smooth(color = 'grey',
+ #            size = 0.5) +
+  scale_x_log10() +
+  scale_y_log10() +
+  labs(y = "Word count", x = "Sentence count", 
+       title="")
+
+```
+
+Each dot is a single species, and the colouring by red-list status shows, incidentally, that the count of words/sentences tends to be higher at _CR, EN, VU_ than at _LC_. The more endangered the species, the more effort we see in the assessment. We'll quantify this effect in a moment.
+
+We'll stick with sentence count as an indicator. Here's how that count is distributed on as log scale (_y_ axis):
+
+```{r nr_sentences, fig.height = 4, fig.width = 6, echo=FALSE, warning = FALSE}
+df %>%
+  ggplot(aes(x = ssize)) +
+  geom_histogram(binwidth = 5,
+                 color = 'blue',
+                 fill = 'lightblue') +
+  scale_y_log10() +
+  labs(x = "Sentence count", y = "Nr species", 
+       title="")
+```
+
+### Red-list status
+
+What happens if sort red-list status by the average sentence count? Here's the count distribution per-status. This shows very clearly the 'effort' correlation observed above.
+
+```{r sentence-count-by-status, fig.height = 4, fig.width = 8, echo = FALSE, warning = FALSE}
+
+#df %>% 
+#  filter(!is.na(status)) %>%
+#  group_by(status) %>%
+#  summarise(mediansize = median(tsize)) %>%
+#  arrange(desc(mediansize))
+
+df %>%
+  filter(!is.na(status)) %>%
+  ggplot(aes(x = reorder(status, -ssize, median), y = ssize)) +
+  geom_boxplot(colour = "blue",
+               fill = "lightblue") +
+  ylim(c(0, 200)) +
+  labs(y="Sentence count", x="Status", 
+       subtitle="")
+```
+
+What does this tell us? In any ML modelling, it is clearly desirable to take advantage of this effect to to make sure we're modelling well for more vulnerable species and not biasing unduly to _LC_. In other words, while species in the training data are dominated by _LC_, the text is not necessarily.
+
+Let's just check this: how are the total word/sentence counts in the training data
+divided up across status levels?
+
+```{r sentences-by-status, echo=FALSE, warning = FALSE}
+# total sentence count by status
+df %>% 
+  filter(!is.na(status)) %>%
+  group_by(status) %>%
+  summarise(nr_sentences = sum(ssize),
+            nr_words = sum(wsize)) %>%
+  arrange(desc(nr_sentences)) %>%
+  mutate(sentences = nr_sentences/sum(nr_sentences),
+         words = nr_words/sum(nr_words)) %>%
+  mutate(sentences = round(sentences, 3),
+         words = round(words, 3)) %>%
+  knitr::kable(format = "html", table.attr = "style='width:50%;'")
+```
+
+
+So while _LC_ holds 54.1% words, it holds only 45.5% sentences. Modelling approaches that are sentence-based (e.g. SBERT), should be less biased toward _LC_ (assuming the full training set) than approaches that are word-based (e.g. BOW).
+
+
+
+
+
+
+
+
+
+
+

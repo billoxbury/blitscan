@@ -12,7 +12,7 @@ outfile="data/bing-master-$today.csv"
 
 # taxonomy and model files
 birdfile="data/BirdLife_species_list_Jan_2022.xlsx"
-blimodelfile="data/bli_model.json"
+blimodelfile="data/bli_model_bow.json"
 
 bakfile="data/bing-master-BAK.csv"
 txfile="data/bing-tx-master.csv"
