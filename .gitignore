@@ -3,6 +3,7 @@
 **/.Rhistory
 data/bing*
 data/tmp/**
-data/master-BLI.csv
+data/master*
+data/bli_sentences*
 webapp/data/bing*
 
