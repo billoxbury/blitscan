@@ -7,7 +7,7 @@ output: html_document
 
 _This file is generated automatically as part of the scraper processing._
 
-```{r set-up-load-data, include=FALSE}
+```{r set-up-load-data, include=FALSE, warning=FALSE}
 
 library(rvest)
 library(stringr)
@@ -31,30 +31,16 @@ gives us wider reach, but the journal scans ensure greater completeness.
 
 Journals currently scanned are the following.
 
-```{r scanned-journals, echo = FALSE}
-Journals <- c('Avian Conservation & Ecology', 
-              'Avian Research',
-              'Bird Conservation International',
-              'Bird Study',
-              'Emu - Austral Ornithology',
-              'Journal of Ornithology',
-              'Ostrich - Journal of African Ornithology',
-              'PLOS One')
-URLs <- c('https://www.ace-eco.org',
-          'https://avianres.biomedcentral.com',
-          'https://cambridge.org/core/journals/bird-conservation-international',
-          'https://www.tandfonline.com/toc/tbis20/current',
-          'https://www.tandfonline.com/toc/temu20/current',
-          'https://www.springer.com/journal/10336',
-          'https://www.nisc.co.za/products/11/journals/ostrich-journal-of-african-ornithology',
-          'https://journals.plos.org/plosone/browse/')
-
-knitr::kable(data.frame(Journals, URLs))
+```{r scanned-journals, echo = FALSE, warning = FALSE}
+scan_sources <- read_csv("../data/scan_sources.csv", 
+                         show_col_types = FALSE)
+scan_sources %>%
+  knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
 
 ### Text retrieval
 
-The following domains did not permit any text or pdf scraping and will be excluded from the analysis below:
+The following domains _either_ did not permit any text or pdf scraping _or_ do not yet have xpath rules encoded and will be excluded from the analysis below:
 
 ```{r problem-domains, echo=FALSE}
 # which domains don't respond?
@@ -83,7 +69,9 @@ Text retrieval success (1 versus 0) by query date:
 
 ```{r compare-with-query-date, echo=FALSE}
 # correlation with query date
-table(df$query_date, df$GOTTEXT)
+#table(df$query_date, df$GOTTEXT)
+
+cat('Removed for graphic - in progress\n')
 ```
 
 How successful is text retrieval from PDF versus from HTML? (Noting that HTML gets the first shot and if successful PDF is not attempted.)

@@ -262,6 +262,109 @@ for(i in 1:nrow(df_aceeco)){
   }
 }
 
+#############
+# Ornitología Neotropical
+
+cat("Scanning Ornitología Neotropical\n")
+
+source("./scrape/scan_ornitología_neotropical.R")
+df_ornit_neotrop <- scan_ornit_neotrop()
+
+# add to main data frame
+for(i in 1:nrow(df_ornit_neotrop)){
+  if(df_ornit_neotrop$link[i] %in% df_master$link) next
+  if(!(df_ornit_neotrop$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_ornit_neotrop$link[i],
+        link_name = df_ornit_neotrop$title[i],
+        snippet = '',
+        language = 'es',
+        title = df_ornit_neotrop$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'journals.sfu.ca',
+        search_term = "Orn-Neotropica",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
+#############
+# Ornitología Neotropical
+
+cat("Scanning Wilson Journal\n")
+
+source("./scrape/scan_wilson.R")
+df_wilson <- scan_wilson()
+
+# add to main data frame
+for(i in 1:nrow(df_wilson)){
+  if(df_wilson$link[i] %in% df_master$link) next
+  if(!(df_wilson$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_wilson$link[i],
+        link_name = df_wilson$title[i],
+        snippet = '',
+        language = 'en',
+        title = df_wilson$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'bioone.org',
+        search_term = "WilsonJournal",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
+#############
+# Revista Ornitología Colombiana
+
+cat("Scanning Ornitología Colombiana\n")
+
+source("./scrape/scan_colombiana.R")
+df_colombiana <- scan_colombiana()
+
+# add to main data frame
+for(i in 1:nrow(df_colombiana)){
+  if(df_colombiana$link[i] %in% df_master$link) next
+  if(!(df_colombiana$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_colombiana$link[i],
+        link_name = df_colombiana$title[i],
+        snippet = '',
+        language = 'es',
+        title = df_colombiana$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'asociacioncolombianadeornitologia.org',
+        search_term = "OrnitologíaColombiana",
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
+
+
 
 ##########################################################
 # write to disk
