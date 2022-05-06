@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/bing-master-2022-05-05.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/bing-master-2022-05-06.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
 
 # recognise dates?
@@ -77,7 +77,7 @@ get_ta <- function(url_name, idx){
     abstract_node %>% html_attr("content")
   }
   # HACK to remove French-language chunk (ACE-ECO):
-  abstract <- str_split(abstract, '\nRÉSUMÉ\n')[[1]][1]
+  #abstract <- str_split(abstract, '\nRÉSUMÉ\n')[[1]][1]
   
   al <- length(abstract)
   # al = 2 is probably bilingual
@@ -127,7 +127,7 @@ for(i in 1:nrow(df)){
   if(MAXCALLS < 0) break
   
   # FOR DEBUGGING PARTICULAR DOMAINS:
-  #if(df$domain[i] != 'bioone.org') next
+  #if(df$domain[i] != 'biorxiv.org') next
   
   # skip if bad link or already done
   if(df$BADLINK[i] == 1) next
@@ -165,6 +165,7 @@ for(i in 1:nrow(df)){
           df$GOTTEXT[i] <- 1
         }
       }
+      #print(out)
     })
   }
 }

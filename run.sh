@@ -18,6 +18,8 @@ bakfile="data/bing-master-BAK.csv"
 txfile="data/bing-tx-master.csv"
 dockerpath="webapp"
 
+########################
+# SCRAPE PHASE
 # custom search - Bing
 ./scrape/custom_search_bing.py $stfile $qfilebing 
 ./scrape/json_to_csv_bing.py $qfilebing $infile $outfile 
@@ -25,11 +27,13 @@ dockerpath="webapp"
 # directed (bespoke per-journal) search 
 ./scrape/journal_indexes_to_csv.R $outfile
 
-# web & pdf scraping
+# web scraping
 ./scrape/cs_get_html_text.R $outfile
+# pdf scraping + date corrections and setting BADLINK for old dates
 ./scrape/cs_get_pdf_text_bing.py $outfile
 
-# processing
+########################
+# SCRAPE PHASE
 ./process/score_for_topic.py $outfile $blimodelfile
 ./process/find_species.py $outfile $txfile $birdfile title,abstract
 
@@ -42,6 +46,8 @@ cp $txfile $dockerpath/data     # <--- $txfile all bad links removed
 R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
 mv ./scrape/scraper_dashboard.html ./reports
 
+########################
+# WEBAPP PHASE
 # build docker image(s)
 docker build -t litscancontainers.azurecr.io/bs-bli-litscan-bing $dockerpath 
 

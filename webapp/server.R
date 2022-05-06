@@ -53,7 +53,12 @@ shinyServer(
                      "sciendo.com",
                      "int-res.com",
                      "orientalbirdclub.org",
-                     "tandfonline.com")
+                     "tandfonline.com",
+                     "journals.sfu.ca",
+                     "bioone.org",
+                     "asociacioncolombianadeornitologia.org",
+                     "sciencedirect.com",
+                     "academic.oup.com")
       logoset <- c("nature_logo.jpg",
                    "PLOS_logo.jpg",
                    "conbio.jpeg",
@@ -65,7 +70,12 @@ shinyServer(
                    "sciendo.jpg",
                    "int-res.jpg",
                    "orientalbirdclub.jpg",
-                   "tandfonline.jpg")
+                   "tandfonline.jpg",
+                   "neotropica.jpg",
+                   "bioone.jpg",
+                   "colombiana.jpg",
+                   "sciencedirect.jpg",
+                   "oup.jpg")
       if(domain %in% domainset){
         icon <- logoset[which(domainset == domain)]
         # return
