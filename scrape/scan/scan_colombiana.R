@@ -38,7 +38,7 @@ get_issue <- function(issue){
     html_elements(xpath = '//div[@class="wpb_wrapper"]') 
   parentnode <- nodes[5]
   
-  # a dreadfull hack - sometimes h2 is used, sometimes h3 :(
+  # a dreadful hack - sometimes h2 is used, sometimes h3 :(
   title <- parentnode %>% 
     html_elements('h3') %>%
     html_elements('strong') %>%
