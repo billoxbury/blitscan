@@ -4,7 +4,7 @@
 today=`date +'%Y-%m-%d'`
 
 # paths/filenames
-stfile="data/searchterms.txt"
+stfile="data/searchterms_general.txt"
 qfilebing="data/bing_cs_queries.json"
 
 infile="data/bing-master.csv"

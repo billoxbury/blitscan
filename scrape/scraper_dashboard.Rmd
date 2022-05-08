@@ -191,7 +191,7 @@ df[df$BADLINK==0,] %>% ggplot(aes(date)) +
        y = "Article count")
 ```
 
-Note any points beyond today's date, which will indicate date errors.
+Note any points beyond today's date, which may indicate date errors, or in some cases arise where publication comes later than online announcement. 
 
 ### R and package versions used
 
