@@ -29,7 +29,7 @@ df_master <- read_csv(datafile, show_col_types = FALSE)
 
 cat("Scanning PLOS One\n")
 
-source("./scrape/scan_PLOS_One.R")
+source("./scrape/scan/scan_PLOS_One.R")
 df_plos <- scan_plos(topics)
 
 # add to main data frame
@@ -63,7 +63,7 @@ for(i in 1:nrow(df_plos)){
 
 cat("Scanning Avian Research\n")
 
-source("./scrape/scan_avianres.R")
+source("./scrape/scan/scan_avianres.R")
 df_avianres <- scan_avianres()
 
 # add to main data frame
@@ -97,7 +97,7 @@ for(i in 1:nrow(df_avianres)){
 
 cat("Scanning Bird Study & Emu\n")
 
-source("./scrape/scan_birdstudy_emu.R")
+source("./scrape/scan/scan_birdstudy_emu.R")
 df_birdstudy_emu <- scan_birdstudy_emu()
 
 # add to main data frame
@@ -131,7 +131,7 @@ for(i in 1:nrow(df_birdstudy_emu)){
 
 cat("Scanning Ostrich\n")
 
-source("./scrape/scan_ostrich.R")
+source("./scrape/scan/scan_ostrich.R")
 df_ostrich <- scan_ostrich()
 
 # add to main data frame
@@ -165,7 +165,7 @@ for(i in 1:nrow(df_ostrich)){
 
 cat("Scanning J. Ornithology\n")
 
-source("./scrape/scan_jornithology.R")
+source("./scrape/scan/scan_jornithology.R")
 df_jornith <- scan_jornith()
 
 # add to main data frame
@@ -199,7 +199,7 @@ for(i in 1:nrow(df_jornith)){
 
 cat("Scanning Bird Conservation International\n")
 
-source("./scrape/scan_birdconservation.R")
+source("./scrape/scan/scan_birdconservation.R")
 df_birdcons <- scan_birdcons()
 
 # add to main data frame
@@ -233,7 +233,7 @@ for(i in 1:nrow(df_birdcons)){
 
 cat("Scanning ACE ECO\n")
 
-source("./scrape/scan_aceeco.R")
+source("./scrape/scan/scan_aceeco.R")
 df_aceeco <- scan_aceeco()
 
 # add to main data frame
@@ -267,7 +267,7 @@ for(i in 1:nrow(df_aceeco)){
 
 cat("Scanning Ornitología Neotropical\n")
 
-source("./scrape/scan_ornitología_neotropical.R")
+source("./scrape/scan/scan_ornitología_neotropical.R")
 df_ornit_neotrop <- scan_ornit_neotrop()
 
 # add to main data frame
@@ -301,7 +301,7 @@ for(i in 1:nrow(df_ornit_neotrop)){
 
 cat("Scanning Wilson Journal\n")
 
-source("./scrape/scan_wilson.R")
+source("./scrape/scan/scan_wilson.R")
 df_wilson <- scan_wilson()
 
 # add to main data frame
@@ -335,7 +335,7 @@ for(i in 1:nrow(df_wilson)){
 
 cat("Scanning Ornitología Colombiana\n")
 
-source("./scrape/scan_colombiana.R")
+source("./scrape/scan/scan_colombiana.R")
 df_colombiana <- scan_colombiana()
 
 # add to main data frame
