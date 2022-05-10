@@ -68,7 +68,7 @@ table(df$domain, df$GOTTEXT)
 
 Current distribution of texts by original language:
 
-```{r languages}
+```{r languages, echo=FALSE}
 
 cat('Total:\n')
 df$language[df$GOTTEXT == 1] %>% 
