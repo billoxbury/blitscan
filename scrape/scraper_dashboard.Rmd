@@ -70,14 +70,15 @@ Current distribution of texts by original language:
 
 ```{r languages, echo=FALSE}
 
-cat('Total:\n')
 df$language[df$GOTTEXT == 1] %>% 
   table()
+```
+Languages by domain:
 
-cat('By domain:\n')
+```{r languages-by-domain, echo=FALSE}
+
 table(df$domain[df$GOTTEXT == 1], df$language[df$GOTTEXT == 1])
 ```
-
 
 Text retrieval success (1 versus 0) by query date:
 
