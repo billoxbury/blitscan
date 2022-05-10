@@ -66,6 +66,19 @@ df <- df[!(df$domain %in% problem_domains$domain),]
 table(df$domain, df$GOTTEXT)
 ```
 
+Current distribution of texts by original language:
+
+```{r languages}
+
+cat('Total:\n')
+df$language[df$GOTTEXT == 1] %>% 
+  table()
+
+cat('By domain:\n')
+table(df$domain[df$GOTTEXT == 1], df$language[df$GOTTEXT == 1])
+```
+
+
 Text retrieval success (1 versus 0) by query date:
 
 ```{r compare-with-query-date, echo=FALSE}

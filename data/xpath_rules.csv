@@ -1,27 +1,26 @@
-domain,dpath,tpath,t_flag,apath,a_flag,ppath
-nature.com,"//meta[@name=""citation_online_date""]","//meta[@name=""dc.title""]",0,"//meta[@name=""dc.description""]",0,"//meta[@name=""citation_pdf_url""]"
-journals.plos.org,"//meta[@name=""citation_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-conbio.onlinelibrary.wiley.com,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//div[@class=""article-section__content en main""]",1,"//meta[@name=""citation_pdf_url""]"
-avianres.biomedcentral.com,"//meta[@name=""dc.date""]","//meta[@name=""dc.title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-ace-eco.org,"//meta[@name=""citation_publication_date""]","//meta[@name=""dc.title""]",0,"//div[@id=""abstract_block""]",1,"//meta[@name=""citation_pdf_url""]"
-cambridge.org,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-birdlife.org.au,,"//div[@id=""articleTitle""]",1,"//div[@id=""articleAbstract""]",1,"//meta[@name=""citation_pdf_url""]"
-mexorn.org,,"//meta[@name=""DC.Title.Alternative""]",0,"//meta[@name=""DC.Description""]",0,"//meta[@name=""citation_pdf_url""]"
-sciendo.com,,"//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
-int-res.com,,"//meta[@name=""citation_title""]",0,"//p[@class=""abstract_block""]",1,"//meta[@name=""citation_pdf_url""]"
-link.springer.com,"//meta[@name=""citation_online_date""]","//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
-hilarispublisher.com,,"//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-mdpi.com,,"//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
-omicsonline.org,,"//meta[@name=""citation_title""]",0,"//meta[@name=""description""]",0,"//meta[@name=""citation_pdf_url""]"
-orientalbirdclub.org,,"//meta[@itemprop=""name""]",0,"//p[@class=""""]",1,
-nisc.co.za,"//meta[@property=""article:published_time""]","//meta[@property=""og:title""]",0,"//div[@class=""specs abouttext""]",1,
-tandfonline.com,"//meta[@name=""dc.Date""]","//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,
-academic.oup.com,,"//meta[@property=""og:title""]",0,"//section[@class=""abstract""]",1,
-springer.com/journal/10336,,"//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
-meridian.allenpress.com,,"//h1[@class=""wi-article-title article-title-main""]",1,"//section[@class=""abstract""]",1,"//meta[@name=""citation_pdf_url""]"
-sciencedirect.com,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,
-biorxiv.org,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-jstage.jst.go.jp,"//meta[@name=""citation_online_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-journals.sfu.ca,"//meta[@name=""DC.Date.issued""]","//meta[@name=""citation_title""]",0,"//meta[@name=""DC.Description""]",0,"//meta[@name=""citation_pdf_url""]"
-bioone.org,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
-asociacioncolombianadeornitologia.org,,"//h1[@class=""entry-title""]",1,"//div[@class=""entry-content""]",1,
+domain,minable,dpath,tpath,t_flag,apath,a_flag,ppath
+nature.com,1,"//meta[@name=""citation_online_date""]","//meta[@name=""dc.title""]",0,"//meta[@name=""dc.description""]",0,"//meta[@name=""citation_pdf_url""]"
+journals.plos.org,1,"//meta[@name=""citation_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+conbio.onlinelibrary.wiley.com,0,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//div[@class=""article-section__content en main""]",1,"//meta[@name=""citation_pdf_url""]"
+avianres.biomedcentral.com,1,"//meta[@name=""dc.date""]","//meta[@name=""dc.title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+ace-eco.org,1,"//meta[@name=""citation_publication_date""]","//meta[@name=""dc.title""]",0,"//div[@id=""abstract_block""]",1,"//meta[@name=""citation_pdf_url""]"
+cambridge.org,1,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+birdlife.org.au,1,,"//div[@id=""articleTitle""]",1,"//div[@id=""articleAbstract""]",1,"//meta[@name=""citation_pdf_url""]"
+mexorn.org,1,,"//meta[@name=""DC.Title.Alternative""]",0,"//meta[@name=""DC.Description""]",0,"//meta[@name=""citation_pdf_url""]"
+sciendo.com,1,,"//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
+int-res.com,1,,"//meta[@name=""citation_title""]",0,"//p[@class=""abstract_block""]",1,"//meta[@name=""citation_pdf_url""]"
+link.springer.com,1,"//meta[@name=""citation_online_date""]","//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
+hilarispublisher.com,0,,"//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+mdpi.com,0,,"//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"
+omicsonline.org,0,,"//meta[@name=""citation_title""]",0,"//meta[@name=""description""]",0,"//meta[@name=""citation_pdf_url""]"
+orientalbirdclub.org,1,,"//meta[@itemprop=""name""]",0,"//p[@class=""""]",1,
+nisc.co.za,1,"//meta[@property=""article:published_time""]","//meta[@property=""og:title""]",0,"//div[@class=""specs abouttext""]",1,
+tandfonline.com,1,"//meta[@name=""dc.Date""]","//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,
+academic.oup.com,0,,"//meta[@property=""og:title""]",0,"//section[@class=""abstract""]",1,
+meridian.allenpress.com,0,,"//h1[@class=""wi-article-title article-title-main""]",1,"//section[@class=""abstract""]",1,"//meta[@name=""citation_pdf_url""]"
+sciencedirect.com,1,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@property=""og:description""]",0,
+biorxiv.org,1,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+jstage.jst.go.jp,1,"//meta[@name=""citation_online_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+journals.sfu.ca,1,"//meta[@name=""DC.Date.issued""]","//meta[@name=""citation_title""]",0,"//meta[@name=""DC.Description""]",0,"//meta[@name=""citation_pdf_url""]"
+bioone.org,1,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+asociacioncolombianadeornitologia.org,1,,"//h1[@class=""entry-title""]",1,"//div[@class=""entry-content""]",1,

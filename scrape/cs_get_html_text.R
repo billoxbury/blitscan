@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/bing-master-2022-05-08.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/bing-master-2022-05-10.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
 
 # recognise dates?
@@ -43,6 +43,7 @@ ABSTRACTBLOCKS <- 6
 DEDUPE_TITLE <- FALSE
 MAX_DAYS <-  1100
 MAXCALLS <- 256
+VERBOSE <- TRUE
 
 ##########################################################
 # general function to get title/abstract/PDF link
@@ -120,101 +121,66 @@ add_day_to_month <- function(date){
 }
 
 ##########################################################
-# main loop
+# main loop over minable domains
 
-for(i in 1:nrow(df)){
+domains <- xpr$domain[xpr$minable == 1]
 
-  if(MAXCALLS < 0) break
+for(domain in domains){
   
-  # FOR DEBUGGING PARTICULAR DOMAINS:
-  #if(df$domain[i] != 'biorxiv.org') next
+  maxcalls <- MAXCALLS
+  for(i in 1:nrow(df)){
+    
+    if(maxcalls < 0) break
+    if(df$domain[i] != domain) next
   
-  # skip if bad link or already done
-  if(df$BADLINK[i] == 1) next
-  if(df$GOTTEXT[i] == 1) next
-  # verbose
-  cat(sprintf("%d %d: %s\n", MAXCALLS, i, df$link[i]))
+    # skip if bad link or already done
+    if(df$BADLINK[i] == 1) next
+    if(df$GOTTEXT[i] == 1) next
+    # verbose
+    cat(sprintf("%d %d: %s\n", maxcalls, i, df$link[i]))
   
-  # look for XPATH rule
-  if(df$domain[i] %in% xpr$domain){
-    j <- which(xpr$domain == df$domain[i])
-  } else{
-    j <- 2
-    # i.e. pick the PLOS rule, which is fairly generic
-  }
+    # look for XPATH rule
+    if(df$domain[i] %in% xpr$domain){
+      j <- which(xpr$domain == df$domain[i])
+    } else{
+      j <- 2
+      # i.e. pick the PLOS rule, which is fairly generic
+    }
   
-  link <- df$link[i]
-  # check whether link is PDF:
-  if( is_pdf(link) ){
-    df$pdf_link[i] <- link
-    next
-  } else {
-    MAXCALLS <- MAXCALLS - 1
-    try({
-      out <- get_ta(df$link[i], j)
-      
-      if(is.na(df$date[i]) & length(out$date) > 0){
-          df$date[i] <- add_day_to_month(out$date)
-      }
-      if(n_words(out$title) > 1) df$title[i] <- out$title
-      if(length(out$pdflink) > 0) df$pdf_link[i] <- out$pdflink
-      if(n_words(out$abstract) > 1){
-        df$abstract[i] <- out$abstract
-        # if both title and abstract then set GOTTEXT
-        if(!is.na(out$title)){
-          df$GOTTEXT[i] <- 1
-        }
-      }
-      #print(out)
-    })
-  }
-}
-
-##########################################################
-# tag links that are past their sell-by
-
-# NOT ALL DATES PARSABLE, SO PARK THIS TO ANALYSIS STAGE
-
-#badlink_condition <- ((df$date < today() - MAX_DAYS) & !is.na(df$date))
-#df$BADLINK[badlink_condition] <- 1
-#cat(sprintf("Marking %d links older than %d days\n", 
-#            sum(badlink_condition),
-#            MAX_DAYS))
-
-
-##########################################################
-# dedupe on title?
-
-if(DEDUPE_TITLE){
-  
-  glist <- df %>% 
-    group_by(title) %>% 
-    group_rows()
-  
-  keep_rows = c()
-  for(g in glist){
-    if(is.na(df$title[g[1]])){
-      keep_rows <- c(keep_rows, g)
-    } else if(length(g) > 1){
-      choice <- which(!is.na(df$title[g]) & !is.na(df$abstract[g]))
-      if(length(choice) > 0){
-        keep_rows <- c(keep_rows, g[choice[1]])
-      } else {
-        keep_rows <- c(keep_rows, g[1])   
-      }
+    link <- df$link[i]
+    # check whether link is PDF:
+    if( is_pdf(link) ){
+      df$pdf_link[i] <- link
+      next
     } else {
-      keep_rows <- c(keep_rows, g[1])
+      maxcalls <- maxcalls - 1
+      try({
+        out <- get_ta(df$link[i], j)
+      
+        if(is.na(df$date[i]) & length(out$date) > 0){
+          df$date[i] <- add_day_to_month(out$date)
+        }
+        if(n_words(out$title) > 1) df$title[i] <- out$title
+        if(length(out$pdflink) > 0) df$pdf_link[i] <- out$pdflink
+        if(n_words(out$abstract) > 1){
+          df$abstract[i] <- out$abstract
+          # if both title and abstract then set GOTTEXT
+          if(!is.na(out$title)){
+            df$GOTTEXT[i] <- 1
+            df$BADLINK[i] <- 0
+          }
+        }
+        if(VERBOSE){ print(out) }
+      })
     }
   }
+} 
+
   
-  # check:
-  # glist <- df[keep_rows,] %>% group_by(title) %>% group_rows()
-  # table(sapply(glist, length))
-}
-
-
 ##########################################################
 # write to disk
 
-df %>% write_csv(datafile)
+df %>% 
+  distinct(link, .keep_all = TRUE) %>%
+  write_csv(datafile)
 cat(sprintf("Updated data frame written to %s\n", datafile))

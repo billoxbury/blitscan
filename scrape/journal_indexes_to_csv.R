@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "./data/bing-master.csv" 
+# datafile <- "./data/bing-master-2022-05-10.csv" 
 df_master <- read_csv(datafile, show_col_types = FALSE)
 
 ###############################################################
@@ -398,7 +398,39 @@ for(i in 1:nrow(df_biorxiv)){
   }
 }
 
+#############
+# J-Stage
 
+cat("Scanning J-Stage\n")
+
+source("./scrape/scan/scan_jstage.R")
+df_jstage <- scan_jstage(MAXCALLS = 100)
+
+# add to main data frame
+for(i in 1:nrow(df_jstage)){
+  if(df_jstage$link[i] %in% df_master$link) next
+  if(!(df_jstage$title[i] %in% df_master$title)){
+    # add row to the master table
+    df_master <- df_master %>%
+      add_row(#date = "",
+        link = df_jstage$link[i],
+        link_name = df_jstage$title[i],
+        snippet = '',
+        language = 'ja',
+        title = df_jstage$title[i],
+        abstract = '',
+        pdf_link = '',
+        domain = 'jstage.jst.go.jp',
+        search_term = str_c('jstage-', df_jstage$search_term[i]),
+        query_date = today(),
+        BADLINK = 0,
+        DONEPDF = 0,
+        GOTTEXT = 0,
+        GOTSCORE = 0,
+        GOTSPECIES = 0
+      )
+  }
+}
 ##########################################################
 # write to disk
 

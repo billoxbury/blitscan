@@ -33,7 +33,7 @@ dockerpath="webapp"
 ./scrape/cs_get_pdf_text_bing.py $outfile
 
 ########################
-# SCRAPE PHASE
+# PROCESS PHASE
 ./process/score_for_topic.py $outfile $blimodelfile
 ./process/find_species.py $outfile $txfile $birdfile title,abstract
 

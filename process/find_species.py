@@ -36,7 +36,7 @@ import re
 
 # global constants
 LOGZERO = -20.0
-TX_THRESHOLD = 0.1 # score quantile below which items are discarded for TX
+TX_THRESHOLD = 0.0 # score quantile below which items are discarded for TX
 
 # read command line
 try:
