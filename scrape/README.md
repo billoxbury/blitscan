@@ -14,6 +14,8 @@ The current code runs the following steps daily (some in two flavours, Google or
 
 The last two steps both add the text/data found to the (CSV) database, and this is 'published' (i.e. stored in the _data_ directory for use by the _process_ service).
 
+Step 3 now also includes a scan of content archives (bioRxiv, J-Stage) which works differently from the journal scans. The journal scans simply read tables of content for recent issues. The archive scans loop over randomised queries on _scientific genus names_. Moreover, they restrict to genera that are not _LC_ or _EX_. This information is read from the data file _searchterms-restricted_. The construction of _searchterms-restricted_, which uses information scraped from BirdLife DataZone, is contained in the Jupyter notebook _make-search-terms.ipynb_.
+
 ## Metrication
 
 The file _scraper_dashboard.Rmd_ is now run as part of the process. This automatically generates the HTML file  _scraper_dashboard.html_ in _reports_. (NOTE: annoyingly GitHub won't render the HTML file, but it's easily downloaded and viewed on your desktop.)
@@ -34,11 +36,10 @@ Note also that the current step 1 (cloud-based custom web search) is not the onl
 
 ## TO-DO
 
-- Add scanners for _Oryx_ and _biorxiv_. Check xpr for domains like _ebird.org_ that are proxied.
-- Add more foreign-language domains and demo use of Azure Translator with them.
-- Consolidate the acquisition rate from current domains. For example, some are giving large numbers of 503 server errors for reasons that aren't clear. 
-[UPDATE: the issue here is some journals' use of Cloudflare. I've approached ConBio on this.]
-- Explore how to extend the process to subscription domains (as opposed to open access).
-- Related to the previous point, engage some of the journal publishers directly. _Started for conbio, needs to reach a decision._
+- Get ConBio working once Wiley token is granted.
+- Add scanners for _scielo_ and for ConBio (when available).
+- Get Custom Search working on Birdlife Azure once the cost mgt issue is sorted out.
+- Explore use of CrossRef as a fourth crawler method (after Bing CS, journal scans, archive queries)
+- Explore how to extend the process to subscription domains (as opposed to open access) – and role of CrossRef for this.
 - Widen the set of text blocks that are extracted from each URL.
 - Explore the optimisation problem (e.g. as a multi-armed bandit problem on the set of search terms).

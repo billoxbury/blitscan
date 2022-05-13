@@ -4,7 +4,7 @@ The function of this service is to provide a web interface to the database publi
 
 ## How it currently works
 
-The current version can be found at [http://20.108.194.71:3838/](http://20.108.194.71:3838/). It is implemented as an _R shiny_ app. The app is then bundled as a Docker container and deployed to Azure as a container instance.
+The current version can be found at [http://blitscan.uksouth.azurecontainer.io:3838/](http://blitscan.uksouth.azurecontainer.io:3838/). It is implemented as an _R shiny_ app. The app is then bundled as a Docker container and deployed to Azure as a container instance.
 
 A slimmed-down dataset – a CSV file containing just rows with good text and scored – is containerised with the app. This needs changing so that the deployed Docker container is independent of the daily data updates.
 
@@ -27,8 +27,9 @@ The use of _R shiny_ is for legacy reasons and because the author doesn't do PHP
 
 ## TO-DO
 
-- Migrate to a PHP or Node.js implementation, probably in Azure App Service.
-- Decouple the data set from the web app container.
+- Migrate Azure App Service or Azure Webapp (rather than Container Instance), possibly as PHP or Node.js implementation.
+- Decouple the data set, migrate to Azure SQL.
+- Add a button to toggle between original and translated text for non-English content. 
 - Replace the static date with a writable field that the user can manually overwrite.
 - Replace the static traffic light with a dynamic one that can be 'rolled' to a different position.
 - Build a pipeline of user input (date, score or free text) as a pub-sub service to the _process_ phase.

@@ -246,7 +246,7 @@ for(i in 1:nrow(df_aceeco)){
         link = df_aceeco$link[i],
         link_name = df_aceeco$title[i],
         snippet = '',
-        language = 'en',
+        language = 'fr',
         title = df_aceeco$title[i],
         abstract = '',
         pdf_link = '',
