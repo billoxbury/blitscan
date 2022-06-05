@@ -78,7 +78,7 @@ def max_date(keys):
 # main loop
 def get_responses():
     global data
-    ctr = 0
+    ctr = CSLIMIT
     for w in words:
     
         if w in data:
@@ -102,14 +102,14 @@ def get_responses():
         time.sleep(WAITTIME)
 
         # check response code
-        if response.status_code == 429 or ctr >= CSLIMIT: 
-            print(f'{response.status_code}: {w}')
+        if response.status_code == 429 or ctr < 1: 
+            print(f'{ctr}: {w}')
             break
         if response.status_code != 200:
             continue
         
         # if OK
-        ctr += 1   
+        ctr -= 1   
         ret = response.json()
         try:
             items =  ret['webPages']['value']

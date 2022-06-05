@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/bing-master-2022-05-10.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/master-2022-05-30.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
 
 # recognise dates?
@@ -63,6 +63,10 @@ get_ta <- function(url_name, idx){
   date <- page %>% 
       html_nodes(xpath = xpr$dpath[idx]) %>%
       html_attr("content")
+  # get doi
+  doi <- page %>% 
+    html_nodes(xpath = xpr$doipath[idx]) %>%
+    html_attr("content")
   # get title
   title_node <- page %>% html_nodes(xpath = xpr$tpath[idx])
   title <- if(xpr$t_flag[idx]){
@@ -92,6 +96,7 @@ get_ta <- function(url_name, idx){
     html_attr("content")
   # return
   list(date = date,
+       doi = doi,
        title = title,
        abstract = abstract,
        pdflink = pdf)
@@ -160,6 +165,7 @@ for(domain in domains){
         if(is.na(df$date[i]) & length(out$date) > 0){
           df$date[i] <- add_day_to_month(out$date)
         }
+        if(length(out$doi) > 0) df$doi[i] <- out$doi
         if(n_words(out$title) > 1) df$title[i] <- out$title
         if(length(out$pdflink) > 0) df$pdf_link[i] <- out$pdflink
         if(n_words(out$abstract) > 1){

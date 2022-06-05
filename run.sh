@@ -7,30 +7,36 @@ today=`date +'%Y-%m-%d'`
 stfile="data/searchterms_general.txt"
 qfilebing="data/bing_cs_queries.json"
 
-infile="data/bing-master.csv"
-outfile="data/bing-master-$today.csv"
+infile="data/master.csv"
+outfile="data/master-$today.csv"
 
 # taxonomy and model files
 birdfile="data/BirdLife_species_list_Jan_2022.xlsx"
 blimodelfile="data/bli_model_bow.json"
 
-bakfile="data/bing-master-BAK.csv"
-txfile="data/bing-tx-master.csv"
+bakfile="data/master-BAK.csv"
+txfile="data/tx-master.csv"
 dockerpath="webapp"
 
 ########################
 # SCRAPE PHASE
-# custom search - Bing
+# Bing custom search
 ./scrape/custom_search_bing.py $stfile $qfilebing 
 ./scrape/json_to_csv_bing.py $qfilebing $infile $outfile 
 
-# directed (bespoke per-journal) search 
+# directed (bespoke per-journal/per-archive) search 
 ./scrape/journal_indexes_to_csv.R $outfile
+./scrape/archive_indexes_to_csv.R $outfile
 
 # web scraping
 ./scrape/cs_get_html_text.R $outfile
-# pdf scraping + date corrections and setting BADLINK for old dates
+# pdf scraping 
 ./scrape/cs_get_pdf_text_bing.py $outfile
+# date corrections and set BADLINK for old dates
+./scrape/cs_fix_dates.py $outfile
+
+# COPY FILES TO AZURE STORAGE ACCOUNTS
+# see ../dev/datastore_DEV.sh
 
 ########################
 # PROCESS PHASE
@@ -49,24 +55,24 @@ mv ./scrape/scraper_dashboard.html ./reports
 ########################
 # WEBAPP PHASE
 # build docker image(s)
-docker build -t litscancontainers.azurecr.io/bs-bli-litscan-bing $dockerpath 
+docker build -t blitscanappcontainers.azurecr.io/blitscanapp $dockerpath 
 
 # ... and push to cloud
-az acr login -n litscancontainers.azurecr.io
-docker push litscancontainers.azurecr.io/bs-bli-litscan-bing
+az acr login -n blitscanappcontainers.azurecr.io
+docker push blitscanappcontainers.azurecr.io/blitscanapp
 
 # clean up local Docker
-docker rmi -f litscancontainers.azurecr.io/bs-bli-litscan-bing
+docker rmi -f blitscanappcontainers.azurecr.io/blitscanapp
 
 # restart container
 az container restart \
-    --name bs-bli-litscan-bing \
-    --resource-group BillLitScan
+    --name blitscanapp \
+    --resource-group webappRG
 
 # report the public IP address of the container
-echo "Updated LitScan app served at http://"`az container show \
-    --name bs-bli-litscan-bing \
-    --resource-group BillLitScan \
+echo "Updated BLitScan app served at http://"`az container show \
+    --name blitscanapp \
+    --resource-group webappRG \
     --query ipAddress.ip --output tsv`":3838"
 
 ##############################################################

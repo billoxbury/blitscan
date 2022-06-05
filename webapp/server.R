@@ -7,18 +7,18 @@ shinyServer(
   
   function(input, output, session) {
     # date range
-    start_date <- reactive({
-      as_date(input$daterange[1])
-    })
-    end_date <- reactive({
-      as_date(input$daterange[2])
-    })
+    #start_date <- reactive({
+    #  as_date(input$daterange[1])
+    #})
+    #end_date <- reactive({
+    #  as_date(input$daterange[2])
+    #})
     
     # show species:
-    updateSelectizeInput(session, 
-                           "findspecies", 
-                           choices = SPECIES_LIST, 
-                           server = TRUE)
+    #updateSelectizeInput(session, 
+    #                       "findspecies", 
+#                           choices = SPECIES_LIST, 
+  #                         server = TRUE)
 
     # set priority variable and traffic light points
     df_master <- rename(df_master, score = all_of(DEFAULT_PRIORITY))
@@ -127,17 +127,19 @@ shinyServer(
         } else {
         sapply(1:n, f)
         }
-      sp_out <- sapply(1:n, function(i){ 
-          input$findspecies %in% extract_list(df$species[i])
-          })
+      #sp_out <- sapply(1:n, function(i){ 
+      #    input$findspecies %in% extract_list(df$species[i])
+      #    })
 
       # return
-      out | sp_out
+      #out | sp_out
+      out
     })
     
     output$search_info <- renderText({
-      if(input$search == "" & input$findspecies == ""){ 
-
+      #if(input$search == "" & input$findspecies == ""){ 
+      if(input$search == ""){ 
+          
         recent_date <- df$date[recent]
         recent_domain <- df$domain[recent]
         recent_text <- df$text[recent]
@@ -166,11 +168,11 @@ shinyServer(
               str_replace_all(regex(input$search, ignore_case = TRUE), 
                               sprintf("<mark>%s</mark>", input$search))
         } 
-        if(input$findspecies != ""){
-          returned_text <- returned_text %>% 
-            str_replace_all(regex(input$findspecies, ignore_case = TRUE), 
-                            sprintf("<mark>%s</mark>", input$findspecies))
-        } 
+        #if(input$findspecies != ""){
+        #  returned_text <- returned_text %>% 
+        #    str_replace_all(regex(input$findspecies, ignore_case = TRUE), 
+        #                    sprintf("<mark>%s</mark>", input$findspecies))
+        #} 
         returned_link <- df$link[returned()]
         returned_score <- df$score[returned()]
         returned_abstract <- df$bigtext[returned()] 
@@ -179,11 +181,11 @@ shinyServer(
             str_replace_all(regex(input$search, ignore_case = TRUE), 
                             sprintf("<mark>%s</mark>", input$search))
         } 
-        if(input$findspecies != ""){
-          returned_abstract <- returned_abstract %>% 
-            str_replace_all(regex(input$findspecies, ignore_case = TRUE), 
-                            sprintf("<mark>%s</mark>", input$findspecies))
-        } 
+        #if(input$findspecies != ""){
+        #  returned_abstract <- returned_abstract %>% 
+        #    str_replace_all(regex(input$findspecies, ignore_case = TRUE), 
+        #                    sprintf("<mark>%s</mark>", input$findspecies))
+        #} 
         
         s2 <- paste0("<tr><td width=100><font size=2.0>", returned_date, "</font></td>")
         s3 <- paste0("<td width=100>", sapply(returned_domain, domainlogo), "</td>")

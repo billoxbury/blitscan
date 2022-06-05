@@ -66,18 +66,18 @@ shinyUI(fluidPage(
                textInput("search", 
                          label = "Search", 
                          value = "")
-        ),        
-        column(3,
-               selectizeInput(
-                "findspecies",
-                 label = "Species present",
-                 choices = NULL)
-        ),
-        column(4,
-               dateRangeInput("daterange", "Date range",
-                              start = START_DATE,
-                              end   = END_DATE)
-        )
+        )#,        
+        #column(3,
+        #       selectizeInput(
+        #        "findspecies",
+        #         label = "Species present",
+        #         choices = NULL)
+        #),
+        #column(4,
+        #       dateRangeInput("daterange", "Date range",
+        #                      start = START_DATE,
+        #                      end   = END_DATE)
+        #)
       ),
      HTML("<hr>"),
      htmlOutput("search_info"),

@@ -3,7 +3,7 @@
 """
 Take CSV file containing fields 'link', 'pdf_link', 'title', 'abstract', 'file_format'
 
-For each record, if titel/abstract not already populated, download PDF file and extract title/abstract from
+For each record, if title/abstract not already populated, download PDF file and extract title/abstract from
 it, writing back to the CSV.
 """
 
@@ -23,7 +23,7 @@ from datetime import datetime
 TITLE_MIN_WORDS = 3
 TMP_PATH = "data/tmp"
 MAXFNAMESIZE = 128
-MAXCALLS = 256
+MAXCALLS = 0
 DEFAULT_DAYSAGO = 1000
 MAX_DAYSAGO = 1100
 
@@ -201,22 +201,6 @@ def main():
             #os.system(remove)
             print(f"{MAXCALLS} {i}:  {df.at[i, 'domain']} failed to process PDF")
             sys.stdout.flush()
-            continue
-
-    # repair dates - this includes parsing those extracted from HTML in 'cs_get_text.R'
-    # as well as from PDF in the loop above
-    for i in range(df.shape[0]):
-        thisdate = df.at[i,'date']
-        try:
-            date = parse(thisdate, fuzzy=True).date()
-            df.at[i, 'date'] = date.strftime("%Y-%m-%d")
-            delta = today - date
-            df.at[i, 'daysago'] = delta.days
-            if delta.days > MAX_DAYSAGO:
-                df.at[i, 'BADLINK'] = 1
-        except:
-            df.at[i, 'date'] = ""
-            df.at[i, 'daysago'] = DEFAULT_DAYSAGO
             continue
 
     # clean up

@@ -17,8 +17,8 @@ issues <- {
   close(url_conn)
   # return
   page %>% 
-    html_elements(xpath = '//div[@id="issues"]') %>% 
-    html_elements('h4 a') %>%
+    html_elements('.obj_issue_summary') %>%
+    html_elements('.title') %>%
     html_attr('href')
 }
   
@@ -30,8 +30,8 @@ get_issue <- function(issue){
   page <- read_html(url_conn)
   close(url_conn)
   
-  nodes <- page %>% 
-    html_elements(xpath = '//div[@class="tocTitle"]')
+  nodes <- page %>%
+    html_elements('.obj_article_summary h3')
   title <- nodes %>%  
     html_text2()
   link <- nodes %>%

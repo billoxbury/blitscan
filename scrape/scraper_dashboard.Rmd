@@ -17,7 +17,7 @@ library(readr)
 library(lubridate)
 library(ggplot2)
 
-datafile <- sprintf("../data/bing-master.csv") 
+datafile <- sprintf("../data/master.csv") 
 df <- read_csv(datafile, show_col_types = FALSE)
 df <- df %>% mutate(date = as_date(date),
                     query_date = as_date(query_date)) 
