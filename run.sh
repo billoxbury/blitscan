@@ -20,20 +20,35 @@ dockerpath="webapp"
 
 ########################
 # SCRAPE PHASE
-# Bing custom search
+
+# (1) Bing custom search
 ./scrape/custom_search_bing.py $stfile $qfilebing 
 ./scrape/json_to_csv_bing.py $qfilebing $infile $outfile 
 
-# directed (bespoke per-journal/per-archive) search 
-./scrape/journal_indexes_to_csv.R $outfile
+# (2) scan OAI relevant journals (currently under BioOne)
+# - maintain source list for this step
+./scrape/scan_oai_sources.R $outfile 
+
+# (3) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
+# - maintain source list for this step
 ./scrape/archive_indexes_to_csv.R $outfile
 
-# web scraping
+# (4) directed (bespoke per-journal) search where permitted 
+# - maintain source list for this step
+./scrape/journal_indexes_to_csv.R $outfile
+
+# (5) web scraping against links where text not already obtained
 ./scrape/cs_get_html_text.R $outfile
-# pdf scraping 
+
+# (6) pdf scraping where text not obtained in previous stages
+# - NEEDS REWRITE
 ./scrape/cs_get_pdf_text_bing.py $outfile
-# date corrections and set BADLINK for old dates
+
+# (7) date corrections and set BADLINK for old dates
 ./scrape/cs_fix_dates.py $outfile
+
+# Is there a normalising step to dedupe on DOI and check against Crossref?
+# - maybe combine with (7)
 
 # COPY FILES TO AZURE STORAGE ACCOUNTS
 # see ../dev/datastore_DEV.sh

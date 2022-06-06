@@ -31,22 +31,29 @@ single_search <- function(searchterm){
   close(url_conn)
 
   nodes <- page %>% 
-    html_elements(xpath = '//ul[@class="search-resultslisting"]') %>%
+    html_elements(xpath = '//ul[@class="search-resultslisting"]') 
+  titlepath <- nodes %>%
     html_elements(xpath = '//div[@class="searchlist-title"]')
   
   if(length(nodes) == 0){
     title <- list()
     link <- list()
+    doi <- list()
   } else {
-    title <- nodes %>%
+    title <- titlepath %>%
       html_text2()
-    link <- nodes %>%
+    link <- titlepath %>%
       html_elements('a') %>%
       html_attr('href')
+    doi <- nodes %>% 
+      html_elements(xpath = '//div[@class="result-doi-wrap"]') %>%
+      html_elements('a') %>%
+      html_attr('href') %>%
+      str_remove('https://doi.org/')
   }
   search_term <- rep(searchterm, length(link))
   # return
-  tibble(link, title, search_term)
+  tibble(link, doi, title, search_term)
 }
 
 
@@ -56,6 +63,7 @@ scan_jstage <- function(MAXCALLS = 100){
   # initialise data frame
   df_jstage <- tibble(
     link = character(),
+    doi = character(),
     title = character(),
     search_term = character()
   )
@@ -84,7 +92,7 @@ scan_jstage <- function(MAXCALLS = 100){
   }
   
   # return
-  df_jstage %>% distinct(link, .keep_all = TRUE)
+  df_jstage %>% distinct(doi, .keep_all = TRUE)
 }
 
 

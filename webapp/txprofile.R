@@ -1,4 +1,4 @@
-DATA_FILE <- "data/bing-tx-master.csv"
+DATA_FILE <- "data/tx-master.csv"
 DEFAULT_TEXT_COLUMN <- "title"
 DEFAULT_HOVER_COLUMN <- "abstract"
 DEFAULT_LINK_COLUMN <- "link"

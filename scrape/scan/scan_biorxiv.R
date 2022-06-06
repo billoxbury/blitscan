@@ -27,20 +27,24 @@ single_search <- function(searchterm){
   nodes <- page %>% 
     html_elements(xpath = '//span[@class="highwire-cite-title"]') %>%
     html_elements('a')
-  
   if(length(nodes) == 0){
     title <- list()
     link <- list()
+    doi = list()
   } else {
     title <- nodes %>%
       html_text2()
     link <- nodes %>%
       html_attr('href')
     link <- str_c(biorxiv_prefix, link)
+    doi <- page %>% 
+      html_elements(xpath = '//span[@class="highwire-cite-metadata-doi highwire-cite-metadata"]') %>%
+      html_text2() %>%
+      str_remove("doi: https://doi.org/")
   }
   search_term <- rep(searchterm, length(link))
   # return
-  tibble(link, title, search_term)
+  tibble(link, doi, title, search_term)
 }
 
 
@@ -50,6 +54,7 @@ scan_biorxiv <- function(MAXCALLS = 100){
   # initialise data frame
   df_biorxiv <- tibble(
     link = character(),
+    doi = character(),
     title = character(),
     search_term = character()
   )
@@ -78,7 +83,7 @@ scan_biorxiv <- function(MAXCALLS = 100){
   }
   
   # return
-  df_biorxiv %>% distinct(link, .keep_all = TRUE)
+  df_biorxiv %>% distinct(doi, .keep_all = TRUE)
 }
 
 

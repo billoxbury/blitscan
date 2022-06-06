@@ -27,7 +27,7 @@ customConfigId = os.environ['BING_CUSTOM_CONFIG']
 
 # set wait time (days) before query term used again
 RECENTDAYS = 14
-CSLIMIT = 256
+CSLIMIT = 1000
 WAITTIME = 0.01  # time between calls: 1 second on F0 free tier, 0.01 second on S1 standard tier
 
 # read command line
@@ -114,10 +114,10 @@ def get_responses():
         try:
             items =  ret['webPages']['value']
             data[w][today] = items
-            print(f'{response.status_code}: {len(items)} {w}')
+            print(f'{ctr}: {len(items)} {w}')
         except:
-            print(f'{response.status_code}: 0 {w}')
-    print(f"Processed {ctr} responses")
+            print(f'Response {response.status_code}: 0 {w}')
+    print(f"Processed {CSLIMIT} responses")
 
 # write to disk
 def write_to_disk():

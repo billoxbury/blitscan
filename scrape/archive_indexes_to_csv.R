@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "./data/master-2022-05-30.csv" 
+# datafile <- "./data/master-2022-06-06.csv" 
 df_master <- read_csv(datafile, show_col_types = FALSE)
 
 
@@ -39,6 +39,7 @@ try({
         add_row(#date = "",
           link = df_biorxiv$link[i],
           link_name = df_biorxiv$title[i],
+          doi = df_biorxiv$doi[i],
           snippet = '',
           language = 'en',
           title = df_biorxiv$title[i],
@@ -74,6 +75,7 @@ try({
         add_row(#date = "",
           link = df_jstage$link[i],
           link_name = df_jstage$title[i],
+          doi = df_jstage$doi[i],
           snippet = '',
           language = 'ja',
           title = df_jstage$title[i],
