@@ -334,7 +334,7 @@ df[df$score > -20 & !is.na(df$score),] %>%
                  binwidth = 0.4,
                  colour = "blue",
                  fill = "lightblue") +
-  ylim(c(0,1.5)) +
+  #ylim(c(0,1.5)) +
   facet_wrap(~domain_updated) +
   geom_rug(data = tibble(qs)[2:4,],
            aes(x = qs), 
