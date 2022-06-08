@@ -354,7 +354,9 @@ Third, biimodal distributions (i.e. outlying lumps to the left) can indicate non
 
 ### Text retrieval
 
-Finally, we summarise the success or not, by domain, of text retrieval. We've indicated above ('Step 1 revisited') that not all domains consistently permit web crawling. Among responsive domains, the following counts show URLs from which text was retrieved (1) versus not (0):
+All of the above statistics refer to articles in the Blitscan database for which text has been successfully retrieved. But that represents a subset of a larger dataset of URLs (coming from steps 1-4 above) for which text retrieval was attempted. Here we summarise the success or not, by domain, of text retrieval on this fuller dataset.
+
+We've indicated above ('Step 1 revisited') that not all domains consistently permit web crawling. Among responsive domains, the following counts show URLs from which text was retrieved (1) versus not (0):
 
 ```{r compare-responsive-domains, echo=FALSE}
 # which (responsive) domains can I get text from?
