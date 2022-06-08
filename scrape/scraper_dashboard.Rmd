@@ -51,12 +51,13 @@ doi_index <- sapply(df$doi, function(d){
   which(df_doi$doi == d) 
 }) %>% as.numeric()
 
-tx_journal <- df_doi$container.title[doi_index] 
+tx_journals <- df_doi[doi_index, ] %>%
+  filter(!is.na(container.title)) %>%
+  group_by(container.title, publisher) %>%
+  summarise(count = n(), .groups = 'keep') %>%
+  arrange(desc(count)) 
 
-nj <- tx_journal[!is.na(tx_journal)] %>% 
-  unique() %>% length()
-
-cat("Number of journals/publications:", nj, '\n')
+cat("Number of journals:", nrow(tx_journals), '\n')
 ```
 
 ```{r nr-publishers, echo=FALSE, warning=FALSE}
@@ -69,7 +70,7 @@ np <- tx_publisher[!is.na(tx_publisher)] %>%
 cat("Number of publishers:", np, '\n')
 ```
 
-More detail on journal and publishers is given below.
+More detail on journal and publishers is given below. A full list of journals the database draws from is given in the appendix.
 
 
 ### Red-list coverage
@@ -177,7 +178,7 @@ scan_journal_sources[,c(1,2,3,5)] %>%
 ```
 #### Step 1 revisited - domains and issues arising
 
-<p>At custom search, the following domains are targeted:
+The initial custom search covers many more journals than those visited in steps 2-4 (see the appendix). This is possible by running searches against _domains_ rather than individual journals or even publishers. Here is the current list of domains:
 
 ```{r custom-search, echo = FALSE, warning = FALSE}
 
@@ -201,6 +202,7 @@ df_out %>%
 ```
 
 <p>The binary indicator 'minable' refers to domain policy which in some cases (minable = 0) prohibits or limits text extraction later on. Notable examples are _conbio.onlinelibrary.wiley.com_ and _academic.oup.com_. In some cases we are able to work with these domains via open archive initiatives.
+
 
 ### Language coverage
 
@@ -343,14 +345,13 @@ df[df$score > -20 & !is.na(df$score),] %>%
 
 <p> One can make some observations from this plot. For each domain, a skew to the right is good, to the left is not good.
 
-First, the value of the OAI domain _bioone.org/action/oai_ is showing clearly. (This represents the journals listed under 'step 2' above.) 
-
-(Note that the domain _bioone.org_ was mined directly for just the Wilson Journal prior to use of OAI.)
+First, the value of the OAI domain _bioone.org/action/oai_ is showing clearly. (This represents the journals listed under 'step 2' above.) (Note that the domain _bioone.org_ was mined directly for just the Wilson Journal prior to use of OAI.)
 
 Second, the profile for _biorxiv.org_ is less strong and could suggest a review of how the site is crawled.
 
-Third, biimodal distributions (i.e. outlying lumps to the left) can indicate non-English text that has not (yet) been translated.
+Third, bimodal distributions (i.e. showing outlying lumps to the left) can indicate non-English text that has not (yet) been translated.
 
+Finally, a visual check on _link.springer.com_ is useful just because Springer turns out to dominate the journals visited by the custom search (step 1). (See the appendix.)
 
 ### Text retrieval
 
@@ -373,6 +374,18 @@ df <- df[!(df$domain %in% problem_domains$domain),]
 table(df$domain, df$GOTTEXT)
 ```
 
+### Appendix: list of all journals
+
+The listing below makes use of the open source project <a href="https://www.crossref.org/">CrossRef</a>. At each of the steps in the _scrape_ process we record the <a href="https://www.doi.org/">Digital Object Identifier (DOI)</a> of each article. CrossRef then allows us to query all DOIs in the Blitscan database to obtain a rich set of metadata. The list below is extracted from that set. 
+
+
+```{r journals-via-crossref, echo=FALSE}
+
+names(tx_journals) <- c('Journal','Publisher','Count')
+
+tx_journals %>%
+  knitr::kable(format = "html", table.attr = "style='width:100%;'")
+```
 
 ### R and package versions used
 

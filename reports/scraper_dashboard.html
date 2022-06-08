@@ -378,6 +378,8 @@ journals</a></li>
 <li><a href="#date-range">Date range</a></li>
 <li><a href="#score-distribution">Score distribution</a></li>
 <li><a href="#text-retrieval">Text retrieval</a></li>
+<li><a href="#appendix-list-of-all-journals">Appendix: list of all
+journals</a></li>
 <li><a href="#r-and-package-versions-used">R and package versions
 used</a></li>
 </ul>
@@ -392,9 +394,10 @@ processing.</em></p>
 app</a> is built over a data set of journal articles/research
 publications with the following basic stats:</p>
 <pre><code>## Number of articles: 5469</code></pre>
-<pre><code>## Number of journals/publications: 323</code></pre>
+<pre><code>## Number of journals: 324</code></pre>
 <pre><code>## Number of publishers: 33</code></pre>
-<p>More detail on journal and publishers is given below.</p>
+<p>More detail on journal and publishers is given below. A full list of
+journals the database draws from is given in the appendix.</p>
 </div>
 <div id="red-list-coverage" class="section level3">
 <h3>Red-list coverage</h3>
@@ -896,8 +899,10 @@ en
 </div>
 <div id="step-1-revisited---domains-and-issues-arising" class="section level4">
 <h4>Step 1 revisited - domains and issues arising</h4>
-<p>
-<p>At custom search, the following domains are targeted:</p>
+<p>The initial custom search covers many more journals than those
+visited in steps 2-4 (see the appendix). This is possible by running
+searches against <em>domains</em> rather than individual journals or
+even publishers. Here is the current list of domains:</p>
 <table style="width:50%;">
 <thead>
 <tr>
@@ -1330,13 +1335,16 @@ we only show domains exceeding a count threshold:</p>
 skew to the right is good, to the left is not good.</p>
 <p>First, the value of the OAI domain <em>bioone.org/action/oai</em> is
 showing clearly. (This represents the journals listed under ‘step 2’
-above.)</p>
-<p>(Note that the domain <em>bioone.org</em> was mined directly for just
-the Wilson Journal prior to use of OAI.)</p>
+above.) (Note that the domain <em>bioone.org</em> was mined directly for
+just the Wilson Journal prior to use of OAI.)</p>
 <p>Second, the profile for <em>biorxiv.org</em> is less strong and could
 suggest a review of how the site is crawled.</p>
-<p>Third, biimodal distributions (i.e. outlying lumps to the left) can
-indicate non-English text that has not (yet) been translated.</p>
+<p>Third, bimodal distributions (i.e. showing outlying lumps to the
+left) can indicate non-English text that has not (yet) been
+translated.</p>
+<p>Finally, a visual check on <em>link.springer.com</em> is useful just
+because Springer turns out to dominate the journals visited by the
+custom search (step 1). (See the appendix.)</p>
 </div>
 <div id="text-retrieval" class="section level3">
 <h3>Text retrieval</h3>
@@ -1372,6 +1380,3629 @@ following counts show URLs from which text was retrieved (1) versus not
 ##   sciencedirect.com                     1017  650
 ##   sciendo.com                             23   24
 ##   tandfonline.com                        554  449</code></pre>
+</div>
+<div id="appendix-list-of-all-journals" class="section level3">
+<h3>Appendix: list of all journals</h3>
+<p>The listing below makes use of the open source project
+<a href="https://www.crossref.org/">CrossRef</a>. At each of the steps
+in the <em>scrape</em> process we record the
+<a href="https://www.doi.org/">Digital Object Identifier (DOI)</a> of
+each article. CrossRef then allows us to query all DOIs in the Blitscan
+database to obtain a rich set of metadata. The list below is extracted
+from that set.</p>
+<table style="width:100%;">
+<thead>
+<tr>
+<th style="text-align:left;">
+Journal
+</th>
+<th style="text-align:left;">
+Publisher
+</th>
+<th style="text-align:right;">
+Count
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+PLOS ONE
+</td>
+<td style="text-align:left;">
+Public Library of Science (PLoS)
+</td>
+<td style="text-align:right;">
+466
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Ornithology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+325
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Scientific Reports
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+206
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Avian Research
+</td>
+<td style="text-align:left;">
+Elsevier BV
+</td>
+<td style="text-align:right;">
+153
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+African Zoology
+</td>
+<td style="text-align:left;">
+Informa UK Limited
+</td>
+<td style="text-align:right;">
+85
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Southwestern Naturalist
+</td>
+<td style="text-align:left;">
+Southwestern Association of Naturalists
+</td>
+<td style="text-align:right;">
+85
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wildlife Biology
+</td>
+<td style="text-align:left;">
+Wiley
+</td>
+<td style="text-align:right;">
+80
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Wilson Journal of Ornithology
+</td>
+<td style="text-align:left;">
+Wilson Ornithological Society
+</td>
+<td style="text-align:right;">
+78
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ornithological Science
+</td>
+<td style="text-align:left;">
+Ornithological Society of Japan
+</td>
+<td style="text-align:right;">
+76
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ardea
+</td>
+<td style="text-align:left;">
+Netherlands Ornithologists’ Union
+</td>
+<td style="text-align:right;">
+74
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ornithology Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+70
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ardeola
+</td>
+<td style="text-align:left;">
+Ardeola
+</td>
+<td style="text-align:right;">
+68
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Zoological Science
+</td>
+<td style="text-align:left;">
+Zoological Society of Japan
+</td>
+<td style="text-align:right;">
+65
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bulletin of the British Ornithologists’ Club
+</td>
+<td style="text-align:left;">
+British Ornithologists’ Club
+</td>
+<td style="text-align:right;">
+64
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Waterbirds
+</td>
+<td style="text-align:left;">
+Waterbird Society
+</td>
+<td style="text-align:right;">
+61
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Raptor Research
+</td>
+<td style="text-align:left;">
+The Raptor Research Foundation, Inc. 
+</td>
+<td style="text-align:right;">
+59
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+50
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Communications
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+45
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Urban Ecosystems
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+42
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biodiversity and Conservation
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+41
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Auk
+</td>
+<td style="text-align:left;">
+Oxford University Press (OUP)
+</td>
+<td style="text-align:right;">
+36
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Parasitology Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+33
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+European Journal of Wildlife Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+32
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Landscape Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+30
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Behavioral Ecology and Sociobiology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Polar Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+26
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Conservation Genetics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+20
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Ecology &amp;amp; Evolution
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+19
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Animal Cognition
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biological Invasions
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+17
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Huitzil, Revista Mexicana de Ornitología
+</td>
+<td style="text-align:left;">
+Sociedad para el Estudio y Conservacion de las Aves en Mexico A.C.
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of East African Natural History
+</td>
+<td style="text-align:left;">
+East African Natural History Society
+</td>
+<td style="text-align:right;">
+13
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wetlands
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+12
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental Science and Pollution Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Experimental and Applied Acarology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+11
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Heredity
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+10
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Communications Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Community Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wetlands Ecology and Management
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+9
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Encyclopedia of Animal Cognition and Behavior
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Oecologia
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+8
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+acta ethologica
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ambio
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Forestry Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Learning &amp;amp; Behavior
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PLOS Pathogens
+</td>
+<td style="text-align:left;">
+Public Library of Science (PLoS)
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tropical Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+7
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Archaeological and Anthropological Sciences
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Evolutionary Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Hydrobiologia
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+International Journal of Primatology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Proceedings of the Zoological Society
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Systematic Parasitology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+6
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Avian Malaria and Related Parasites in the Tropics
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Encyclopedia of Parasitology
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Evolutionary Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fungal Diversity
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Ethology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Marine Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neotropical Diversification: Patterns and Processes,Fascinating Life
+Sciences
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PLOS Biology
+</td>
+<td style="text-align:left;">
+Public Library of Science (PLoS)
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PLOS Neglected Tropical Diseases
+</td>
+<td style="text-align:left;">
+Public Library of Science (PLoS)
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Rendiconti Lincei. Scienze Fisiche e Naturali
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Scientific Data
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+5
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aquatic Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecotoxicology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environment, Development and Sustainability
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental Monitoring and Assessment
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Insect Conservation
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Organisms Diversity &amp;amp; Evolution
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paleogene Fossil Birds,Fascinating Life Sciences
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PLOS Genetics
+</td>
+<td style="text-align:left;">
+Public Library of Science (PLoS)
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Primates
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+4
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Agroforestry Systems
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biologia
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Conservation Genetics Resources
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current Ornithology
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Endangered Species Research
+</td>
+<td style="text-align:left;">
+Inter-Research Science Center
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental and Ecological Statistics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental Management
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Estuaries and Coasts
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Genetic Resources and Crop Evolution
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Human Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+International Journal of Legal Medicine
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Applied Phycology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Plant Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shaping Natural History and Settler Society
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Call of the Cranes
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The ISME Journal
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Science of Nature
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tropical Animal Health and Production
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+3
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Antiquity
+</td>
+<td style="text-align:left;">
+Antiquity Publications
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Archives of Environmental Contamination and Toxicology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Archives of Virology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Behavioural Ecology of Western Palearctic Falcons
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bhutan: Conservation and Environmental Protection in the Himalayas
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Bidong Island,Geography of the Physical Environment
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biodiversity Islands: Strategies for Conservation in Human-Dominated
+Environments,Topics in Biodiversity and Conservation
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Coding Strategies in Vertebrate Acoustic Communication,Animal Signals
+and Communication
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current Landscape Ecology Reports
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecosystems
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Encyclopedia of Evolutionary Psychological Science
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fascinating Life Sciences,Ecological Physiology of Daily Torpor and
+Hibernation
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Folia Geobotanica
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Great Salt Lake Biology
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Humanities and Social Sciences Communications
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Immunogenetics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+International Environmental Agreements: Politics, Law and Economics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Agricultural and Environmental Ethics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Coastal Conservation
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Ecology and Environment
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of the Indian Institute of Science
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Kew Bulletin
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Landscape and Ecological Engineering
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Long-Term Ecosystem Changes in Riparian Forests,Ecological Research
+Monographs
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mammalian Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Marine Biodiversity
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Miombo Woodlands in a Changing Environment: Securing the Resilience and
+Sustainability of People and Woodlands
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Molecular Biology Reports
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Movement Ecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Climate Change
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Methods
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Microbiology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paleobiology
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Plant Systematics and Evolution
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Resource Use and Sustainability of Orang Asli
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Atlantic Forest
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Bahía Blanca Estuary
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Evolution of Feathers,Fascinating Life Sciences
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Theoretical and Applied Climatology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+2
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Acta Parasitologica
+</td>
+<td style="text-align:left;">
+Walter de Gruyter GmbH
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Advances in Experimental Medicine and Biology,Carotenoids: Biosynthetic
+and Biofunctional Approaches
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Advances in Experimental Medicine and Biology,Digenetic Trematodes
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+African Biodiversity
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Agronomy for Sustainable Development
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Alpine Botany
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+American Journal of Potato Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Analytical and Bioanalytical Chemistry
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Animal Signals and Communication,Animal Communication and Noise
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Animals in Traditional Folk Medicine
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Antarctic Nutrient Cycles and Food Webs
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Antichthon
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Apidologie
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aquaculture International
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aquatic Birds in the Trophic Web of Lakes
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Aquatic Sciences
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Arabian Journal of Geosciences
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Archives of Microbiology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Artificial Intelligence Review
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Avian Ecology and Conservation in an Urbanizing World
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biochemical Genetics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biodiversity and Health in the Face of Climate Change
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biologia Futura
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biological Invasions in South Africa
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biological Theory
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biological Trace Element Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biology &amp;amp; Philosophy
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biomimetics,Springer Series in Materials Science
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biosemiotics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Biosemiotics,Gregory Bateson on Relational Communication: From Octopuses
+to Nations
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Birds in Eighteenth-Century Literature
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Birds of Prey
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMC Evolutionary Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMC Genomics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+BMC Infectious Diseases
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Caatinga
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Celestial Mechanics and Dynamical Astronomy
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Central American Biodiversity
+</td>
+<td style="text-align:left;">
+Springer New York
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chemoecology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chromosoma
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chromosome atlas: Fish, Amphibians, Reptiles and Birds
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Chromosome Atlas: Fish, Amphibians, Reptiles, and Birds
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cities and Nature,Urban Ecology in the Global South
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Climate Change Impacts on High-Altitude Ecosystems
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Communications in Computer and Information Science,Optimization,
+Learning Algorithms and Applications
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Comparative Clinical Pathology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Consumer Tribes in Tourism
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Creative Conservation
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Cryopreservation and Freeze-Drying Protocols,Methods in Molecular
+Biology
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current Ornithology, Volume 16
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current Rheumatology Reports
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Current Treatment Options in Infectious Diseases
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Dictionary of Geotourism
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Discover Sustainability
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Disease Ecology,Social and Ecological Interactions in the Galapagos
+Islands
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+DNA Barcoding and Molecular Phylogeny
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Duck Production and Management Strategies
+</td>
+<td style="text-align:left;">
+Springer Nature Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Eco-Translatology,New Frontiers in Translation Studies
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+EcoHealth
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecological Risk Assessment for Chlorpyrifos in Terrestrial and Aquatic
+Systems in the United States,Reviews of Environmental Contamination and
+Toxicology
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecology and Evolution of the Acari
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ecophysiology of Desert Birds,Adaptations of Desert Organisms
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Emerging Contaminants and Associated Treatment Technologies,Microplastic
+Pollution
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Encyclopedia of Global Archaeology
+</td>
+<td style="text-align:left;">
+Springer New York
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Encyclopedia of the UN Sustainable Development Goals,Life Below Water
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Encyclopedia of the UN Sustainable Development Goals,Life on Land
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environment &amp;amp; Policy,Corporate Biodiversity Management for
+Sustainable Growth
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environment and Sustainable Development,Environmental Science and
+Engineering
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environment Systems and Decisions
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental Chemistry Letters
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental Endocrinology,Proceedings in Life Sciences
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Environmental History,Reconciling Human Needs and Conserving
+Biodiversity: Large Landscapes as a New Conservation Paradigm
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ERA Forum
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+European Food Research and Technology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+European Journal of Forest Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+European Journal of Plant Pathology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Evolution of Marine Coastal Ecosystems under the Pressure of Global
+Changes
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Evolutionary Ecology
+</td>
+<td style="text-align:left;">
+Macmillan Education UK
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Experimental &amp;amp; Molecular Medicine
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fascination Amazon River
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Field Guide to the Primates of Indonesia
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Food and Bioprocess Technology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Forests and Forestry of West Bengal
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fostering Transformative Change for Sustainability in the Context of
+Socio-Ecological Production Landscapes and Seascapes (SEPLS)
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Foundations for Undergraduate Research in Mathematics,An Introduction to
+Undergraduate Research in Computational and Mathematical Biology
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Fourteenth International Seaweed Symposium
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Frontiers of Biology in China
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Genetica
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Geographical Variation in Waders
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gold Bulletin
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Greater Kenyir Landscapes
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Gulls and Plovers
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Habitats and Biota of the Gulf of Mexico: Before the Deepwater Horizon
+Oil Spill
+</td>
+<td style="text-align:left;">
+Springer New York
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Human Nature
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Integrative Psychological and Behavioral Science
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+International Journal of Biometeorology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+International Journal of Historical Archaeology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Island Thinking
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Archaeological Method and Theory
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Comparative Physiology A
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Comparative Physiology B
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Ethnobiology and Ethnomedicine
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Fluid Mechanics
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Iberian Geology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Mammalian Evolution
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Medical Toxicology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Molecular Evolution
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Parasitic Diseases
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Pest Science
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Plant Biochemistry and Biotechnology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Plant Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of Sedimentary Environments
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Journal of the History of Biology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Latin American Antiquity
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Lecture Notes in Computer Science,Smart Computing and Communication
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Living with Biodiversity in an Island Ecosystem,Ethnobiology
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Malaria Journal
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Marine Biodiversity of Costa Rica, Central America
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mechanoreceptors
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Medieval Animals on the Move
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mixed Plantations of Eucalyptus and Leguminous Trees
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Molecular Genetics and Genomics
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Mycopathologia
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+NATO Science for Peace and Security Series A: Chemistry and
+Biology,Biomarkers of Radiation in the Environment
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Immunology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Machine Intelligence
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature Plants
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nature-Based Tourism in Asia’s Mountainous Protected Areas,Geographies
+of Tourism and Global Change
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neophilologus
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neotropical Entomology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neotropical Hard Ticks (Acari: Ixodida: Ixodidae)
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Neuroscience and Behavioral Physiology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Nomadic Desert Birds,Adaptations of Desert Organisms
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+On the Nature of Ecological Paradox
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ornithology
+</td>
+<td style="text-align:left;">
+Oxford University Press (OUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Paddy and Water Environment
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Palaeobiodiversity and Palaeoenvironments
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Palgrave Advances in John Clare Studies
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Palgrave Studies in Animals and Literature,The Palgrave Handbook of
+Animals and Literature
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+PalZ
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Parasites &amp;amp; Vectors
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Pigments, Pigment Cells and Pigment Patterns
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Plant and Soil
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Plant-Animal Interactions
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Problematic Wildlife II
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Proceedings in Life Sciences,Hormones and Behaviour in Higher
+Vertebrates
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Proceedings of the National Academy of Sciences, India Section B:
+Biological Sciences
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Proceedings of the Prehistoric Society
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Progress in Artificial Intelligence
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Progress in Botany
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Progress in Pattern Recognition, Image Analysis, Computer Vision, and
+Applications,Lecture Notes in Computer Science
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Quaternary Research
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Ramus
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Reference Series in Phytochemistry,Orchids Phytochemistry, Biology and
+Horticulture
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Regional Environmental Change
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Reproductive Sciences in Animal Conservation,Advances in Experimental
+Medicine and Biology
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Respiration and metabolism of embryonic vertebrates
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sandy Beaches as Ecosystems
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Science of Wood Degradation and its Protection
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+She Speaks Her Anger: Myths and Conversations of Gimi Women
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Shorebirds
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Socio-Ecological Practice Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Socio-ecological Studies in Natural Protected Areas
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Some Aspects of Chromosome Structure and Functions
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Southern Iraq’s Marshes,Coastal Research Library
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+SpringerBriefs in Environmental Science,Environmental Impacts of
+Mountaineering
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Studies in Global Animal Law,Beiträge zum ausländischen öffentlichen
+Recht und Völkerrecht
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sustaining the World’s Wetlands
+</td>
+<td style="text-align:left;">
+Springer US
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Sustaining Young Forest Communities,Managing Forest Ecosystems
+</td>
+<td style="text-align:left;">
+Springer Netherlands
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Synthese
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Technology Application in Tourism Fairs, Festivals and Events in Asia
+</td>
+<td style="text-align:left;">
+Springer Singapore
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Americas
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Andean Cloud Forest
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Behavioral Ecology of the Tibetan Macaque,Fascinating Life Sciences
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Botanical Review
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Cambridge Journal of Postcolonial Literary Inquiry
+</td>
+<td style="text-align:left;">
+Cambridge University Press (CUP)
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Changing Status of Arable Habitats in Europe
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Complexity of Bird Behaviour
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Ecology of Browsing and Grazing II,Ecological Studies
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Journal of Basic and Applied Zoology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+The Journal of Supercomputing
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Topics in Biodiversity and Conservation,Naturalists, Explorers and Field
+Scientists in South-East Asia and Australasia
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Toxicological Research
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Transport in Porous Media
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tree Genetics &amp;amp; Genomes
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Triatominae - The Biology of Chagas Disease Vectors,Entomology in Focus
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Tropical Plant Pathology
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Urban Raptors
+</td>
+<td style="text-align:left;">
+Island Press/Center for Resource Economics
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Valuation and Conservation of Biodiversity
+</td>
+<td style="text-align:left;">
+Springer-Verlag
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wildlife Biodiversity Conservation
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wildlife Research Monographs,Little Bustard: Ecology and Conservation
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wildvogelhaltung
+</td>
+<td style="text-align:left;">
+Springer Berlin Heidelberg
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Wireless Personal Communications
+</td>
+<td style="text-align:left;">
+Springer Science and Business Media LLC
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+World Regional Geography Book Series,The Geography of Spain
+</td>
+<td style="text-align:left;">
+Springer International Publishing
+</td>
+<td style="text-align:right;">
+1
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 <div id="r-and-package-versions-used" class="section level3">
 <h3>R and package versions used</h3>
