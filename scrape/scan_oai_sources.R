@@ -192,7 +192,7 @@ for(i in 1:nrow(df_oai)){
         domain = df_oai$domain[i],
         doi = str_remove(df_oai$source[i], doi_prefix),
         search_term = str_c('OAI: ', df_oai$society[i]), 
-        # use society not journal as it's more reliably present
+        # use 'society' not 'journal' as it's more reliably present
         query_date = today(),
         BADLINK = 0,
         DONEPDF = 0,

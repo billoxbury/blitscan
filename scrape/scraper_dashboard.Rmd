@@ -5,7 +5,7 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-_This file is generated automatically as part of the scraper processing._
+_This file is updated automatically as part of the scraper processing._
 
 ```{r set-up-load-data, include=FALSE, warning=FALSE}
 
@@ -17,139 +17,252 @@ library(readr)
 library(lubridate)
 library(ggplot2)
 
-datafile <- sprintf("../data/master.csv") 
-df <- read_csv(datafile, show_col_types = FALSE)
-df <- df %>% mutate(date = as_date(date),
+masterfile <- "../data/master.csv"
+df_master <- read_csv(masterfile, show_col_types = FALSE)
+df_master <- df_master %>% mutate(date = as_date(date),
                     query_date = as_date(query_date)) 
-df$domain <- df$domain %>% str_remove('^www\\.')
+df_master$domain <- df_master$domain %>% str_remove('^www\\.')
+
+txfile <- "../data/tx-master.csv"
+df_tx <- read_csv(txfile, show_col_types = FALSE)
+df_tx <- df_tx %>% mutate(date = as_date(date),
+                    query_date = as_date(query_date)) 
+df_tx$domain <- df_tx$domain %>% str_remove('^www\\.')
+df_tx$doi <- df_tx$doi %>% str_remove('^doi\\:')
+
+doifile <- "../data/doi_data_cr.csv"
+df_doi <- read_csv(doifile, show_col_types = FALSE)
 ```
 
-### Journals and domains
+### Basic statistics
 
-As well as using Bing Custom Search to target domains (such as _link.springer.com_) we also directly scan recent 
-issues of specific journals (such as _www.springer.com/journal/10336_, Journal of Ornithology). The custom search 
-gives us wider reach, but the journal scans ensure greater completeness.
+The
+<a href="http://blitscan.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications with the following basic stats:
 
-Journals currently scanned are the following.
+```{r nr-records, echo=FALSE, warning=FALSE}
 
-```{r scanned-journals, echo = FALSE, warning = FALSE}
-scan_sources <- read_csv("../data/scan_sources.csv", 
-                         show_col_types = FALSE)
-scan_sources %>%
+df <-  df_tx
+cat("Number of articles:", nrow(df), '\n')
+```
+
+```{r nr-journals, echo=FALSE, warning=FALSE}
+
+doi_index <- sapply(df$doi, function(d){
+  which(df_doi$doi == d) 
+}) %>% as.numeric()
+
+tx_journal <- df_doi$container.title[doi_index] 
+
+nj <- tx_journal[!is.na(tx_journal)] %>% 
+  unique() %>% length()
+
+cat("Number of journals/publications:", nj, '\n')
+```
+
+```{r nr-publishers, echo=FALSE, warning=FALSE}
+
+tx_publisher <- df_doi$publisher[doi_index] 
+
+np <- tx_publisher[!is.na(tx_publisher)] %>% 
+  unique() %>% length()
+
+cat("Number of publishers:", np, '\n')
+```
+
+More detail on journal and publishers is given below.
+
+
+### Red-list coverage
+
+_TO DO_
+
+
+### Web search, archives and journals
+
+The search process to find web content follows four main steps to identify articles, followed by text retrieval from those articles. The four steps are:
+
+1. Bing Custom Search against targeted domains 
+2. Scanning of <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative</a> API to get titles/abstracts from relevant contributors
+3. Query of preprint archives against genus (Latin) names in vulnerable categories
+4. Scanning of content lists for targeted journals.
+
+We will summarise each of these steps in turn.
+
+#### Step 1: <a href="https://www.customsearch.ai/">Custom Search</a>
+
+This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a gives us a wide reach, while the journal in the later steps ensure greater completeness.
+
+The process runs around 1000 queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). Each query uses a random search term taken from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_general.txt">list of generic scientific/common bird names</a> (while checking that the search hasn't been used too recently).
+
+URLs returned from this process are stored and mined individually *after* all of steps 1-4 have completed. 
+
+#### Step 2: <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative</a>
+
+OAI is an invaluable centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to theor servers; on the other hand, it greatly simplifies the process for us, as data consumers, in providing a single format across a very wide community of providers.
+
+As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are current using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relvant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
+
+
+```{r oai-bioone-count, echo = FALSE, warning = FALSE}
+
+oaifile <- '../data/oai_bioone_sources.csv'
+df_oai <- read_csv(oaifile, show_col_types = FALSE)
+
+idx <- doi_index[str_detect(df$search_term, 'OAI')]
+
+df_bioone <- df_doi[idx,] %>%
+  filter(!is.na(container.title), preserve = TRUE) %>%
+  group_by(container.title) %>%
+  summarize(count = n()) %>%
+  arrange(desc(count)) 
+names(df_bioone) <- c('Journal','Count')
+
+df_bioone <- full_join(df_oai, df_bioone, by='Journal') %>%
+  arrange(Journal)
+
+df_bioone %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
 
-### Text retrieval
+#### Step 3: archive scanning
 
-The following domains _either_ did not permit any text or pdf scraping _or_ do not yet have xpath rules encoded and will be excluded from the analysis below:
+This is similar to step 1, except that instead of using a commercial search engine, queries are made directly to a set of preprint archives, currently consisiting of:
 
-```{r problem-domains, echo=FALSE}
-# which domains don't respond?
+```{r archive-scanning, echo = FALSE, warning = FALSE}
 
-problem_domains <- df %>% 
+df <- df_tx
+
+archivfile <- '../data/scan_archive_sources.csv'
+df_archiv <- read_csv(archivfile, show_col_types = FALSE)
+
+labs <- df_archiv$Archive %>% 
+  str_remove('-') %>% 
+  str_to_lower()
+
+df_archiv['Count'] <- sapply(1:nrow(df_archiv), function(i){
+  lab <- df_archiv$Archive[i] %>% 
+    str_remove('-') %>% 
+    str_to_lower()
+  # return
+  sum(str_detect(df$search_term, lab))
+})
+
+df_archiv %>%
+  knitr::kable(format = "html", table.attr = "style='width:100%;'")
+```
+<p> In the URLs above, 'search_term' is selected from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_restricted.csv">list of scientific genus names containing vulnerable species</a> (that is, having red-list status not _LC_ or _EX_).
+
+URLs returned from this process are stored and mined individually after all of steps 1-4 have completed. 
+
+
+#### Step 4: journal contents listings
+
+To add completeness beyond the quite general searches above, this step explicitly scans the tables of contents for recent issues of relevant journals. Journals currently scanned are the following.
+
+```{r scanned-journals, echo = FALSE, warning = FALSE}
+
+journalsfile <- "../data/scan_journal_sources.csv"
+scan_journal_sources <- read_csv(journalsfile, 
+                         show_col_types = FALSE)
+
+scan_journal_sources['Count'] <- sapply(1:nrow(scan_journal_sources), function(i){
+  lab <- scan_journal_sources$SearchPrefix[i] 
+  # return
+  sum(str_detect(df$search_term, lab))
+})
+
+
+scan_journal_sources[,c(1,2,3,5)] %>%
+  knitr::kable(format = "html", table.attr = "style='width:100%;'")
+```
+#### Step 1 revisited - domains and issues arising
+
+<p>At custom search, the following domains are targeted:
+
+```{r custom-search, echo = FALSE, warning = FALSE}
+
+domainfile <- "../data/xpath_rules.csv"
+df_domain <- read_csv(domainfile, show_col_types = FALSE)
+domain_list <- df_domain[,1:2] 
+
+domain_ct <- df %>%
   group_by(domain) %>%
-  summarise(count = sum(GOTTEXT)) %>%
-  filter(count == 0) %>%
-  select(domain) 
-for(d in problem_domains$domain){
-  cat(d, '\n')
-}
+  summarize(Count = n()) %>%
+  arrange(desc(Count))
+
+df_out <- full_join(domain_list, domain_ct, by='domain') %>%
+  arrange(desc(Count)) %>%
+  filter(!str_detect(domain, 'bioone'))
+df_out$Count[is.na(df_out$Count)] <- 0
+
+names(df_out) <- c('Domain','Minable?','Count')
+df_out %>%
+  knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
 
-Among responsive domains, the following counts show URLs from which text was retrieved (1) versus not (0):
+<p>The binary indicator 'minable' refers to domain policy which in some cases (minable = 0) prohibits or limits text extraction later on. Notable examples are _conbio.onlinelibrary.wiley.com_ and _academic.oup.com_. In some cases we are able to work with these domains via open archive initiatives.
 
-```{r compare-responsive-domains, echo=FALSE}
-# which (responsive) domains can I get text from?
+### Language coverage
 
-# FOR NOW:
-df <- df[!(df$domain %in% problem_domains$domain),]
-table(df$domain, df$GOTTEXT)
-```
-
-Current distribution of texts by original language:
+We aim to grow the coverage of non-English language sources by taking advantage of cloud translation services.The current distribution of languages represented in the BlitScan database is as follows:
 
 ```{r languages, echo=FALSE}
 
-df$language[df$GOTTEXT == 1] %>% 
-  table()
+
+lang_all <- df_master %>% 
+  group_by(language) %>%
+  summarize(OutOf = n())
+lang_used <- df_tx %>% 
+  group_by(language) %>%
+  summarize(Count = n())
+
+df_out <- full_join(lang_used, lang_all, by = 'language')
+df_out$Count[is.na(df_out$Count)] <- 0
+
+df_out %>%
+  knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
-Languages by domain:
+<p> In this table, 'Count' refers to the current database while 'OutOf' refers to the wider data set of articles that is stored before filtering down to the database used. Filtering is based on both date and relevance. 
 
-```{r languages-by-domain, echo=FALSE}
-
-table(df$domain[df$GOTTEXT == 1], df$language[df$GOTTEXT == 1])
-```
-
-Text retrieval success (1 versus 0) by query date:
-
-```{r compare-with-query-date, echo=FALSE}
-# correlation with query date
-#table(df$query_date, df$GOTTEXT)
-
-cat('Removed for graphic - in progress\n')
-```
-
-How successful is text retrieval from PDF versus from HTML? (Noting that HTML gets the first shot and if successful PDF is not attempted.)
-
-In the following 2 x 2 table, the columns are text retieval success as above. The rows indicate whether text was retrieved at the PDF stage (1) versus not (0):
-
-```{r how-much-pdf, echo=FALSE}
-# how much or retrieved text came from PDF?
-table(df$DONEPDF, df$GOTTEXT)
-```
-
-### Score distribution
-
-Text retrieved is scored in the downstream _process_ stage. From the point of view of the _scrape_ service, it doesn't matter how it is calculated but is a black-box feedback signal representing 'customer satisfaction' with the text output by _scrape_.
-
-Here is the overall distribution, with the quartiles/median marked in red:
-
-```{r score-distribution, fig.height=3, fig.width=4, echo=FALSE, warning=FALSE}
-
-qs <- quantile(df$score[df$score > -20.0], na.rm=TRUE)
-
-df[df$score > -20,] %>% 
-  ggplot(aes(score)) +
-  geom_histogram(binwidth = 0.5,
-                 colour = "blue",
-                 fill = "lightblue") +
-  geom_rug(data = tibble(qs)[2:4,],
-           aes(x = qs), 
-           col = "red") +
-  labs(x = "Relevance score",
-       y = "URL count")
-```
-
-This score then provides a basis for comparing (responsive) domains:
-
-```{r score-per-domain, fig.height=6, fig.width=8, echo=FALSE, warning=FALSE}
-# how does score distribution vary with domain?
-
-df[df$score > -20 & !is.na(df$score),] %>% 
-  group_by(domain) %>%
-  mutate(count = n()) %>%
-  ungroup() %>%
-  mutate(domain_updated = paste0(domain, " (", count, ")")) %>%
-  ggplot(aes(score)) +
-  geom_histogram(aes(score, after_stat(density)),
-                 binwidth = 0.1,
-                 colour = "blue",
-                 fill = "lightblue") +
-  ylim(c(0,1.5)) +
-  facet_wrap(~domain_updated) +
-  geom_rug(data = tibble(qs)[2:4,],
-           aes(x = qs), 
-           col = "red") 
-```
-
-Note that a bi/multimodal distribution can arise because of the presence of foreign-language text. (This has now been corrected for *ace-eco.org* by removing French text at abstract retrieval.)
+In particular, as of June 2022, translation services hav not yet been switched on, and untranslated articles will all be filtered out. We expet a significant movement from 'OutOf' to 'Count' as soon as translation is in effect.
 
 
 ### Date range
 
-How well are we able to parse publication dates for URLs?
+The range and distribution of known dates of articles in the database:
+
+```{r date-range, echo=FALSE}
+
+df <- df_tx
+
+cat(
+sprintf("Date range %s to %s\n",
+min(df$date, na.rm = TRUE),
+max(df$date, na.rm = TRUE)
+))
+```
+
+```{r date-profile-all, fig.height=3, fig.width=8, echo=FALSE, warning=FALSE}
+
+baddate <- (is.na(df$date))
+df[!baddate,] %>% 
+  ggplot(aes(date)) +
+  geom_histogram(binwidth = 7,
+                 colour = "blue",
+                 fill = "lightblue") +
+  theme(axis.text.x=element_text(angle=60, hjust=1)) +
+  #scale_x_date(date_breaks = "years", date_labels = "%Y") +
+  labs(x = "Publication date (weekly bins)",
+       y = "Article count")
+```
+<p>
+Note that points beyond today's date may occasionally indicate date errors but in most cases arise where publication comes later than online announcement. 
+
+Reading of dates can be a fallible process - how well are we able to parse publication dates for URLs?
 
 ```{r bad-dates, echo=FALSE}
+
+df <- df_tx
 
 baddate <- (is.na(df$date))
 cat(sprintf("Proportion of records with date parsed: %g%%\n",
@@ -163,49 +276,101 @@ By domain this looks like:
 ```{r bad-date-per-domain, echo=FALSE}
 # what are the items without dates?
 
-table(df$domain, baddate)
-```
+df <- df_tx
 
-Where dates are readable, the full date range of articles in the database:
-
-```{r date-range, echo=FALSE}
-
-cat(
-sprintf("Date range %s to %s\n",
-min(df$date, na.rm = TRUE),
-max(df$date, na.rm = TRUE)
-))
+good_date <- !baddate
+df_out <- table(df$domain, good_date) %>%
+  tibble()
+df_out[[1]]
 ```
 
 
-```{r date-profile-all, fig.height=3, fig.width=8, echo=FALSE, warning=FALSE}
 
-df[!baddate,] %>% 
-  ggplot(aes(date)) +
-  geom_histogram(binwidth = 365,
+### Score distribution
+
+Text retrieved is scored in the downstream _process_ stage. From the point of view of the _scrape_ service, it doesn't matter how it is calculated but is a black-box feedback signal representing 'customer satisfaction' with the text output by _scrape_.
+
+Here is the overall distribution, with the quartiles/median marked in red:
+
+```{r score-distribution, fig.height=3, fig.width=4, echo=FALSE, warning=FALSE}
+
+df <- df_tx
+
+qs <- quantile(df$score[df$score > -20.0], na.rm=TRUE)
+
+df[df$score > -20,] %>% 
+  ggplot(aes(score)) +
+  geom_histogram(binwidth = 0.4,
                  colour = "blue",
                  fill = "lightblue") +
-  theme(axis.text.x=element_text(angle=60, hjust=1)) +
-  #scale_x_date(date_breaks = "years", date_labels = "%Y") +
-  labs(x = "Publication date",
-       y = "Article count")
+  geom_rug(data = tibble(qs)[2:4,],
+           aes(x = qs), 
+           col = "red") +
+  labs(x = "Relevance score",
+       y = "URL count")
 ```
 
-Date profile filtered to dates within the past 3 years (for Bing Custom Search we see this is roughly uniform, and we're not seeing the weighting to more recent results that we got with Google Custom Search):
+This score then provides a basis for comparing domains. For clarity we only show domains exceeding a count threshold:
 
-```{r date-profile-used, fig.height=3, fig.width=8, echo=FALSE, warning=FALSE}
+```{r plot-threshold, echo=FALSE, warning=FALSE}
+# how does score distribution vary with domain?
 
-df[df$BADLINK==0,] %>% ggplot(aes(date)) +
-  geom_histogram(binwidth = 7,
+threshold <- 30
+
+cat("Count threshold for plot: ", threshold)
+```
+
+```{r score-per-domain, fig.height=6, fig.width=8, echo=FALSE, warning=FALSE}
+# how does score distribution vary with domain?
+
+df[df$score > -20 & !is.na(df$score),] %>% 
+  group_by(domain) %>%
+  mutate(count = n()) %>%
+  filter(count > threshold) %>%
+  ungroup() %>%
+  mutate(domain_updated = paste0(domain, " (", count, ")")) %>%
+  ggplot(aes(score)) +
+  geom_histogram(aes(score, after_stat(density)),
+                 binwidth = 0.4,
                  colour = "blue",
                  fill = "lightblue") +
-  theme(axis.text.x=element_text(angle=60, hjust=1)) +
-  scale_x_date(date_breaks = "months", date_labels = "%b-%Y") +
-  labs(x = "Publication date (weekly bins)",
-       y = "Article count")
+  ylim(c(0,1.5)) +
+  facet_wrap(~domain_updated) +
+  geom_rug(data = tibble(qs)[2:4,],
+           aes(x = qs), 
+           col = "red") 
 ```
 
-Note any points beyond today's date, which may indicate date errors, or in some cases arise where publication comes later than online announcement. 
+<p> One can make some observations from this plot. For each domain, a skew to the right is good, to the left is not good.
+
+First, the value of the OAI domain _bioone.org/action/oai_ is showing clearly. (This represents the journals listed under 'step 2' above.) 
+
+(Note that the domain _bioone.org_ was mined directly for just the Wilson Journal prior to use of OAI.)
+
+Second, the profile for _biorxiv.org_ is less strong and could suggest a review of how the site is crawled.
+
+Third, biimodal distributions (i.e. outlying lumps to the left) can indicate non-English text that has not (yet) been translated.
+
+
+### Text retrieval
+
+Finally, we summarise the success or not, by domain, of text retrieval. We've indicated above ('Step 1 revisited') that not all domains consistently permit web crawling. Among responsive domains, the following counts show URLs from which text was retrieved (1) versus not (0):
+
+```{r compare-responsive-domains, echo=FALSE}
+# which (responsive) domains can I get text from?
+
+df <- df_master
+
+problem_domains <- df %>% 
+  group_by(domain) %>%
+  summarise(count = sum(GOTTEXT)) %>%
+  filter(count == 0) %>%
+  select(domain) 
+
+df <- df[!(df$domain %in% problem_domains$domain),]
+table(df$domain, df$GOTTEXT)
+```
+
 
 ### R and package versions used
 
