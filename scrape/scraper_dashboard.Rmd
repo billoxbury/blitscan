@@ -34,7 +34,7 @@ doifile <- "../data/doi_data_cr.csv"
 df_doi <- read_csv(doifile, show_col_types = FALSE)
 ```
 
-### Basic statistics
+### First statistics
 
 The
 <a href="http://blitscan.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications with the following basic stats:
@@ -45,19 +45,55 @@ df <-  df_tx
 cat("Number of articles:", nrow(df), '\n')
 ```
 
+```{r nr-species, echo=FALSE, warning=FALSE}
+
+sp_list <- df$species[!is.na(df$species)] %>%
+  str_split('\\|') %>%
+  unlist() %>%
+  unique()
+
+cat("Number of species:", length(sp_list), '\n')
+```
+
 ```{r nr-journals, echo=FALSE, warning=FALSE}
 
+
+# used in step 4 below
+journalsfile <- "../data/scan_journal_sources.csv"
+scan_journal_sources <- read_csv(journalsfile, 
+                         show_col_types = FALSE)
+scan_journal_sources['Count'] <- sapply(1:nrow(scan_journal_sources), function(i){
+  lab <- scan_journal_sources$SearchPrefix[i] 
+  # return
+  sum(str_detect(df$search_term, lab))
+})
+
+# using DOIs
 doi_index <- sapply(df$doi, function(d){
   which(df_doi$doi == d) 
 }) %>% as.numeric()
-
 tx_journals <- df_doi[doi_index, ] %>%
   filter(!is.na(container.title)) %>%
   group_by(container.title, publisher) %>%
   summarise(count = n(), .groups = 'keep') %>%
-  arrange(desc(count)) 
+  ungroup()
+names(tx_journals) <- c('Journal','Publisher','Count')
 
-cat("Number of journals:", nrow(tx_journals), '\n')
+# combine the two
+scanned <- scan_journal_sources %>%
+  select(Journal, Count)
+tmp <- full_join(tx_journals, scanned, by = 'Journal') 
+tmp$Count.x[is.na(tmp$Count.x)] <- 0
+tmp$Count.y[is.na(tmp$Count.y)] <- 0
+tx_journals <- tmp %>%
+  rowwise() %>%
+  mutate(Count = max(Count.x, Count.y)) %>%
+  select(Journal, Publisher, Count)
+
+# a hack until correct publishers are included in '../data/scan_journal_sources.csv'
+tx_journals$Publisher[is.na(tx_journals$Publisher)] <- ''
+
+cat("Number of journals/proceedings:", nrow(tx_journals), '\n')
 ```
 
 ```{r nr-publishers, echo=FALSE, warning=FALSE}
@@ -70,15 +106,45 @@ np <- tx_publisher[!is.na(tx_publisher)] %>%
 cat("Number of publishers:", np, '\n')
 ```
 
-More detail on journal and publishers is given below. A full list of journals the database draws from is given in the appendix.
+More detail on journals and publishers is given below. A full list of journals/proceedings the database draws from is given in the appendix.
 
 
 ### Red-list coverage
 
-_TO DO_
+A direct way to measure the utility of the tool is via coverage of species, classified by red-list status. The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier) occuring in any titles or abstract of the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
 
+```{r red-list, echo=FALSE, warning=FALSE}
 
-### Web search, archives and journals
+redlistfile <- "../data/master-BLI-11107.csv"
+df_redlist <- read_csv(redlistfile, 
+                       col_types = cols(SISRecID = col_character())) %>%
+  select(SISRecID, status)
+# status counts
+df_all <- df_redlist %>%
+  filter(!is.na(status)) %>%
+  group_by(status) %>%
+  summarise(OutOf = n())
+
+# status counts for the blitscan list
+df_tmp <- tibble(SISRecID = sp_list)
+df_blit <- inner_join(df_tmp, df_redlist, by = 'SISRecID') %>%
+  filter(!is.na(status)) %>%
+  group_by(status) %>%
+  summarise(Count = n())
+
+# join the two
+df_out <- full_join(df_blit, df_all, by = 'status') %>%
+  mutate(Percent = round( 100*Count/OutOf, 1)) %>%
+  rename(Status = status) %>%
+  arrange(desc(OutOf))
+
+df_out %>%
+  knitr::kable(format = "html", table.attr = "style='width:50%;'")
+```
+<p>
+(Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained.)
+
+### Sources
 
 The search process to find web content follows four main steps to identify articles, followed by text retrieval from those articles. The four steps are:
 
@@ -89,15 +155,15 @@ The search process to find web content follows four main steps to identify artic
 
 We will summarise each of these steps in turn.
 
-#### Step 1: <a href="https://www.customsearch.ai/">Custom Search</a>
+#### Step 1: <a href="https://docs.microsoft.com/en-us/bing/search-apis/bing-custom-search/overview">Custom Search</a>
 
-This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a gives us a wide reach, while the journal in the later steps ensure greater completeness.
+This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a gives us a wide reach, while the journal scans in the later steps ensure greater completeness.
 
 The process runs around 1000 queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). Each query uses a random search term taken from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_general.txt">list of generic scientific/common bird names</a> (while checking that the search hasn't been used too recently).
 
 URLs returned from this process are stored and mined individually *after* all of steps 1-4 have completed. 
 
-#### Step 2: <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative</a>
+#### Step 2: <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative (OAI)</a>
 
 OAI is an invaluable centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to theor servers; on the other hand, it greatly simplifies the process for us, as data consumers, in providing a single format across a very wide community of providers.
 
@@ -125,7 +191,7 @@ df_bioone %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
 
-#### Step 3: archive scanning
+#### Step 3: preprint archives
 
 This is similar to step 1, except that instead of using a commercial search engine, queries are made directly to a set of preprint archives, currently consisiting of:
 
@@ -161,16 +227,6 @@ URLs returned from this process are stored and mined individually after all of s
 To add completeness beyond the quite general searches above, this step explicitly scans the tables of contents for recent issues of relevant journals. Journals currently scanned are the following.
 
 ```{r scanned-journals, echo = FALSE, warning = FALSE}
-
-journalsfile <- "../data/scan_journal_sources.csv"
-scan_journal_sources <- read_csv(journalsfile, 
-                         show_col_types = FALSE)
-
-scan_journal_sources['Count'] <- sapply(1:nrow(scan_journal_sources), function(i){
-  lab <- scan_journal_sources$SearchPrefix[i] 
-  # return
-  sum(str_detect(df$search_term, lab))
-})
 
 
 scan_journal_sources[,c(1,2,3,5)] %>%
@@ -292,7 +348,7 @@ df_out[[1]]
 
 Text retrieved is scored in the downstream _process_ stage. From the point of view of the _scrape_ service, it doesn't matter how it is calculated but is a black-box feedback signal representing 'customer satisfaction' with the text output by _scrape_.
 
-Here is the overall distribution, with the quartiles/median marked in red:
+Here is the overall distribution, with the quartiles/median marked in red.
 
 ```{r score-distribution, fig.height=3, fig.width=4, echo=FALSE, warning=FALSE}
 
@@ -312,7 +368,7 @@ df[df$score > -20,] %>%
        y = "URL count")
 ```
 
-This score then provides a basis for comparing domains. For clarity we only show domains exceeding a count threshold:
+This score then provides a basis for comparing domains. (Note that the red quartile markers are those for the overall distribution and are the same for all subplots.) For clarity we only show domains exceeding a count threshold:
 
 ```{r plot-threshold, echo=FALSE, warning=FALSE}
 # how does score distribution vary with domain?
@@ -374,16 +430,25 @@ df <- df[!(df$domain %in% problem_domains$domain),]
 table(df$domain, df$GOTTEXT)
 ```
 
-### Appendix: list of all journals
+### Appendix: list of all journals/proceedings
 
-The listing below makes use of the open source project <a href="https://www.crossref.org/">CrossRef</a>. At each of the steps in the _scrape_ process we record the <a href="https://www.doi.org/">Digital Object Identifier (DOI)</a> of each article. CrossRef then allows us to query all DOIs in the Blitscan database to obtain a rich set of metadata. The list below is extracted from that set. 
+The listing below makes use of the open source project <a href="https://www.crossref.org/">CrossRef</a>. At each of the steps in the _scrape_ process we record the <a href="https://www.doi.org/">Digital Object Identifier (DOI)</a> of each article if possible. 
 
+```{r proportion-dois, echo=FALSE}
+
+df <- df_tx
+
+cat(sprintf("Proportion of articles with known DOI: %g%%",
+            round( 100 * sum(!is.na(df$doi)) / nrow(df))))
+```
+
+<p>
+CrossRef then allows us to query all of the known DOIs in the Blitscan database to obtain a rich set of metadata. The list below is extracted from that set:
 
 ```{r journals-via-crossref, echo=FALSE}
 
-names(tx_journals) <- c('Journal','Publisher','Count')
-
 tx_journals %>%
+  arrange(desc(Count)) %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
 

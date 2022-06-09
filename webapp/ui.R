@@ -82,7 +82,7 @@ shinyUI(fluidPage(
      HTML("<hr>"),
      htmlOutput("search_info"),
      HTML("<hr>
-          <a href='mailto: oxburybill@gmail.com'>&#169; Bill Oxbury 2022</a>")
+          <a href='mailto: bill.oxbury@birdlife.org'>&#169; BirdLife International 2022</a>")
      #textOutput("outtable") # DEBUGGING
      #dataTableOutput("outtable") # <--- NOT COMPATIBLE WITH TEXT ENTRIES?
     ),

@@ -150,16 +150,5 @@ df %>%
   knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
 
-
+<p>
 So while _LC_ holds 54.1% words, it holds only 45.5% sentences. Modelling approaches that are sentence-based (e.g. SBERT), should be less biased toward _LC_ (assuming the full training set) than approaches that are word-based (e.g. BOW).
-
-
-
-
-
-
-
-
-
-
-
