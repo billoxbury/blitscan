@@ -5,5 +5,5 @@ data/bing*
 data/tmp/**
 data/master*
 data/bli_sentences*
-webapp/data/bing*
-
+webapp/data/
+webapp/www/

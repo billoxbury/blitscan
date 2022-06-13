@@ -111,7 +111,7 @@ More detail on journals and publishers is given below. A full list of journals/p
 
 ### Red-list coverage
 
-A direct way to measure the utility of the tool is via coverage of species, classified by red-list status. The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier) occuring in any titles or abstract of the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
+A direct way to measure the utility of the tool is via coverage of species, classified by red-list status. The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier) occuring in any title or abstract of the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
 
 ```{r red-list, echo=FALSE, warning=FALSE}
 
@@ -142,7 +142,7 @@ df_out %>%
   knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
 <p>
-(Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained.)
+(Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are not using DataZone data directly, but are estimated by a crawl of DataZone pages.)
 
 ### Sources
 
@@ -153,11 +153,11 @@ The search process to find web content follows four main steps to identify artic
 3. Query of preprint archives against genus (Latin) names in vulnerable categories
 4. Scanning of content lists for targeted journals.
 
-We will summarise each of these steps in turn.
+We will summarise each of these in turn.
 
 #### Step 1: <a href="https://docs.microsoft.com/en-us/bing/search-apis/bing-custom-search/overview">Custom Search</a>
 
-This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a gives us a wide reach, while the journal scans in the later steps ensure greater completeness.
+This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a wide reach, while the journal scans in the later steps ensure greater completeness.
 
 The process runs around 1000 queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). Each query uses a random search term taken from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_general.txt">list of generic scientific/common bird names</a> (while checking that the search hasn't been used too recently).
 
@@ -165,9 +165,9 @@ URLs returned from this process are stored and mined individually *after* all of
 
 #### Step 2: <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative (OAI)</a>
 
-OAI is an invaluable centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to theor servers; on the other hand, it greatly simplifies the process for us, as data consumers, in providing a single format across a very wide community of providers.
+OAI is an invaluable centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to their servers; on the other hand, it greatly simplifies the process for us, as data consumers, in providing a single format across a very wide community of providers.
 
-As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are current using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relvant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
+As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are current using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relevant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
 
 
 ```{r oai-bioone-count, echo = FALSE, warning = FALSE}
@@ -268,6 +268,7 @@ We aim to grow the coverage of non-English language sources by taking advantage 
 
 
 lang_all <- df_master %>% 
+  filter(GOTTEXT == 1) %>%
   group_by(language) %>%
   summarize(OutOf = n())
 lang_used <- df_tx %>% 
@@ -281,8 +282,6 @@ df_out %>%
   knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
 <p> In this table, 'Count' refers to the current database while 'OutOf' refers to the wider data set of articles that is stored before filtering down to the database used. Filtering is based on both date and relevance. 
-
-In particular, as of June 2022, translation services have not yet been switched on, and untranslated articles will all be filtered out. We expect a significant movement from 'OutOf' to 'Count' as soon as translation is in effect.
 
 
 ### Date range

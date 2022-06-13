@@ -19,7 +19,7 @@ txfile="data/tx-master.csv"
 dockerpath="webapp"
 
 ########################
-# SCRAPE PHASE
+# SCRAPE STAGE
 
 # (1) Bing custom search
 ./scrape/custom_search_bing.py $stfile $qfilebing 
@@ -42,7 +42,7 @@ dockerpath="webapp"
 
 # (6) pdf scraping where text not obtained in previous stages
 # - NEEDS REWRITE
-./scrape/cs_get_pdf_text_bing.py $outfile
+#./scrape/cs_get_pdf_text.py $outfile
 
 # (7) date corrections and set BADLINK for old dates
 ./scrape/cs_fix_dates.py $outfile
@@ -54,7 +54,8 @@ dockerpath="webapp"
 # see ../dev/datastore_DEV.sh
 
 ########################
-# PROCESS PHASE
+# PROCESS STAGE
+#./process/translate_to_english.py $outfile # IN PROGRESS
 ./process/score_for_topic.py $outfile $blimodelfile
 ./process/find_species.py $outfile $txfile $birdfile title,abstract
 
@@ -65,12 +66,16 @@ cp $txfile $dockerpath/data     # <--- $txfile all bad links removed
 
 # scraper metrics (R markdown)
 R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
-mv ./scrape/scraper_dashboard.html ./reports
+cp ./scrape/scraper_dashboard.html $dockerpath/www
+mv ./scrape/scraper_dashboard.html ./reports/scraper_dashboard-$today.html
 
 ########################
-# WEBAPP PHASE
+# WEBAPP STAGE
 # build docker image(s)
 docker build -t blitscanappcontainers.azurecr.io/blitscanapp $dockerpath 
+
+# authenticate to Azure if needed
+# az login --scope https://management.core.windows.net//.default
 
 # ... and push to cloud
 az acr login -n blitscanappcontainers.azurecr.io

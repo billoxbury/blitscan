@@ -20,6 +20,7 @@ birdfile="data/taxonomy/BirdLife_species_list_Jan_2022.xlsx"
 
 """
 
+from multiprocessing.context import _default_context
 import sys
 from pathlib import Path
 from datetime import datetime
@@ -53,6 +54,9 @@ infile = Path(infilename)
 outfile = Path(outfilename)
 birdfile = Path(birdfilename)
 
+# global variables
+id_dict = dict()
+
 # check the text field are in the input file
 def make_input_df():
 	global fields
@@ -70,54 +74,63 @@ def make_input_df():
 
 # build bird taxonomy
 def make_taxonomy_df():
-	taxonomy_df = pd.read_excel(birdfile, header=0).fillna('')
-	new_tax_columns = {
-	'Common name': 'comName',
-	'Scientific name': 'sciName',
-	'Synonyms': 'syn',
-	'Alternative common names' : 'alt'
-	}
-	taxonomy_df.rename(columns=new_tax_columns, inplace=True)
-	return taxonomy_df.iloc[:,0:4]
+    taxonomy_df = pd.read_excel(birdfile, header=0, dtype=str).fillna('')
+    new_tax_columns = {
+    'Common name': 'comName',
+    'Scientific name': 'sciName',
+    'Synonyms': 'syn',
+    'Alternative common names' : 'alt',
+    'SISRecID' : 'id'
+    }
+    taxonomy_df.rename(columns=new_tax_columns, inplace=True)
+    return taxonomy_df.iloc[:,0:5]
 
 # build taxonomy_patterns
 def make_tax_patterns(taxonomy_df):
 
-	# Row-wise operations (index i):
-	def com_name(i):
-		# outputs a list of names, each one a list of lower-case words
-		main = taxonomy_df.iloc[i,:]['comName']
-		out = [main.lower().split()]
-		if len(taxonomy_df.iloc[i,:]['alt']) > 0:
-			alt_names = [x.strip() for x in taxonomy_df.iloc[i,:]['alt'].split(',')]
-			alt_names = [x.lower().split() for x in alt_names]
-			out += alt_names
-		return out
+    # Row-wise operations (index i):
+    def com_name(i):
+        global id_dict
+        # outputs a list of names, each one a list of lower-case words
+        main = taxonomy_df.iloc[i,:]['comName'].lower()
+        id_dict[main] = taxonomy_df.at[i,'id']
+        out = [main.split()]
+        if len(taxonomy_df.at[i,'alt']) > 0:
+            alt_names = [x.strip() for x in taxonomy_df.at[i,'alt'].split(',')]
+            alt_names = [x.lower() for x in alt_names]
+            for x in alt_names:
+                id_dict[x] = taxonomy_df.at[i,'id']
+                out += [x.split()]
+        return out
 
-	def sci_name(i):
-		# outputs a list of names, each one a list of lower-case words
-		main = taxonomy_df.iloc[i,:]['sciName']
-		out = [main.lower().split()]
-		if len(taxonomy_df.iloc[i,:]['syn']) > 0:
-			syn_names = [x.strip() for x in taxonomy_df.iloc[i,:]['syn'].split(',')]
-			syn_names = [x.lower().split() for x in syn_names]
-			out += syn_names
-		return out
-	
-	# build pattern list
-	n_species = taxonomy_df.shape[0]
-	tp = [ 
-	[{'label' : 'comName', 'pattern': [{'LOWER': x} for x in y]}
-	for y in com_name(i)]
-	for i in range(n_species) if len(com_name(i)) > 0] + \
-	[
-	[{'label' : 'sciName', 'pattern': [{'LOWER': x} for x in y]}
-	for y in sci_name(i)]
-	for i in range(n_species) if len(sci_name(i)) > 0]
-	# tidy up
-	tp = sum(tp, [])
-	tp = [x for x in tp if len(x['pattern']) > 0]
-	return tp
+    def sci_name(i):
+        global id_dict
+        # outputs a list of names, each one a list of lower-case words
+        main = taxonomy_df.iloc[i,:]['sciName'].lower()
+        id_dict[main] = taxonomy_df.at[i,'id']
+        out = [main.split()]
+        if len(taxonomy_df.at[i,'syn']) > 0:
+            syn_names = [x.strip() for x in taxonomy_df.at[i,'syn'].split(',')]
+            syn_names = [x.lower() for x in syn_names]
+            for x in syn_names:
+                id_dict[x] = taxonomy_df.at[i,'id']
+                out += [x.split()]
+        return out
+
+    # build pattern list
+    n_species = taxonomy_df.shape[0]
+    tp = [ 
+    [{'label' : 'comName', 'pattern': [{'LOWER': x} for x in y]}
+    for y in com_name(i)]
+    for i in range(n_species) if len(com_name(i)) > 0] + \
+    [
+    [{'label' : 'sciName', 'pattern': [{'LOWER': x} for x in y]}
+    for y in sci_name(i)]
+    for i in range(n_species) if len(sci_name(i)) > 0]
+    # tidy up
+    tp = sum(tp, [])
+    tp = [x for x in tp if len(x['pattern']) > 0]
+    return tp
 
 # build NLP pieline
 def make_nlp_pipeline(taxonomy_patterns):
@@ -139,6 +152,7 @@ def clean_text(txt):
 
 # locate records with species mentions
 def find_species_records(df, nlp):
+	global fields
 	# loop over the data frame
 	count = 0
 	for i in range(df.shape[0]):
@@ -146,19 +160,26 @@ def find_species_records(df, nlp):
 		if df.at[i, 'GOTSPECIES'] == 1 or df.at[i, 'BADLINK'] == 1:
 			continue
 		# otherwise proceed
+		id_list = []
+		sp_list = []
+		# check if need to use English translations
+		if df.at[i, 'language'] != 'en' and df.at[i, 'GOTTRANSLATION'] == 1:
+			fields = [f + '_translation' for f in fields]
+		# then proceed
 		for f in fields:
 			txt = clean_text(df[f][i])
 			doc = nlp(txt)
 			ents = [ent.label_ for ent in doc.ents]
 			if 'comName' in ents or 'sciName' in ents:
-				sp_list = [ent.text.lower() for ent in doc.ents if ent.label_ in ['comName','sciName']]
-				sp_list = list(set(sp_list))
-				df.at[i,'species'] = sp_list
-			else:
-				sp_list = []
-		if len(sp_list) > 0:
+				sp_list += [ent.text.lower() for ent in doc.ents if ent.label_ in ['comName','sciName']]
+				id_list += [id_dict[ent.text.lower()] for ent in doc.ents if ent.label_ in ['comName','sciName']]
+		id_list = list(set(id_list))
+		sp_list = list(set(sp_list))
+		id_string = '|'.join(id_list)
+		df.at[i,'species'] = id_string
+		if len(id_list) > 0:
 			count += 1
-			print("%d: found %d\r" % (i, count))
+			print(f'{i}: {id_string} {sp_list}')
 		# and set flag
 		df.at[i, 'GOTSPECIES'] = 1
 	return df
@@ -208,11 +229,12 @@ def main():
 	print("Locating species mentions")
 	master_df = find_species_records(master_df, nlp)
 	
-	print(f"Data written to {infilename}")
+	print(f"{master_df.shape[0]} records written to {infilename}")
 	master_df.to_csv(infile, index = False)
 
 	df_tx = make_tx_data_frame(master_df)
 	df_tx.to_csv(outfile, index = False)
+	print(f'{df_tx.shape[0]} records written to {outfilename}')
 	print(f"TX version written to {outfilename}")
 	
 	print("Done")

@@ -98,6 +98,6 @@ try({
 # write to disk
 
 df_master %>% write_csv(datafile)
-cat(sprintf("Updated data frame written to %s\n", datafile))
+cat(sprintf("%d rows written to %s\n", nrow(df_master), datafile))
 
 

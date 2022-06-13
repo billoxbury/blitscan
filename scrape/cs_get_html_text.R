@@ -189,4 +189,4 @@ for(domain in domains){
 df %>% 
   distinct(link, .keep_all = TRUE) %>%
   write_csv(datafile)
-cat(sprintf("Updated data frame written to %s\n", datafile))
+cat(sprintf("%d rows written to %s\n", nrow(df), datafile))

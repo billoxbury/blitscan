@@ -21,7 +21,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/master-2022-06-06.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/master-2022-06-10.csv" # <--- DEBUGGING, CHECK DATE
 df_master <- read_csv(datafile, show_col_types = FALSE)
 
 ########################################################
@@ -37,7 +37,8 @@ df_master$domain <- df_master$domain %>% str_remove('^www\\.')
 # OAI parameters & functions
 
 # earliest date for responses
-FROM <- '2019-01-01'
+MAXDAYSAGO <- 1100
+FROM <- today() - MAXDAYSAGO
 
 # get response from database
 get_page <- function(database, request){
@@ -87,8 +88,10 @@ database_to_table <- function(database, setname, from = FROM){
 # BioOne parameters & functions
 
 bioone <- "https://bioone.org/action/oai"
-bioone_avian_sets <- c(17, 28, 30, 39, 52, 103, 104, 108, 110, 120, 
-                  142, 143, 151, 156, 157, 158, 159)
+bioone_avian_sets <- c(17, 28, 30, 39, 52, 
+                       103, 104, 108,110, 120, 
+                       142, 143, 151, 156, 157,
+                       158, 159)
 
 # request set names
 request <- "?verb=ListSets"
@@ -136,16 +139,17 @@ df_oai <- scan_bioone(bioone_avian_sets)
 ########################################################
 # enrich DOIs with journal/publisher using CrossRef
 
+doi_prefix <- "https://doi.org/"
 bioone_source_file <- "data/oai_bioone_sources.csv"
 df_sources <- read_csv(bioone_source_file, show_col_types = FALSE)
-
-
-doi_prefix <- "https://doi.org/"
 
 df_oai['journal'] <- ''
 df_oai['publisher'] <- ''
 
+# CrossRef queries:
 for(i in 1:nrow(df_oai)){
+  # only proceed if this is a new DOI
+  if(doi %in% df_master$doi) next
   try({
     doi <- str_remove(df_oai$source[i], doi_prefix)
     tmp <- cr_works(doi)$data
@@ -206,5 +210,5 @@ for(i in 1:nrow(df_oai)){
 df_master %>% 
   distinct(link, .keep_all = TRUE) %>%
   write_csv(datafile)
-cat(sprintf("Updated data frame written to %s\n", datafile))
+cat(sprintf("%d rows written to %s\n", nrow(df_master), datafile))
 

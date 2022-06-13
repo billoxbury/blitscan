@@ -48,7 +48,7 @@ def main():
 
     # write to disk
     df.to_csv(csvfile, index = False)
-    print(f"Done and written to {csvfile}")
+    print(f'{df.shape[0]} records written to {csvfile}')
 
 if __name__ == '__main__':
 	main()

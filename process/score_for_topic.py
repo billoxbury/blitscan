@@ -4,6 +4,7 @@
 Take a CSV file with fields 'title', 'abstract', 'score'; and JSON file of word probabilities.
 Use the latter to compute average log-likelihoods of conjoined title/abstract, and wrote these 
 back as score.
+NEW 13/6/2022: looks for title/abstract translations to score instead in case language is not 'en'.
 
 """
 
@@ -94,27 +95,36 @@ def clean_sentences(sents):
 
 def main():
 	global df
+	ctr = 0
 	# apply topic scoring to title/abstract
 	print("Computing item scores")
 	for i in range(df.shape[0]): 
-		if (df.at[i, 'GOTSCORE'] == 1 or df.at[i, 'BADLINK'] == 1): continue
+		#if df.at[i, 'GOTSCORE'] == 1 or df.at[i, 'BADLINK'] == 1: continue
+		if df.at[i, 'BADLINK'] == 1: continue
 		if not (isinstance(df.at[i, 'title'], str) and \
 				isinstance(df.at[i, 'abstract'], str)):
 			df.at[i, 'score'] = LOGZERO
 			continue
+        # set text to score
 		try:
-			doc = nlp( df.at[i, 'abstract'] )
-			sents = clean_sentences(list(doc.sents)) + [df.at[i, 'title']]
+			if df.at[i, 'language'] != 'en' and df.at[i, 'GOTTRANSLATION'] == 1:
+				doc = nlp( df.at[i, 'abstract_translation'] )
+				sents = clean_sentences(list(doc.sents)) + [df.at[i, 'title_translation']]
+			else:
+				doc = nlp( df.at[i, 'abstract'] )
+				sents = clean_sentences(list(doc.sents)) + [df.at[i, 'title']]
+			# ... and score
 			df.at[i, 'score'] = sum( [bli_score(s) for s in sents] ) / len(sents)
 			df.at[i, 'GOTSCORE'] = 1
+			ctr += 1
 		except:
 			continue
-
+    
 	bad_rows = [i for i in range(df.shape[0]) if df.at[i,'score'] == LOGZERO]
 	df.at[bad_rows, 'BADLINK'] = 1
 	df = df.sort_values(by = ['score'], ascending = False )
 	df.to_csv(datafile, index = False)
-	print(f"Done and written to {datafile}")        
+	print(f"Scored {ctr} rows and written to {datafile}")        
 
 ##########################################################
 
