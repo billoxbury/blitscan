@@ -31,22 +31,8 @@ except:
 infile = Path(infilename)
 outfile = Path(outfilename)
 
-
-# check the text field are in the input file
-def make_input_df():
-	global fields
-	df = pd.read_csv(infile, header=0).fillna('')
-	df_names = df.columns.to_list()
-	for f in fields:
-		if f not in df_names:
-			fields.remove(f)
-	if len(fields) == 0:
-		print(sys.argv[0],': invalid text fields', fields)
-		sys.exit(1)
-	else:
-		print("Found %d valid text fields in data" % len(fields)) 
-		return df
-
+# read data frame
+df = pd.read_csv(infile, header=0).fillna('')
 
 # make slimmed-down data frame for Text Explorer
 def make_tx_data_frame(df):
@@ -79,8 +65,7 @@ def make_tx_data_frame(df):
 
 def main():
 	
-	master_df = make_input_df()
-	df_tx = make_tx_data_frame(master_df)
+	df_tx = make_tx_data_frame(df)
 	df_tx.to_csv(outfile, index = False)
 	print(f'{df_tx.shape[0]} records written to {outfilename}')
 

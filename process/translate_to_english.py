@@ -41,7 +41,7 @@ def main():
 	global df
 	ctr = 0
 	# make translation requests
-	print("Computing item scores")
+	print("Making translation requsts")
 	for i in range(df.shape[0]): 
 		if df.at[i, 'GOTTEXT'] == 0: continue
 		if df.at[i, 'language'] == 'en': continue
@@ -59,7 +59,7 @@ def main():
 			continue
     # write to disk
 	df.to_csv(datafile, index = False)
-	print(f"Scored {ctr} rows and written to {datafile}")        
+	print(f"Translated {ctr} rows and written to {datafile}")        
 
 ##########################################################
 
