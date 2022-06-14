@@ -97,7 +97,10 @@ try({
 ##########################################################
 # write to disk
 
-df_master %>% write_csv(datafile)
+df_master <- df_master %>%
+  distinct(link, .keep_all = TRUE) 
+df_master %>%
+  write_csv(datafile)
 cat(sprintf("%d rows written to %s\n", nrow(df_master), datafile))
 
 

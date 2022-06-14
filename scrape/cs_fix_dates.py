@@ -29,7 +29,7 @@ df = pd.read_csv(csvfile, index_col = None).fillna('')
 def main():
     global df
 
-    # repair dates - this includes parsing those extracted from HTML in 'cs_get_text.R'
+    # repair dates - this includes parsing those extracted from HTML in 'cs_get_html_text.R'
     # as well as from PDF 
     for i in range(df.shape[0]):
 

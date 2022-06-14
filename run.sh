@@ -57,7 +57,8 @@ dockerpath="webapp"
 # PROCESS STAGE
 ./process/translate_to_english.py $outfile
 ./process/score_for_topic.py $outfile $blimodelfile
-./process/find_species.py $outfile $txfile $birdfile title,abstract
+./process/find_species.py $outfile $birdfile title,abstract
+./process/make_tx_dataframe.py $outfile $txfile
 
 # clean up
 cp $infile $bakfile

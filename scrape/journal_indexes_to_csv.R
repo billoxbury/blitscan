@@ -307,40 +307,6 @@ try({
 })
 
 #############
-# Wilson Journal
-
-#cat("Scanning Wilson Journal\n")
-
-#source("./scrape/scan/scan_wilson.R")
-#df_wilson <- scan_wilson()
-
-# add to main data frame
-#for(i in 1:nrow(df_wilson)){
-#  if(df_wilson$link[i] %in% df_master$link) next
-#  if(!(df_wilson$title[i] %in% df_master$title)){
-    # add row to the master table
-#    df_master <- df_master %>%
-#      add_row(#date = "",
-#        link = df_wilson$link[i],
-#        link_name = df_wilson$title[i],
-#        snippet = '',
-#        language = 'en',
-#        title = df_wilson$title[i],
-#        abstract = '',
-#        pdf_link = '',
-#        domain = 'bioone.org',
-#        search_term = "WilsonJournal",
-#        query_date = today(),
-#        BADLINK = 0,
-#        DONEPDF = 0,
-#        GOTTEXT = 0,
-#        GOTSCORE = 0,
-#        GOTSPECIES = 0
-#      )
-#  }
-#}
-
-#############
 # Revista Ornitología Colombiana
 
 cat("Scanning Ornitología Colombiana\n")
@@ -378,7 +344,11 @@ try({
 ##########################################################
 # write to disk
 
-df_master %>% write_csv(datafile)
+df_master <- df_master %>%
+  distinct(link, .keep_all = TRUE) 
+df_master %>%
+  write_csv(datafile)
 cat(sprintf("%d rows written to %s\n", nrow(df_master), datafile))
+
 
 

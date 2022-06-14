@@ -21,7 +21,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/master-2022-06-10.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/master-2022-06-13.csv" # <--- DEBUGGING, CHECK DATE
 df_master <- read_csv(datafile, show_col_types = FALSE)
 
 ########################################################
@@ -148,10 +148,11 @@ df_oai['publisher'] <- ''
 
 # CrossRef queries:
 for(i in 1:nrow(df_oai)){
-  # only proceed if this is a new DOI
-  if(doi %in% df_master$doi) next
   try({
     doi <- str_remove(df_oai$source[i], doi_prefix)
+    # only proceed if this is a new DOI
+    if(doi %in% df_master$doi) next
+    # if OK
     tmp <- cr_works(doi)$data
     df_oai$journal[i] <- tmp$container.title
     df_oai$publisher[i] <- tmp$publisher
@@ -206,6 +207,8 @@ for(i in 1:nrow(df_oai)){
       )
 }
 
+
+########################################################
 # write to disk
 df_master %>% 
   distinct(link, .keep_all = TRUE) %>%

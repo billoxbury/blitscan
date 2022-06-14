@@ -146,9 +146,9 @@ for(domain in domains){
   
     # look for XPATH rule
     if(df$domain[i] %in% xpr$domain){
-      j <- which(xpr$domain == df$domain[i])
+      xpr_idx <- which(xpr$domain == df$domain[i])
     } else{
-      j <- 2
+      xpr_idx <- 2
       # i.e. pick the PLOS rule, which is fairly generic
     }
   
@@ -160,12 +160,16 @@ for(domain in domains){
     } else {
       maxcalls <- maxcalls - 1
       try({
-        out <- get_ta(df$link[i], j)
-      
+        out <- get_ta(df$link[i], xpr_idx)
+        # date
         if(is.na(df$date[i]) & length(out$date) > 0){
           df$date[i] <- add_day_to_month(out$date)
         }
+        # doi
         if(length(out$doi) > 0) df$doi[i] <- out$doi
+        # language
+        df$language[i] <- xpr$language[xpr_idx]
+        # text fields
         if(n_words(out$title) > 1) df$title[i] <- out$title
         if(length(out$pdflink) > 0) df$pdf_link[i] <- out$pdflink
         if(n_words(out$abstract) > 1){
@@ -186,7 +190,9 @@ for(domain in domains){
 ##########################################################
 # write to disk
 
-df %>% 
-  distinct(link, .keep_all = TRUE) %>%
+df <- df %>%
+  distinct(link, .keep_all = TRUE) 
+df %>%
   write_csv(datafile)
 cat(sprintf("%d rows written to %s\n", nrow(df), datafile))
+
