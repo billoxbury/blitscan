@@ -55,7 +55,7 @@ dockerpath="webapp"
 
 ########################
 # PROCESS STAGE
-#./process/translate_to_english.py $outfile # IN PROGRESS
+./process/translate_to_english.py $outfile
 ./process/score_for_topic.py $outfile $blimodelfile
 ./process/find_species.py $outfile $txfile $birdfile title,abstract
 

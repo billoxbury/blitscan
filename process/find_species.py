@@ -56,6 +56,7 @@ birdfile = Path(birdfilename)
 
 # global variables
 id_dict = dict()
+trans_fields = [f + '_translation' for f in fields]
 
 # check the text field are in the input file
 def make_input_df():
@@ -152,7 +153,6 @@ def clean_text(txt):
 
 # locate records with species mentions
 def find_species_records(df, nlp):
-	global fields
 	# loop over the data frame
 	count = 0
 	for i in range(df.shape[0]):
@@ -164,9 +164,11 @@ def find_species_records(df, nlp):
 		sp_list = []
 		# check if need to use English translations
 		if df.at[i, 'language'] != 'en' and df.at[i, 'GOTTRANSLATION'] == 1:
-			fields = [f + '_translation' for f in fields]
+			thisfields = trans_fields
+		else:
+			thisfields = fields
 		# then proceed
-		for f in fields:
+		for f in thisfields:
 			txt = clean_text(df[f][i])
 			doc = nlp(txt)
 			ents = [ent.label_ for ent in doc.ents]

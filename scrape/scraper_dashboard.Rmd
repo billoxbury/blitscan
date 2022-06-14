@@ -32,6 +32,12 @@ df_tx$doi <- df_tx$doi %>% str_remove('^doi\\:')
 
 doifile <- "../data/doi_data_cr.csv"
 df_doi <- read_csv(doifile, show_col_types = FALSE)
+
+# SCRATCH SPACE
+
+# after any manual adjustments:
+# df %>% write_csv(masterfile)
+
 ```
 
 ### First statistics
@@ -404,7 +410,7 @@ First, the value of the OAI domain _bioone.org/action/oai_ is showing clearly. (
 
 Second, the profile for _biorxiv.org_ is less strong and could suggest a review of how the site is crawled.
 
-Third, bimodal distributions (i.e. showing outlying lumps to the left) can indicate non-English text that has not (yet) been translated.
+Third, bimodal distributions (i.e. showing outlying lumps to the left) can indicate non-English text that has not yet been translated.
 
 Finally, a visual check on _link.springer.com_ is useful just because Springer turns out to dominate the journals visited by the custom search (step 1). (See the appendix.)
 
