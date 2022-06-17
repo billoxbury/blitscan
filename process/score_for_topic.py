@@ -123,7 +123,8 @@ def main():
 	df.at[bad_rows, 'BADLINK'] = 1
 	df = df.sort_values(by = ['score'], ascending = False )
 	df.to_csv(datafile, index = False)
-	print(f"Scored {ctr} rows and written to {datafile}")        
+	print(f"Scored {ctr} rows and written to {datafile}")
+	return 0    
 
 ##########################################################
 

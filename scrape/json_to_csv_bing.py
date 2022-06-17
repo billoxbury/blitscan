@@ -39,10 +39,9 @@ MAX_DAYS = 1100
 # read command line
 try:
 	qfile = sys.argv[1];			del sys.argv[1]
-	infile = sys.argv[1];			del sys.argv[1]	
-	outfile = sys.argv[1];			del sys.argv[1]	
+	csvfile = sys.argv[1];			del sys.argv[1]	
 except:
-	print("Usage:", sys.argv[0], "json_file csv_file_in csv_file_out")
+	print("Usage:", sys.argv[0], "json_file csv_file")
 	sys.exit(1)
 
 # get raw query data
@@ -52,7 +51,7 @@ qf.close()
 print("Read json data with %d keys" % len(data))
 
 # read current data frame
-df = pd.read_csv(infile, index_col = None).fillna('')
+df = pd.read_csv(csvfile, index_col = None).fillna('')
 print("Read %d csv records" % df.shape[0])
 
 # store list of known links
@@ -195,8 +194,8 @@ def dedupe_rows():
 
 def write_to_disk():
    # write to disk
-   df.to_csv(outfile, index = False)
-   print("Updated data frame written to %s" % outfile)
+   df.to_csv(csvfile, index = False)
+   print("Updated data frame written to %s" % csvfile)
  
 def main():
     initial_data_check()

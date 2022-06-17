@@ -13,7 +13,7 @@ library(lubridate)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) == 0){
-  cat("Usage: cs_get_text.R csvfile\n")
+  cat("Usage: cs_get_html_text.R csvfile\n")
   quit(status=1)
 }
 datafile <- args[1]

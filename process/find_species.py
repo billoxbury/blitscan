@@ -197,6 +197,7 @@ def main():
 	master_df.to_csv(datafile, index = False)
 	
 	print("Done")
+	return 0
 
 ##########################################################
 #import cProfile, pstats

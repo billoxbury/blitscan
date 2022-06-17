@@ -6,9 +6,11 @@ today=`date +'%Y-%m-%d'`
 # paths/filenames
 stfile="data/searchterms_general.txt"
 qfilebing="data/bing_cs_queries.json"
+doifile="data/doi_data_cr.csv"
 
 infile="data/master.csv"
 outfile="data/master-$today.csv"
+cp $infile $outfile
 
 # taxonomy and model files
 birdfile="data/BirdLife_species_list_Jan_2022.xlsx"
@@ -23,7 +25,7 @@ dockerpath="webapp"
 
 # (1) Bing custom search
 ./scrape/custom_search_bing.py $stfile $qfilebing 
-./scrape/json_to_csv_bing.py $qfilebing $infile $outfile 
+./scrape/json_to_csv_bing.py $qfilebing $outfile
 
 # (2) scan OAI relevant journals (currently under BioOne)
 # - maintain source list for this step
@@ -44,11 +46,11 @@ dockerpath="webapp"
 # - NEEDS REWRITE
 #./scrape/cs_get_pdf_text.py $outfile
 
-# (7) date corrections and set BADLINK for old dates
-./scrape/cs_fix_dates.py $outfile
+# (7) update DOI database from CrossRef - including fixing missing dates
+./scrape/update_DOI_data.R $outfile $doifile
 
-# Is there a normalising step to dedupe on DOI and check against Crossref?
-# - maybe combine with (7)
+# (8) date corrections and set BADLINK for old dates
+./scrape/cs_fix_dates.py $outfile
 
 # COPY FILES TO AZURE STORAGE ACCOUNTS
 # see ../dev/datastore_DEV.sh

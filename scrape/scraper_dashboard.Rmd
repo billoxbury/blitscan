@@ -165,7 +165,7 @@ We will summarise each of these in turn.
 
 This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a wide reach, while the journal scans in the later steps ensure greater completeness.
 
-The process runs around 1000 queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). Each query uses a random search term taken from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_general.txt">list of generic scientific/common bird names</a> (while checking that the search hasn't been used too recently).
+The process manages the cost of search by sampling search terms at each run, with the aim of achieving repeated coverage of all search terms over time. Custom search runs queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). Each query uses a random search term taken from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_general.txt">list of generic scientific/common bird names</a> (while checking that the search hasn't been used too recently).
 
 URLs returned from this process are stored and mined individually *after* all of steps 1-4 have completed. 
 

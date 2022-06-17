@@ -17,7 +17,7 @@ import re
 
 # global constants
 LOGZERO = -20.0
-TX_THRESHOLD = 0.0 # score quantile below which items are discarded for TX
+TX_THRESHOLD = 0.1 # score quantile below which items are discarded for TX
 
 # read command line
 try:
@@ -68,6 +68,7 @@ def main():
 	df_tx = make_tx_data_frame(df)
 	df_tx.to_csv(outfile, index = False)
 	print(f'{df_tx.shape[0]} records written to {outfilename}')
+	return 0
 
 ##########################################################
 
