@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "data/master-2022-05-30.csv" # <--- DEBUGGING, CHECK DATE
+# datafile <- "data/master-2022-06-17.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
 
 # recognise dates?

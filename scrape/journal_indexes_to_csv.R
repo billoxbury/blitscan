@@ -18,7 +18,7 @@ if(length(args) == 0){
 }
 datafile <- args[1]
 
-# datafile <- "./data/master-2022-05-30.csv" 
+# datafile <- "./data/master-2022-06-17.csv" 
 df_master <- read_csv(datafile, show_col_types = FALSE)
 
 ###############################################################
@@ -234,6 +234,42 @@ try({
     }
   }
 })
+
+#############
+# Bird Conservation International
+
+cat("Scanning Oryx\n")
+source("./scrape/scan/scan_oryx.R")
+
+try({
+  df_oryx <- scan_oryx()
+  # add to main data frame
+  for(i in 1:nrow(df_oryx)){
+    if(df_oryx$link[i] %in% df_master$link) next
+    if(!(df_oryx$title[i] %in% df_master$title)){
+      # add row to the master table
+      df_master <- df_master %>%
+        add_row(#date = "",
+          link = df_oryx$link[i],
+          link_name = df_oryx$title[i],
+          snippet = '',
+          language = 'en',
+          title = df_oryx$title[i],
+          abstract = '',
+          pdf_link = '',
+          domain = 'cambridge.org',
+          search_term = "Oryx",
+          query_date = today(),
+          BADLINK = 0,
+          DONEPDF = 0,
+          GOTTEXT = 0,
+          GOTSCORE = 0,
+          GOTSPECIES = 0
+        )
+    }
+  }
+})
+
 
 #############
 # ACE-ECO
