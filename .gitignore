@@ -3,7 +3,7 @@
 **/.Rhistory
 data/bing*
 data/tmp/**
-data/master*
+data/*master*
 data/bli_sentences*
 webapp/data/
 webapp/www/
