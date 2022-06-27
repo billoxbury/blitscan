@@ -36,7 +36,7 @@ df_doi <- read_csv(doifile, show_col_types = FALSE)
 # SCRATCH SPACE
 
 # after any manual adjustments:
-# df %>% write_csv(masterfile)
+# df_master %>% write_csv(masterfile)
 
 ```
 
@@ -53,12 +53,16 @@ cat("Number of articles:", nrow(df), '\n')
 
 ```{r nr-species, echo=FALSE, warning=FALSE}
 
-sp_list <- df$species[!is.na(df$species)] %>%
+species_nonunique <- df$species[!is.na(df$species)] %>%
   str_split('\\|') %>%
-  unlist() %>%
+  unlist()
+species_unique <- species_nonunique %>%
   unique()
 
-cat("Number of species:", length(sp_list), '\n')
+nspecies <- species_unique %>%
+  length()
+
+cat("Number of species:", nspecies, '\n')
 ```
 
 ```{r nr-journals, echo=FALSE, warning=FALSE}
@@ -125,6 +129,7 @@ redlistfile <- "../data/master-BLI-11107.csv"
 df_redlist <- read_csv(redlistfile, 
                        col_types = cols(SISRecID = col_character())) %>%
   select(SISRecID, status)
+
 # status counts
 df_all <- df_redlist %>%
   filter(!is.na(status)) %>%
@@ -132,8 +137,8 @@ df_all <- df_redlist %>%
   summarise(OutOf = n())
 
 # status counts for the blitscan list
-df_tmp <- tibble(SISRecID = sp_list)
-df_blit <- inner_join(df_tmp, df_redlist, by = 'SISRecID') %>%
+df_species <- tibble(SISRecID = species_unique)
+df_blit <- inner_join(df_species, df_redlist, by = 'SISRecID') %>%
   filter(!is.na(status)) %>%
   group_by(status) %>%
   summarise(Count = n())
@@ -149,6 +154,29 @@ df_out %>%
 ```
 <p>
 (Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are not using DataZone data directly, but are estimated by a crawl of DataZone pages.)
+
+<p>
+How many journal articles are we seeing per-species? A box-plot organised by red-list status:
+
+```{r article-counts, fig.height=3, fig.width=6, echo=FALSE, warning=FALSE}
+
+article_counts <- tibble(SISRecID = species_nonunique) %>%
+  group_by(SISRecID) %>%
+  summarise(count = n())
+
+df_blit <- inner_join(article_counts, df_redlist, by = 'SISRecID') %>%
+  filter(!is.na(status))
+
+df_blit %>%
+  group_by(status) %>%
+  ggplot(aes(x = reorder(status, -count, mean), y = count)) +
+  geom_boxplot(colour = "blue",
+               fill = "lightblue") +
+  scale_y_continuous(trans='log10') +
+  labs(y="Article count", x="Status", 
+       subtitle="")
+
+```
 
 ### Sources
 
@@ -330,7 +358,7 @@ df <- df_tx
 baddate <- (is.na(df$date))
 cat(sprintf("Proportion of records with date parsed: %g%%\n",
             100 * ( 1 - sum(baddate) / nrow(df)) 
-            %>% round(1)
+            %>% round(3)
 ))
 ```
 
@@ -444,7 +472,7 @@ The listing below makes use of the open source project <a href="https://www.cros
 df <- df_tx
 
 cat(sprintf("Proportion of articles with known DOI: %g%%",
-            round( 100 * sum(!is.na(df$doi)) / nrow(df))))
+            round( 100 * sum(!is.na(df$doi)) / nrow(df)), 3))
 ```
 
 <p>

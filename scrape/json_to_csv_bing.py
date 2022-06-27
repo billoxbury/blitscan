@@ -34,7 +34,7 @@ from urllib.parse import urlparse
 
 
 # how far back in time to allow (3 years)
-MAX_DAYS = 1100
+MAX_DAYS = 2200
 
 # read command line
 try:

@@ -9,8 +9,8 @@ import pandas as pd
 from dateutil.parser import parse
 from datetime import datetime
 
-DEFAULT_DAYSAGO = 1000
-MAX_DAYSAGO = 1100
+DEFAULT_DAYSAGO = -1
+MAX_DAYSAGO = 2200
 
 #  global constants
 today = datetime.now().date()

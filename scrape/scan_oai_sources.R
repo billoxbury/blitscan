@@ -15,7 +15,7 @@ library(rcrossref)
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
 
-if(length(args) == 0){
+if(length(args) < 1){
   cat("Usage: scan_oai_sources.R csvfile\n")
   quit(status=1)
 }
@@ -37,7 +37,7 @@ df_master$domain <- df_master$domain %>% str_remove('^www\\.')
 # OAI parameters & functions
 
 # earliest date for responses
-MAXDAYSAGO <- 1100
+MAXDAYSAGO <- 2200
 FROM <- today() - MAXDAYSAGO
 
 # get response from database

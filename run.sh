@@ -7,6 +7,7 @@ today=`date +'%Y-%m-%d'`
 stfile="data/searchterms_general.txt"
 qfilebing="data/bing_cs_queries.json"
 doifile="data/doi_data_cr.csv"
+xprfile="data/xpath_rules.csv"
 
 infile="data/master.csv"
 outfile="data/master-$today.csv"
@@ -40,13 +41,12 @@ dockerpath="webapp"
 ./scrape/journal_indexes_to_csv.R $outfile
 
 # (5) web scraping against links where text not already obtained
-./scrape/cs_get_html_text.R $outfile
+./scrape/cs_get_html_text.R $outfile $xprfile
 
 # (6) pdf scraping where text not obtained in previous stages
-# - NEEDS REWRITE
-#./scrape/cs_get_pdf_text.py $outfile
+./scrape/cs_get_pdf_text.py $outfile $xprfile
 
-# (7) update DOI database from CrossRef - including fixing missing dates
+# (7) update DOI database from CrossRef - and use DOIs to find missing dates
 ./scrape/update_DOI_data.R $outfile $doifile
 
 # (8) date corrections and set BADLINK for old dates

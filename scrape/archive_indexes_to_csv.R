@@ -12,7 +12,7 @@ library(lubridate)
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
 
-if(length(args) == 0){
+if(length(args) < 1){
   cat("Usage: journal_indexes_to_csv.R csvfile\n")
   quit(status=1)
 }

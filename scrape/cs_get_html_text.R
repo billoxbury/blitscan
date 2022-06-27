@@ -12,11 +12,12 @@ library(lubridate)
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
 
-if(length(args) == 0){
+if(length(args) < 2){
   cat("Usage: cs_get_html_text.R csvfile\n")
   quit(status=1)
 }
 datafile <- args[1]
+xpathfile <- args[2]
 
 # datafile <- "data/master-2022-06-17.csv" # <--- DEBUGGING, CHECK DATE
 df <- read_csv(datafile, show_col_types = FALSE)
@@ -35,7 +36,7 @@ df$domain <- df$domain %>% str_remove('^www\\.')
 ##########################################################
 # XPATH rules
 
-xpathfile <- "data/xpath_rules.csv"
+# xpathfile <- "data/xpath_rules.csv"
 xpr <- read_csv(xpathfile, show_col_types = FALSE)
 
 # global variables

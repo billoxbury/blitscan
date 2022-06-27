@@ -255,7 +255,7 @@ shinyServer(
       sprintf("<h3>Getting started</h3>
       <p>This site contains scientific articles of relevance to the work of BirdLife International published in a number of open-access journals.</p>
       <p>The database is updated regularly and currently contains <b>%d articles</b>.</p>
-              <p>All articles for which the date is available are published within the <b color='red'>past 3 years</b>.</p>
+              <p>All articles for which the date is available are published within the <b color='red'>past 6 years</b>.</p>
               <p>The relevance of articles to conservation is estimated based on text analysis using the red-list species assessments of Birdlife International.</p>
               <p>The estimate is indicated on this page by a traffic light 
               <img src='redlight.png' width=20><img src='amberlight.png' width=20><img src='greenlight.png' width=20>.</p>
