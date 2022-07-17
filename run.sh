@@ -47,7 +47,7 @@ dockerpath="webapp"
 ./scrape/cs_get_pdf_text.py $outfile $xprfile
 
 # (7) update DOI database from CrossRef - and use DOIs to find missing dates
-./scrape/update_DOI_data.R $outfile $doifile
+#./scrape/update_DOI_data.R $outfile $doifile # <--- NEEDS ATTENTION
 
 # (8) date corrections and set BADLINK for old dates
 ./scrape/cs_fix_dates.py $outfile

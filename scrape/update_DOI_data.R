@@ -18,8 +18,8 @@ if(length(args) == 0){
 datafile <- args[1]
 doifile <- args[2]
 
-# datafile <- "data/master-2022-06-17.csv" # <--- DEBUGGING, CHECK DATE
-# doifile <- "data/doi_data_cr.csv"
+# datafile <- "data/master-2022-07-17.csv" # <--- DEBUGGING, CHECK DATE
+#  doifile <- "data/doi_data_cr.csv"
 df <- read_csv(datafile, show_col_types = FALSE)
 df_doi <- read_csv(doifile, show_col_types = FALSE)
 
@@ -32,10 +32,39 @@ for(i in 1:nrow(df)){
     newdoi <- c(newdoi, df$doi[i])
   }
 }
-cat(sprintf("Found %d new DOIs", 
+cat(sprintf("Found %d new DOIs\n\n", 
             length(newdoi))); flush.console()
   
 # query CrossRef for the new DOIs
+ndoi <- length(newdoi)
+chunksize <- 500
+ctr <- 0
+while(TRUE){
+  
+  # get next chunk
+  n <- min(ndoi, chunksize)
+  ctr <- ctr + n
+  nextdoi <- newdoi[1:n]
+  
+  # process chunk
+  cat(sprintf("To %d:\n\n", 
+              ctr)); flush.console()
+  cr_response <- cr_works(newdoi, .progress = 'text')
+  # add to database
+  fields <- intersect(names(df_doi), names(cr_response$data))
+  df_doi <- rbind(df_doi[fields], cr_response$data[fields]) %>%
+    distinct(doi, .keep_all = TRUE) 
+  
+  # store remainder of DOIs
+  if(ndoi > n){ 
+    newdoi <- newdoi[(n+1):ndoi]
+    ndoi <- ndoi - n
+  } else {
+    break
+  }
+}
+
+
 if(length(newdoi) > 0){
   cat("Updating DOI database from CrossRef ..."); flush.console()
   cr_response <- cr_works(newdoi, .progress = 'text')

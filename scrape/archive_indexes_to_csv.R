@@ -18,7 +18,7 @@ if(length(args) < 1){
 }
 datafile <- args[1]
 
-# datafile <- "./data/master-2022-06-06.csv" 
+# datafile <- "./data/master-2022-06-26.csv" 
 df_master <- read_csv(datafile, show_col_types = FALSE)
 
 
