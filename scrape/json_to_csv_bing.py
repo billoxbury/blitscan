@@ -162,23 +162,23 @@ def build_data_frame(data):
                 else:
                     pdf_link = None
                                 
-                row = {'date': date,
-                       'link': link,
-                       'link_name': link_name,
-                       'snippet': snippet,
-                       'language': language,
-                       'title': "",
-                       'abstract': "",
-                       'pdf_link': pdf_link,
-                       'domain': domain,
-                       'search_term': w,
-                       'query_date': d,
-                       'BADLINK': 0,
-                       'DONEPDF': 0,
-                       'GOTTEXT': 0,
-                       'GOTSCORE': 0,
-                       'GOTSPECIES': 0}
-                df = df.append(row, ignore_index = True) 
+                row = pd.DataFrame({'date': [date],
+                       'link': [link],
+                       'link_name': [link_name],
+                       'snippet': [snippet],
+                       'language': [language],
+                       'title': [""],
+                       'abstract': [""],
+                       'pdf_link': [pdf_link],
+                       'domain': [domain],
+                       'search_term': [w],
+                       'query_date': [d],
+                       'BADLINK': [0],
+                       'DONEPDF': [0],
+                       'GOTTEXT': [0],
+                       'GOTSCORE': [0],
+                       'GOTSPECIES': [0]})
+                df = pd.concat([df, row], ignore_index = True, axis = 0)
                 good_ctr += 1
     return [good_ctr, bad_ctr]
 

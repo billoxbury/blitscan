@@ -118,13 +118,14 @@ def main():
 			ctr += 1
 		except:
 			continue
-    
+
 	bad_rows = [i for i in range(df.shape[0]) if df.at[i,'score'] == LOGZERO]
-	df.at[bad_rows, 'BADLINK'] = 1
+	for i in bad_rows:
+		df.at[i, 'BADLINK'] = 1
 	df = df.sort_values(by = ['score'], ascending = False )
 	df.to_csv(datafile, index = False)
 	print(f"Scored {ctr} rows and written to {datafile}")
-	return 0    
+	return 0
 
 ##########################################################
 

@@ -210,18 +210,17 @@ def main():
 
     # clean up
     print(f'Flagging {len(bad_rows)} bad rows')
-    df.at[bad_rows, 'BADLINK'] = 1
+    for i in bad_rows:
+        df.at[i, 'BADLINK'] = 1
     # write to disk
     df.to_csv(csvfile, index = False)
     print(f"Found {success_ctr} abstracts, written {df.shape[0]} rows to {csvfile}")
     # remove temp files
     remove = f'rm {TMP_PATH}/*'
     os.system(remove)
-
     return 0
 
-
 if __name__ == '__main__':
-	main()
+    main()
 
 # DONE

@@ -4,7 +4,7 @@ journals.plos.org,1,en,"//meta[@name=""citation_date""]","//meta[@name=""citatio
 conbio.onlinelibrary.wiley.com,0,en,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_doi""]","//meta[@name=""citation_title""]",0,"//div[@class=""article-section__content en main""]",1,"//meta[@name=""citation_pdf_url""]"
 avianres.biomedcentral.com,1,en,"//meta[@name=""dc.date""]","//meta[@name=""citation_doi""]","//meta[@name=""dc.title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
 ace-eco.org,1,fr,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_doi""]","//meta[@name=""dc.title""]",0,"//div[@id=""abstract_block""]",1,"//meta[@name=""citation_pdf_url""]"
-cambridge.org,1,en,"//meta[@name=""citation_publication_date""]","//meta[@name=""citation_doi""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
+cambridge.org,1,en,"//meta[@name=""citation_online_date""]","//meta[@name=""citation_doi""]","//meta[@name=""citation_title""]",0,"//meta[@name=""citation_abstract""]",0,"//meta[@name=""citation_pdf_url""]"
 birdlife.org.au,1,en,,"//meta[@name=""citation_doi""]","//div[@id=""articleTitle""]",1,"//div[@id=""articleAbstract""]",1,"//meta[@name=""citation_pdf_url""]"
 mexorn.org,1,es,,"//meta[@name=""citation_doi""]","//meta[@name=""DC.Title.Alternative""]",0,"//meta[@name=""DC.Description""]",0,"//meta[@name=""citation_pdf_url""]"
 sciendo.com,1,es,,"//meta[@name=""citation_doi""]","//meta[@property=""og:title""]",0,"//meta[@property=""og:description""]",0,"//meta[@name=""citation_pdf_url""]"

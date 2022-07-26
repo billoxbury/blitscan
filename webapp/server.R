@@ -115,10 +115,7 @@ shinyServer(
       df
     }
     
-    recent <- {
-      sapply(1:nrow(df_master), 
-             function(i) (df$daysago[i] <= RECENT_DAYS) )
-     }
+    recent <- (df$daysago <= RECENT_DAYS) 
     
     returned <- reactive({
       n <- nrow(df)
