@@ -1,4 +1,8 @@
 # get shiny server and R from the rocker project
+# build and run Docker image with
+#
+# docker build -t blitscanapp .
+# docker run --rm -dp 3838:3838 -v /Users/bill/Projects/202201_BI_literature_scanning/blitscan/data:/srv/shiny-server/data blitscanapp
 
 FROM rocker/shiny:4.1.1
 
@@ -11,24 +15,27 @@ FROM rocker/shiny:4.1.1
 RUN apt-get update 
 RUN apt-get install -y make 
 RUN apt-get install -y zlib1g-dev libicu-dev
+RUN apt-get install -y libsodium-dev
+RUN apt-get install -y sqlite3
 
 # install required R packages but fix the date
 # for future reproducibility
 
 RUN R -e 'install.packages(c(\
               "shiny", \
-              "shinyjs", \
-              "shinyWidgets", \
-              "readr", \
+              "shinyauthr", \
               "stringr", \
+              "lubridate", \
+              "RSQLite", \
               "dplyr", \
-              "lubridate" \
+              "dbplyr" \
             ), \
             repos="https://packagemanager.rstudio.com/cran/__linux__/focal/2021-10-29" \
           )'
 
 # copy the app directory into the image
 COPY . srv/shiny-server
+WORKDIR srv/shiny-server
 
 # run app
 CMD ["/usr/bin/shiny-server"]

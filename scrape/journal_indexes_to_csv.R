@@ -2,12 +2,12 @@
 
 # coordinate bespoke journal index scrapers
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-library(lubridate)
+library(rvest, warn.conflicts=FALSE)
+library(stringr, warn.conflicts=FALSE)
+library(dplyr, warn.conflicts=FALSE)
+library(purrr, warn.conflicts=FALSE)
+library(readr, warn.conflicts=FALSE)
+library(lubridate, warn.conflicts=FALSE)
 
 # read data path from command line
 args <- commandArgs(trailingOnly=T)

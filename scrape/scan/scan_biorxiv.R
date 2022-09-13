@@ -6,10 +6,6 @@ library(dplyr)
 library(purrr)
 library(readr)
 
-# load search terms
-stfile <- "data/searchterms_restricted.csv" 
-df_st <- read_csv(stfile, show_col_types = FALSE)
-
 # URLs
 biorxiv_prefix <- "https://www.biorxiv.org"
 search_url <- function(searchterm){

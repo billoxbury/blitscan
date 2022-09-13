@@ -1,28 +1,29 @@
-library(shiny)
-library(dplyr)
 library(stringr)
 library(lubridate)
 
 shinyServer(
   
   function(input, output, session) {
-    # date range
-    #start_date <- reactive({
-    #  as_date(input$daterange[1])
-    #})
-    #end_date <- reactive({
-    #  as_date(input$daterange[2])
-    #})
     
-    # show species:
-    #updateSelectizeInput(session, 
-    #                       "findspecies", 
-#                           choices = SPECIES_LIST, 
-  #                         server = TRUE)
+      credentials <- shinyauthr::loginServer(
+        id = "login",
+        data = user_base,
+        user_col = user,
+        pwd_col = password,
+        sodium_hashed = TRUE,
+        log_out = reactive(logout_init())
+      )
 
-    # set priority variable and traffic light points
-    df_master <- rename(df_master, score = all_of(DEFAULT_PRIORITY))
-    qs <- quantile(df_master$score, na.rm = TRUE)
+    # logout to hide
+    logout_init <- shinyauthr::logoutServer(
+      id = "logout",
+      active = reactive(credentials()$user_auth)
+    )
+  
+    # set traffic light points
+    score <- df_tx %>%
+      pull(score)
+    qs <- quantile(score, na.rm = TRUE)
     
     # divide score into quantiles with boundaries at
     # 0% 25% 50% 75% 100%
@@ -41,215 +42,126 @@ shinyServer(
       # return
       sprintf("<img src='%s' width=25>", icon)
     }
-    domainlogo <- function(domain){
-      domainset <- c("nature.com",
-                     "journals.plos.org",
-                     "conbio.onlinelibrary.wiley.com",
-                     "avianres.biomedcentral.com",
-                     "ace-eco.org" ,
-                     "cambridge.org",
-                     "link.springer.com",
-                     "mdpi.com",
-                     "sciendo.com",
-                     "int-res.com",
-                     "orientalbirdclub.org",
-                     "tandfonline.com",
-                     "journals.sfu.ca",
-                     "bioone.org/action/oai",
-                     "bioone.org",
-                     "asociacioncolombianadeornitologia.org",
-                     "sciencedirect.com",
-                     "academic.oup.com",
-                     "biorxiv.org",
-                     "nisc.co.za")
-      logoset <- c("nature_logo.jpg",
-                   "PLOS_logo.jpg",
-                   "conbio.jpeg",
-                   "avianres.png",
-                   "ace-eco.png",
-                   "cambridge.jpg",
-                   "springer_link.jpg",
-                   "mdpi.jpg",
-                   "sciendo.jpg",
-                   "int-res.jpg",
-                   "orientalbirdclub.jpg",
-                   "tandfonline.jpg",
-                   "neotropica.jpg",
-                   "bioone.jpg",
-                   "bioone.jpg",
-                   "colombiana.jpg",
-                   "sciencedirect.jpg",
-                   "oup.jpg",
-                   "biorxiv.jpg",
-                   "nisc.jpg")
-      if(domain %in% domainset){
-        icon <- logoset[which(domainset == domain)]
-        # return
-        sprintf("<img src='%s' width=100>", icon)
-      } else {
-        sprintf("<b>%s</b>", domain)
-      }
-    }
     
-    # set the data frame - more efficient *not* to make this reactive,
-    # but to filter only on smaller subframes
-    df <- {
-      df <- df_master 
-      
-      # set data frame names
-      df <- rename(df, text = all_of(DEFAULT_TEXT_COLUMN))
-      df$text[is.na(df$text)] <- ""
+    # pull data frame of recent items
+    # (not reactive, but could be made reactive to user-selected date range)
+    df_recent <- df_tx %>%
+      filter(daysago <= RECENT_DAYS & !is.na(date)) %>%
+      collect() %>%
+      mutate(date = as_date(date), query_date = as_date(query_date)) %>%
+      arrange(desc(score))
     
-      df <- rename(df, bigtext = all_of(DEFAULT_HOVER_COLUMN))
-      df$bigtext[is.na(df$bigtext)] <- ""
-        
-      df <- rename(df, link = all_of(DEFAULT_LINK_COLUMN))
-      
-      # set priority variable
-      df <- rename(df, score = all_of(DEFAULT_PRIORITY))
-      
-      # don't restrict to date range just yet
-      df <- rename(df, date = all_of(DEFAULT_DATE))
-      
+    # pull data frame in response to search term
+    dftx_text_query <- function(st){
+      search <- sprintf("%%%s%%", st)
       # return
-      df
+      sprintf("SELECT * FROM links \
+                          WHERE GOTTEXT=1 AND BADLINK=0 AND score > -20.0 \
+                          AND (title LIKE '%s' OR abstract LIKE '%s' \
+                          OR title_translation LIKE '%s' OR abstract_translation LIKE '%s')", 
+              search, search, search, search)
     }
-    
-    recent <- (df$daysago <= RECENT_DAYS) 
-    
-    returned <- reactive({
-      n <- nrow(df)
-      f <- function(i){
-          str_detect(str_to_lower(df$text[i]), 
-                     str_to_lower(input$search)) |
-            str_detect(str_to_lower(df$bigtext[i]), 
-                       str_to_lower(input$search)) 
-        }
-      out <- if(input$search == ""){ 
-        rep(FALSE, n) 
-        } else {
-        sapply(1:n, f)
-        }
-      #sp_out <- sapply(1:n, function(i){ 
-      #    input$findspecies %in% extract_list(df$species[i])
-      #    })
+    df_returned <- reactive({
+      sql_query <- dftx_text_query(input$search)
+      # return
+      tbl(conn, sql(sql_query)) %>%
+        collect() %>%
+        mutate(date = as_date(date), query_date = as_date(query_date)) %>%
+        arrange(desc(score))
+    })
 
-      # return
-      #out | sp_out
-      out
+    output$header <- renderText({
+      # show only when authenticated
+      req(credentials()$user_auth)
+      "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
+      <i>&#946 version</i><hr>"
+    })
+    
+    output$search <- renderUI({
+      # show only when authenticated
+      req(credentials()$user_auth)
+      
+      tagList(
+        textInput("search", 
+                  label = "Search", 
+                  value = "")
+      )
     })
     
     output$search_info <- renderText({
-      #if(input$search == "" & input$findspecies == ""){ 
-      if(input$search == ""){ 
-          
-        recent_date <- df$date[recent]
-        recent_domain <- df$domain[recent]
-        recent_text <- df$text[recent]
-        recent_link <- df$link[recent]
-        recent_score <- df$score[recent]
-        recent_abstract <- df$bigtext[recent]
+      # show only when authenticated
+      req(credentials()$user_auth)
+      
+      # returned data frame
+      df_out <- if(input$search == ""){ 
+          df_recent 
+        } else { 
+          df_returned()
+        }
+      nresults <- nrow(df_out)
+      
+      # components to display
+      date <- df_out$date
+      domain <- df_out$domain
+      title <- df_out$title
+      link <- df_out$link
+      score <- df_out$score
+      abstract <- df_out$abstract
         
-        s2 <- paste0("<tr><td width=100><font size=2.0>", recent_date, "</font></td>")
-        s3 <- paste0("<td width=100>", sapply(recent_domain, domainlogo), "</td>")
-        s4 <- paste0("<td width=800><a href='", recent_link, "'>", recent_text, "</td>")
-        s5 <- paste0("<td>", sapply(recent_score, trafficlight), "</td></tr>")
-        s6 <- paste0("<tr><td></td><td></td><td><p style='line-height:1.0'><font size=2.0>", recent_abstract, "</font></p></td><td></td></tr>")
+      # mark up search terms
+      if(input$search != ""){
+        title <- title %>% 
+          str_replace_all(regex(input$search, ignore_case = TRUE), 
+                          sprintf("<mark>%s</mark>", input$search))
+        abstract <- abstract %>% 
+          str_replace_all(regex(input$search, ignore_case = TRUE), 
+                          sprintf("<mark>%s</mark>", input$search))
         
-        recent_out <- str_c(c("<table>", paste0(s2,s3,s4,s5,s6), "</table>"), collapse="")
-         # return
+      } 
+      
+      # create output HTML
+      s2 <- paste0("<tr><td width=100><font size=2.0>", date, "</font></td>")
+      s3 <- paste0("<td width=100>", sapply(domain, domainlogo), "</td>")
+      s4 <- paste0("<td width=800><a href='", link, "'>", title, "</td>")
+      s5 <- paste0("<td>", sapply(score, trafficlight), "</td></tr>")
+      s6 <- paste0("<tr><td></td><td></td><td><p style='line-height:1.0'><font size=2.0>", abstract, "</font></p></td><td></td></tr>")
+        
+      text_out <- str_c(c("<table>", paste0(s2,s3,s4,s5,s6), "</table>"), collapse="")
+      
+      # return
+      if(input$search == ""){
         sprintf("<h3>Recent articles</h3> 
                 %s",
-                recent_out)
-       } else {
-          
-        returned_date <- df$date[returned()]
-        returned_domain <- df$domain[returned()]
-        returned_text <- df$text[returned()]
-        if(input$search != ""){
-          returned_text <- returned_text %>% 
-              str_replace_all(regex(input$search, ignore_case = TRUE), 
-                              sprintf("<mark>%s</mark>", input$search))
-        } 
-        #if(input$findspecies != ""){
-        #  returned_text <- returned_text %>% 
-        #    str_replace_all(regex(input$findspecies, ignore_case = TRUE), 
-        #                    sprintf("<mark>%s</mark>", input$findspecies))
-        #} 
-        returned_link <- df$link[returned()]
-        returned_score <- df$score[returned()]
-        returned_abstract <- df$bigtext[returned()] 
-        if(input$search != ""){
-          returned_abstract <- returned_abstract %>% 
-            str_replace_all(regex(input$search, ignore_case = TRUE), 
-                            sprintf("<mark>%s</mark>", input$search))
-        } 
-        #if(input$findspecies != ""){
-        #  returned_abstract <- returned_abstract %>% 
-        #    str_replace_all(regex(input$findspecies, ignore_case = TRUE), 
-        #                    sprintf("<mark>%s</mark>", input$findspecies))
-        #} 
-        
-        s2 <- paste0("<tr><td width=100><font size=2.0>", returned_date, "</font></td>")
-        s3 <- paste0("<td width=100>", sapply(returned_domain, domainlogo), "</td>")
-        s4 <- paste0("<td width=800><a href='", returned_link, "' target='_blank' rel='noopener noreferrer'>", returned_text, "</td>")
-        s5 <- paste0("<td>", sapply(returned_score, trafficlight), "</td></tr>")
-        s6 <- paste0("<tr><td></td><td></td><td><p style='line-height:1.0'><font size=2.0>", returned_abstract, "</font></p></td><td></td></tr>")
-        
-        return_out <- str_c(c("<table>", paste0(s2,s3,s4,s5,s6), "</table>"), collapse="")
-        nresults <- sum(returned())
-        # return
+                text_out)
+      } else {
         if(nresults == 1){
           sprintf("<h3>Found 1 result</h3> 
                 %s",
-                  return_out)
-          } else {
-            sprintf("<h3>Found %d results</h3> 
+                  text_out)
+        } else {
+          sprintf("<h3>Found %d results</h3> 
                 %s",
-                    nresults, return_out)
-                  }
+                  nresults, text_out)
         }
+      }
+     })
+    
+    output$signoff <- renderText({
+      # show only when authenticated
+      req(credentials()$user_auth)
+      
+      "<hr>
+       <a href='mailto: bill.oxbury@birdlife.org'>&#169; BirdLife International 2022</a>"
     })
-    
-    # DOESN'T WORK YET:
-    #output$outtable <- DT::renderDataTable({
 
-#        returned_date <- df()$date[returned()]
-#        returned_domain <- df()$domain[returned()]
-#        returned_text <- df()$text[returned()]
-#        returned_link <- df()$link[returned()]
-#        returned_score <- df()$score[returned()]
-#        
-#        domain_col <- sapply(returned_domain, domainlogo)
-#        date_col <- returned_date
-#        text_col <- if(length(returned_text) > 0){
-#          sapply(1:length(returned_text), function(i){
-#            sprintf("<a href='%s'>%s</a>", 
-#                    returned_link[i],
-#                    returned_text[i])
-#            })
-#          } else {
-#            character(0)
-#          }
-#        score_col <- sapply(returned_score, trafficlight)
-#        df_returned <- tibble(date_col,
-#                              domain_col,
-#                              text_col,
-#                              score_col)
-        # return
-#        DT::datatable(df_returned, 
-#                      rownames = FALSE,
-#                      escape = FALSE,
-#                      options = list(rowCallback = JS(
-#                        "function(row, data) {",
-#                        "var full_text = 'This row's values are :' + data[0] + ',' + data[1] + '...'",
-#                        "$('td', row).attr('title', full_text);",
-#                        "}"))
-#    })
-#        )
-    
     output$sidebar <- renderText({
-      sprintf("<h3>Getting started</h3>
+      # show only when authenticated
+      req(credentials()$user_auth)
+      
+      sprintf("
+      <br>
+      <hr>
+      <h3>Getting started</h3>
       <p>This site contains scientific articles of relevance to the work of BirdLife International published in a number of open-access journals.</p>
       <p>The database is updated regularly and currently contains <b>%d articles</b>.</p>
               <p>All articles for which the date is available are published within the <b color='red'>past 6 years</b>.</p>
@@ -262,9 +174,8 @@ shinyServer(
               <p>
               <a href='scraper_dashboard.html'>More information can be found here.</a>
               </p>
-              <hr>",
-              nrow(df_master))
+              <hr>
+              ", nrows)
     })
    }
 )
-

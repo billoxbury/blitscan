@@ -2,24 +2,25 @@
 
 # runs query for DOI, abstract etc against OAI sources (currently BioOne)
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-library(lubridate)
-library(oai)
-library(rcrossref)
+library(rvest, warn.conflicts=FALSE)
+library(stringr, warn.conflicts=FALSE)
+library(dplyr, warn.conflicts=FALSE)
+library(purrr, warn.conflicts=FALSE)
+library(readr, warn.conflicts=FALSE)
+library(lubridate, warn.conflicts=FALSE)
+library(oai, warn.conflicts=FALSE)
+library(rcrossref, warn.conflicts=FALSE)
 
 ########################################################
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
 
-if(length(args) < 1){
-  cat("Usage: scan_oai_sources.R csvfile\n")
+if(length(args) < 2){
+  cat("Usage: scan_oai_sources.R csvfile oaifile\n")
   quit(status=1)
 }
 datafile <- args[1]
+bioone_source_file <- args[2]
 
 # datafile <- "data/master-2022-06-13.csv" # <--- DEBUGGING, CHECK DATE
 df_master <- read_csv(datafile, show_col_types = FALSE)
@@ -140,7 +141,6 @@ df_oai <- scan_bioone(bioone_avian_sets)
 # enrich DOIs with journal/publisher using CrossRef
 
 doi_prefix <- "https://doi.org/"
-bioone_source_file <- "data/oai_bioone_sources.csv"
 df_sources <- read_csv(bioone_source_file, show_col_types = FALSE)
 
 df_oai['journal'] <- ''

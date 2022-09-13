@@ -1,5 +1,5 @@
 ---
-title: "Dashboard for BirdLife LitScan scraper"
+title: "Dashboard forBirdLife LitScan scraper"
 author: "Bill Oxbury"
 date: "`r Sys.Date()`"
 output: html_document
@@ -7,111 +7,94 @@ output: html_document
 
 _This file is updated automatically as part of the scraper processing._
 
-```{r set-up-load-data, include=FALSE, warning=FALSE}
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-library(lubridate)
-library(ggplot2)
+```{r set-up-SQL-version, include=FALSE, warning=FALSE}
 
-masterfile <- "../data/master.csv"
-df_master <- read_csv(masterfile, show_col_types = FALSE)
-df_master <- df_master %>% mutate(date = as_date(date),
-                    query_date = as_date(query_date)) 
-df_master$domain <- df_master$domain %>% str_remove('^www\\.')
+# run with:
+#
+# R -e "Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/quarto/bin/tools');   rmarkdown::render('scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
 
-txfile <- "../data/tx-master.csv"
-df_tx <- read_csv(txfile, show_col_types = FALSE)
-df_tx <- df_tx %>% mutate(date = as_date(date),
-                    query_date = as_date(query_date)) 
-df_tx$domain <- df_tx$domain %>% str_remove('^www\\.')
-df_tx$doi <- df_tx$doi %>% str_remove('^doi\\:')
 
-doifile <- "../data/doi_data_cr.csv"
-df_doi <- read_csv(doifile, show_col_types = FALSE)
+library(stringr, warn.conflicts=FALSE)
+library(dplyr, warn.conflicts=FALSE)
+library(dbplyr, warn.conflicts=FALSE)
+library(purrr, warn.conflicts=FALSE)
+library(lubridate, warn.conflicts=FALSE)
+library(ggplot2, warn.conflicts=FALSE)
 
-# SCRATCH SPACE
+dbfile <- "../data/master.sqlite"
 
-# after any manual adjustments:
-# df_master %>% write_csv(masterfile)
-
+conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+df <- tbl(conn, 'links')
+df_tx <- df %>% filter(GOTTEXT == 1 & BADLINK == 0 & score > -20.0)
 ```
+
 
 ### First statistics
 
 The
-<a href="http://blitscan.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications with the following basic stats:
+<a href="http://blitscan.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications:
 
 ```{r nr-records, echo=FALSE, warning=FALSE}
 
-df <-  df_tx
-cat("Number of articles:", nrow(df), '\n')
+nr <- df_tx %>% 
+  summarise(count = n()) %>%
+  select(count) %>%
+  collect() %>% 
+  as.numeric()
+
+cat("Number of articles:", nr, '\n')
 ```
 
 ```{r nr-species, echo=FALSE, warning=FALSE}
 
-species_nonunique <- df$species[!is.na(df$species)] %>%
+species <- df_tx %>% 
+  select(species) %>%
+  filter(!is.na(species)) %>%
+  collect() 
+
+species_nonunique <- species$species %>%
   str_split('\\|') %>%
-  unlist()
-species_unique <- species_nonunique %>%
-  unique()
+  unlist() %>%
+  as.integer()
 
-nspecies <- species_unique %>%
-  length()
+species_unique <-  species_nonunique %>%
+  unique() 
 
-cat("Number of species:", nspecies, '\n')
+cat("Number of species:", length(species_unique), '\n')
 ```
 
-```{r nr-journals, echo=FALSE, warning=FALSE}
+```{r nr-journals-SQL, echo=FALSE, warning=FALSE}
 
+df_dois <- tbl(conn, 'dois')
 
-# used in step 4 below
-journalsfile <- "../data/scan_journal_sources.csv"
-scan_journal_sources <- read_csv(journalsfile, 
-                         show_col_types = FALSE)
-scan_journal_sources['Count'] <- sapply(1:nrow(scan_journal_sources), function(i){
-  lab <- scan_journal_sources$SearchPrefix[i] 
-  # return
-  sum(str_detect(df$search_term, lab))
-})
+title_dois <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
+  select(Journal = container.title) %>%
+  filter(!is.na(Journal)) %>%
+  collect()
+title_journals <- tbl(conn, 'journals') %>%
+  select('Journal') %>%
+  collect()
+title_oai <- tbl(conn, 'oai') %>%
+  select('Journal') %>%
+  collect()
+  
+title_list <- rbind(title_dois, title_journals, title_oai) %>%
+  distinct()
+nt <- nrow(title_list)
 
-# using DOIs
-doi_index <- sapply(df$doi, function(d){
-  which(df_doi$doi == d) 
-}) %>% as.numeric()
-tx_journals <- df_doi[doi_index, ] %>%
-  filter(!is.na(container.title)) %>%
-  group_by(container.title, publisher) %>%
-  summarise(count = n(), .groups = 'keep') %>%
-  ungroup()
-names(tx_journals) <- c('Journal','Publisher','Count')
-
-# combine the two
-scanned <- scan_journal_sources %>%
-  select(Journal, Count)
-tmp <- full_join(tx_journals, scanned, by = 'Journal') 
-tmp$Count.x[is.na(tmp$Count.x)] <- 0
-tmp$Count.y[is.na(tmp$Count.y)] <- 0
-tx_journals <- tmp %>%
-  rowwise() %>%
-  mutate(Count = max(Count.x, Count.y)) %>%
-  select(Journal, Publisher, Count)
-
-# a hack until correct publishers are included in '../data/scan_journal_sources.csv'
-tx_journals$Publisher[is.na(tx_journals$Publisher)] <- ''
-
-cat("Number of journals/proceedings:", nrow(tx_journals), '\n')
+cat("Number of journals/proceedings:", nt, '\n')
 ```
 
 ```{r nr-publishers, echo=FALSE, warning=FALSE}
 
-tx_publisher <- df_doi$publisher[doi_index] 
 
-np <- tx_publisher[!is.na(tx_publisher)] %>% 
-  unique() %>% length()
+publishers <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
+  select(publisher) %>%
+  distinct() %>%
+  collect()
+
+np <- nrow(publishers)
 
 cat("Number of publishers:", np, '\n')
 ```
@@ -121,30 +104,30 @@ More detail on journals and publishers is given below. A full list of journals/p
 
 ### Red-list coverage
 
-A direct way to measure the utility of the tool is via coverage of species, classified by red-list status. The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier) occuring in any title or abstract of the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
+The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier and classified by red-list status) occuring in any title or abstract of the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
 
 ```{r red-list, echo=FALSE, warning=FALSE}
 
-redlistfile <- "../data/master-BLI-11107.csv"
-df_redlist <- read_csv(redlistfile, 
-                       col_types = cols(SISRecID = col_character())) %>%
-  select(SISRecID, status)
+df_redlist <- tbl(conn, 'species') %>%
+  select(SISRecID, status) %>%
+  collect()
 
 # status counts
-df_all <- df_redlist %>%
+df_status <- df_redlist %>%
   filter(!is.na(status)) %>%
   group_by(status) %>%
   summarise(OutOf = n())
 
 # status counts for the blitscan list
-df_species <- tibble(SISRecID = species_unique)
-df_blit <- inner_join(df_species, df_redlist, by = 'SISRecID') %>%
+df_tx_species <- tibble(SISRecID = species_unique)
+df_blit <- inner_join(df_tx_species, df_redlist, 
+                      by = 'SISRecID') %>%
   filter(!is.na(status)) %>%
   group_by(status) %>%
   summarise(Count = n())
 
 # join the two
-df_out <- full_join(df_blit, df_all, by = 'status') %>%
+df_out <- full_join(df_blit, df_status, by = 'status') %>%
   mutate(Percent = round( 100*Count/OutOf, 1)) %>%
   rename(Status = status) %>%
   arrange(desc(OutOf))
@@ -153,10 +136,10 @@ df_out %>%
   knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
 <p>
-(Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are not using DataZone data directly, but are estimated by a crawl of DataZone pages.)
+(Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are estimated by a crawl of DataZone pages.)
 
 <p>
-How many journal articles are we seeing per-species? A box-plot organised by red-list status:
+How many journal articles are we seeing per-species? 
 
 ```{r article-counts, fig.height=3, fig.width=6, echo=FALSE, warning=FALSE}
 
@@ -180,14 +163,12 @@ df_blit %>%
 
 ### Sources
 
-The search process to find web content follows four main steps to identify articles, followed by text retrieval from those articles. The four steps are:
+The search process to find web content follows four main steps to identify articles, followed by text retrieval from those articles. These are:
 
 1. Bing Custom Search against targeted domains 
 2. Scanning of <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative</a> API to get titles/abstracts from relevant contributors
 3. Query of preprint archives against genus (Latin) names in vulnerable categories
 4. Scanning of content lists for targeted journals.
-
-We will summarise each of these in turn.
 
 #### Step 1: <a href="https://docs.microsoft.com/en-us/bing/search-apis/bing-custom-search/overview">Custom Search</a>
 
@@ -199,58 +180,62 @@ URLs returned from this process are stored and mined individually *after* all of
 
 #### Step 2: <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative (OAI)</a>
 
-OAI is an invaluable centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to their servers; on the other hand, it greatly simplifies the process for us, as data consumers, in providing a single format across a very wide community of providers.
+OAI is a centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to their servers; on the other hand, it greatly simplifies the process for data consumers in providing a single format across a very wide community of providers.
 
-As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are current using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relevant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
+As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are currently using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relevant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
 
 
 ```{r oai-bioone-count, echo = FALSE, warning = FALSE}
 
-oaifile <- '../data/oai_bioone_sources.csv'
-df_oai <- read_csv(oaifile, show_col_types = FALSE)
+df_tx_searchterm <- df_tx %>%
+  select(link, search_term) %>%
+  distinct() %>%
+  collect()
 
-idx <- doi_index[str_detect(df$search_term, 'OAI')]
+df_tx_oai <- df_tx_searchterm %>%
+  filter(str_detect(search_term, '^OAI')) %>%
+  transmute(Society = str_remove(search_term, '^OAI: ')) %>%
+  group_by(Society) %>%
+  summarise(Count = n())
 
-df_bioone <- df_doi[idx,] %>%
-  filter(!is.na(container.title), preserve = TRUE) %>%
-  group_by(container.title) %>%
-  summarize(count = n()) %>%
-  arrange(desc(count)) 
-names(df_bioone) <- c('Journal','Count')
+df_oai <- tbl(conn, 'oai') %>%
+  collect()
 
-df_bioone <- full_join(df_oai, df_bioone, by='Journal') %>%
-  arrange(Journal)
-
-df_bioone %>%
+full_join(df_oai, df_tx_oai, by = 'Society') %>%
+  arrange(Journal) %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
 
 #### Step 3: preprint archives
 
-This is similar to step 1, except that instead of using a commercial search engine, queries are made directly to a set of preprint archives, currently consisiting of:
+Similar to step 1, except that instead of using a commercial search engine, queries are made directly to a set of preprint archives, currently consisting of:
 
 ```{r archive-scanning, echo = FALSE, warning = FALSE}
 
-df <- df_tx
+df_archiv <- tbl(conn, 'archiv') %>%
+  collect() %>%
+  mutate(label = str_to_lower(str_remove(Archive, '-'))) %>%
+  collect()
 
-archivfile <- '../data/scan_archive_sources.csv'
-df_archiv <- read_csv(archivfile, show_col_types = FALSE)
+labels <- unique(df_archiv$label) 
+simple_st <- function(st){
+  labels[
+    which(str_detect(st, labels))
+    ]
+}
 
-labs <- df_archiv$Archive %>% 
-  str_remove('-') %>% 
-  str_to_lower()
-
-df_archiv['Count'] <- sapply(1:nrow(df_archiv), function(i){
-  lab <- df_archiv$Archive[i] %>% 
-    str_remove('-') %>% 
-    str_to_lower()
-  # return
-  sum(str_detect(df$search_term, lab))
-})
-
-df_archiv %>%
+df_tx_archiv <- df_tx_searchterm %>%
+  filter( str_detect(search_term, paste(labels, collapse='|')) ) 
+df_tx_archiv['label'] <- sapply(df_tx_archiv$search_term, simple_st) 
+df_tx_archiv <- df_tx_archiv %>%
+  group_by(label) %>%
+  summarise(Count = n())
+  
+inner_join(df_archiv, df_tx_archiv, by = 'label') %>%
+  select(Archive, Language, URL, Count) %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
+
 <p> In the URLs above, 'search_term' is selected from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_restricted.csv">list of scientific genus names containing vulnerable species</a> (that is, having red-list status not _LC_ or _EX_).
 
 URLs returned from this process are stored and mined individually after all of steps 1-4 have completed. 
@@ -258,35 +243,52 @@ URLs returned from this process are stored and mined individually after all of s
 
 #### Step 4: journal contents listings
 
-To add completeness beyond the quite general searches above, this step explicitly scans the tables of contents for recent issues of relevant journals. Journals currently scanned are the following.
+To add completeness beyond the quite general searches above, this step explicitly scans the tables of contents for recent issues of key journals. Those currently scanned are the following.
 
 ```{r scanned-journals, echo = FALSE, warning = FALSE}
 
+normal_plos <- function(str){
+  if(str_detect(str, 'PLOS')) {  'PLOS' } else { str }
+}
 
-scan_journal_sources[,c(1,2,3,5)] %>%
+df_tx_searchterm <- df_tx %>%
+  select(search_term) %>%
+  collect() %>%
+  transmute(SearchPrefix = sapply(search_term, normal_plos)) 
+
+journals <- tbl(conn, 'journals') %>%
+  select('Journal', 'SearchPrefix', 'Language', 'URL') %>%
+  collect()
+
+inner_join(df_tx_searchterm, journals, by ='SearchPrefix') %>%
+  group_by(Journal, Language, URL) %>%
+  summarise(Count = n(), .groups = 'keep') %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```
+
 #### Step 1 revisited - domains and issues arising
 
-The initial custom search covers many more journals than those visited in steps 2-4 (see the appendix). This is possible by running searches against _domains_ rather than individual journals or even publishers. Here is the current list of domains:
+The initial custom search covers many more journals than those visited in steps 2-4 (see the appendix). This is possible by running searches against _domains_ rather than individual journals or even publishers:
 
 ```{r custom-search, echo = FALSE, warning = FALSE}
 
-domainfile <- "../data/xpath_rules.csv"
-df_domain <- read_csv(domainfile, show_col_types = FALSE)
-domain_list <- df_domain[,1:2] 
+domain_list <- tbl(conn, 'domains') %>%
+  select(domain, minable) %>%
+  collect()
 
-domain_ct <- df %>%
+domain_ct <- df_tx %>%
   group_by(domain) %>%
-  summarize(Count = n()) %>%
-  arrange(desc(Count))
+  summarize(Count = n(), .groups = 'keep') %>%
+  arrange(desc(Count)) %>%
+  collect()
 
 df_out <- full_join(domain_list, domain_ct, by='domain') %>%
   arrange(desc(Count)) %>%
-  filter(!str_detect(domain, 'bioone'))
+  filter(!str_detect(domain, 'bioone') & !is.na(minable))
+  
 df_out$Count[is.na(df_out$Count)] <- 0
+names(df_out) <- c('Domain', 'Minable?','Count')
 
-names(df_out) <- c('Domain','Minable?','Count')
 df_out %>%
   knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
@@ -300,8 +302,7 @@ We aim to grow the coverage of non-English language sources by taking advantage 
 
 ```{r languages, echo=FALSE}
 
-
-lang_all <- df_master %>% 
+lang_all <- df %>% 
   filter(GOTTEXT == 1) %>%
   group_by(language) %>%
   summarize(OutOf = n())
@@ -309,10 +310,12 @@ lang_used <- df_tx %>%
   group_by(language) %>%
   summarize(Count = n())
 
-df_out <- full_join(lang_used, lang_all, by = 'language')
+df_out <- full_join(lang_used, lang_all, by = 'language') %>%
+  collect()
 df_out$Count[is.na(df_out$Count)] <- 0
 
 df_out %>%
+  arrange(desc(Count)) %>%
   knitr::kable(format = "html", table.attr = "style='width:50%;'")
 ```
 <p> In this table, 'Count' refers to the current database while 'OutOf' refers to the wider data set of articles that is stored before filtering down to the database used. Filtering is based on both date and relevance. 
@@ -324,19 +327,22 @@ The range and distribution of known dates of articles in the database:
 
 ```{r date-range, echo=FALSE}
 
-df <- df_tx
+date <- df_tx %>%
+  select(date) %>%
+  collect() %>%
+  mutate(date = as_date(date)) 
 
 cat(
 sprintf("Date range %s to %s\n",
-min(df$date, na.rm = TRUE),
-max(df$date, na.rm = TRUE)
+min(date$date, na.rm = TRUE),
+max(date$date, na.rm = TRUE)
 ))
 ```
 
 ```{r date-profile-all, fig.height=3, fig.width=8, echo=FALSE, warning=FALSE}
 
-baddate <- (is.na(df$date))
-df[!baddate,] %>% 
+date %>%
+  filter(!is.na(date)) %>% 
   ggplot(aes(date)) +
   geom_histogram(binwidth = 7,
                  colour = "blue",
@@ -347,17 +353,15 @@ df[!baddate,] %>%
        y = "Article count")
 ```
 <p>
-Note that points beyond today's date may occasionally indicate date errors but in most cases arise where publication comes later than online announcement. 
+Note that points beyond today's date usually indicates instances where publication comes later than online announcement. 
 
 Reading of dates can be a fallible process - how well are we able to parse publication dates for URLs?
 
 ```{r bad-dates, echo=FALSE}
 
-df <- df_tx
-
-baddate <- (is.na(df$date))
+baddate <- (is.na(date))
 cat(sprintf("Proportion of records with date parsed: %g%%\n",
-            100 * ( 1 - sum(baddate) / nrow(df)) 
+            100 * ( 1 - sum(baddate) / nr ) 
             %>% round(3)
 ))
 ```
@@ -367,11 +371,14 @@ By domain this looks like:
 ```{r bad-date-per-domain, echo=FALSE}
 # what are the items without dates?
 
-df <- df_tx
+domain <- df_tx %>%
+  select(domain) %>%
+  collect() %>%
+  pull(domain)
 
-good_date <- !baddate
-df_out <- table(df$domain, good_date) %>%
+df_out <- table(domain, !baddate) %>%
   tibble()
+
 df_out[[1]]
 ```
 
@@ -379,17 +386,18 @@ df_out[[1]]
 
 ### Score distribution
 
-Text retrieved is scored in the downstream _process_ stage. From the point of view of the _scrape_ service, it doesn't matter how it is calculated but is a black-box feedback signal representing 'customer satisfaction' with the text output by _scrape_.
-
-Here is the overall distribution, with the quartiles/median marked in red.
+Text retrieved is scored in the downstream _process_ stage. Here is the overall distribution, with the quartiles/median marked in red.
 
 ```{r score-distribution, fig.height=3, fig.width=4, echo=FALSE, warning=FALSE}
 
-df <- df_tx
+df_score <- df_tx %>%
+  select(score, domain) %>%
+  filter(score > -20.0) %>%
+  collect()
 
-qs <- quantile(df$score[df$score > -20.0], na.rm=TRUE)
+qs <- quantile(df_score$score, na.rm=TRUE)
 
-df[df$score > -20,] %>% 
+df_score %>% 
   ggplot(aes(score)) +
   geom_histogram(binwidth = 0.4,
                  colour = "blue",
@@ -414,7 +422,7 @@ cat("Count threshold for plot: ", threshold)
 ```{r score-per-domain, fig.height=6, fig.width=8, echo=FALSE, warning=FALSE}
 # how does score distribution vary with domain?
 
-df[df$score > -20 & !is.na(df$score),] %>% 
+df_score %>% 
   group_by(domain) %>%
   mutate(count = n()) %>%
   filter(count > threshold) %>%
@@ -451,16 +459,21 @@ We've indicated above ('Step 1 revisited') that not all domains consistently per
 ```{r compare-responsive-domains, echo=FALSE}
 # which (responsive) domains can I get text from?
 
-df <- df_master
-
 problem_domains <- df %>% 
   group_by(domain) %>%
-  summarise(count = sum(GOTTEXT)) %>%
+  summarise(count = sum(GOTTEXT, na.rm = TRUE)) %>%
   filter(count == 0) %>%
-  select(domain) 
+  pull(domain) 
 
-df <- df[!(df$domain %in% problem_domains$domain),]
-table(df$domain, df$GOTTEXT)
+domain <- df %>% 
+  filter(!(domain %in% problem_domains))%>% 
+  pull(domain)
+  
+text <- df %>% 
+  filter(!(domain %in% problem_domains))%>% 
+  pull(GOTTEXT)
+
+table(domain, text)
 ```
 
 ### Appendix: list of all journals/proceedings
@@ -469,10 +482,14 @@ The listing below makes use of the open source project <a href="https://www.cros
 
 ```{r proportion-dois, echo=FALSE}
 
-df <- df_tx
-
+gotdoi <- df_tx %>%
+  group_by(is.na(doi)) %>%
+  summarise(count = n()) %>%
+  collect() %>%
+  pull(count)
+  
 cat(sprintf("Proportion of articles with known DOI: %g%%",
-            round( 100 * sum(!is.na(df$doi)) / nrow(df)), 3))
+            round( 100 * gotdoi[1] / nr, 3)))
 ```
 
 <p>
@@ -480,7 +497,11 @@ CrossRef then allows us to query all of the known DOIs in the Blitscan database 
 
 ```{r journals-via-crossref, echo=FALSE}
 
-tx_journals %>%
+inner_join(df_dois, df_tx, by = 'doi') %>%
+  select(Journal = container.title, Publisher = publisher) %>%
+  filter(!is.na(Journal)) %>%
+  group_by(Journal, Publisher) %>%
+  summarise(Count = n(), .groups = 'keep') %>%
   arrange(desc(Count)) %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```

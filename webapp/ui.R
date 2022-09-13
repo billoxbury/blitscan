@@ -1,10 +1,11 @@
-library(shiny)
-library(shinyjs)
-library(shinyWidgets)
-
 source("setup.R")
 
+# setwd("~/Projects/202201_BI_literature_scanning/webappSQL/webapp")
+
 shinyUI(fluidPage(
+  
+  # login section
+  shinyauthr::loginUI(id = "login"),
   
   # suppresses spurious 
   # 'progress' error messages after all the debugging 
@@ -13,6 +14,7 @@ shinyUI(fluidPage(
              ".shiny-output-error { visibility: hidden; }",
              ".shiny-output-error:before { visibility: hidden; }"
   ),
+  
   HTML("<style>
          table {
            border-collapse: separate;
@@ -43,52 +45,19 @@ shinyUI(fluidPage(
        }
        </style>"),
 
- # HTML('<table width="100%">
- #<tr>
-#  <td width="20%"><img src="ace-eco.png" height = 35></td>
-#  <td width="20%"><img src="avianres.png" height = 40></td>
-#  <td width="20%"><img src="conbio.jpeg"" height = 50></td>
-#  <td width="20%"><img src="PLOS_logo.jpg" height = 50></td>
-#  <td width="20%"><img src="nature_logo.jpg" height = 45></td>
-# </tr>
-#<table>'),
-#  HTML("<hr>"),
-  HTML("<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>"),
-  HTML("<i>&#945 version</i><hr>"),
-  
   sidebarLayout(
     position="left",
     fluid = TRUE,
-    
     mainPanel( 
-      fluidRow(
-        column(4,
-               textInput("search", 
-                         label = "Search", 
-                         value = "")
-        )#,        
-        #column(3,
-        #       selectizeInput(
-        #        "findspecies",
-        #         label = "Species present",
-        #         choices = NULL)
-        #),
-        #column(4,
-        #       dateRangeInput("daterange", "Date range",
-        #                      start = START_DATE,
-        #                      end   = END_DATE)
-        #)
+        htmlOutput("header"), # title bar
+        uiOutput("search"),
+        htmlOutput("search_info"), # search results
+        htmlOutput("signoff"), # footer
       ),
-     HTML("<hr>"),
-     htmlOutput("search_info"),
-     HTML("<hr>
-          <a href='mailto: bill.oxbury@birdlife.org'>&#169; BirdLife International 2022</a>")
-     #textOutput("outtable") # DEBUGGING
-     #dataTableOutput("outtable") # <--- NOT COMPATIBLE WITH TEXT ENTRIES?
-    ),
-    sidebarPanel(
-      htmlOutput("sidebar")
-    )
+      sidebarPanel( 
+        logoutUI(id = "logout"), # logout button
+        htmlOutput("sidebar")
+      )
     )
   )
 )

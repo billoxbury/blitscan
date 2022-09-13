@@ -1,9 +1,5 @@
 **/.DS_Store
 **/.ipynb_checkpoints/
 **/.Rhistory
-data/bing*
-data/tmp/**
-data/*master*
-data/bli_sentences*
-webapp/data/
+data/
 webapp/www/

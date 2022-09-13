@@ -1,79 +1,89 @@
 #########################################################################
-# Set default defaults - most to be over-written by the file TXprofile
 
-# both 'TXprofile' and 'path' are declared before this 'setup.R' is called
+PATH <- "../../blitscan/data" # for local shiny
+#PATH <- "./data"  # in Docker container
 
-DEFAULT_TEXT_COLUMN <- "text"
-DEFAULT_HOVER_COLUMN <- c("text_short","text_main")
-DEFAULT_LINK_COLUMN <- "link"
-DBLCLICK_LINK_COLUMN <- "link"
-DEFAULT_USECOLOUR <- TRUE
-DEFAULT_COLOUR_BY <- "status"
-DEFAULT_USESELECT <- TRUE
-DEFAULT_SELECT <- "status"
-DEFAULT_PT_SIZE <- 2.0
-DEFAULT_JITTER <- 0.1
-DEFAULT_X <- 'x'
-DEFAULT_Y <- 'y'
-DEFAULT_DATE <- "date"
-DEFAULT_PRIORITY <- "score"
-START_DATE <- "2001-01-01"
-END_DATE <- "2022-12-31"
-HEADER_TEXT <- ""
+DATA_FILE <-  paste(PATH, "master.sqlite", sep="/")
+USER_FILE <- paste(PATH, "users.sqlite", sep="/")
 
 RECENT_DAYS <- 14
 
-library(readr)
-library(stringr)
+library(shiny)
+library(shinyauthr)
 library(dplyr)
+library(dbplyr)
 
-# check if TXprofile has been set and read app defaults
-# (in the case of rs deployment it won't have been set and local file
-# txprofile.R should be called)
-if(!exists('TXprofile')){
-  TXprofile <- "txprofile.R"
-}
-source(TXprofile)
 
-# check if path has been set
-# (in the case of rs deployment it won't have been set and the data file 
-# is the local file specified in txprofile.R)
-if(exists('path')){
-  DATA_FILE <- str_c(path, DATA_FILE)
-}
+# data frame that holds usernames, passwords and other user data
+conn <- DBI::dbConnect(RSQLite::SQLite(), USER_FILE)
+user_base <- tbl(conn, 'users') %>%
+  collect()
+DBI::dbDisconnect(conn)
 
 #########################################################################
-# import data 
+# connect data 
 
-df_master <- read_csv(DATA_FILE, show_col_types = FALSE) %>%
-  arrange(desc(score))
+conn <- DBI::dbConnect(RSQLite::SQLite(), DATA_FILE)
+df_master <- tbl(conn, 'links')
+df_tx <- df_master %>% filter(GOTTEXT == 1 & BADLINK == 0 & score > -20.0)
 
-#########################################################################
-# define utilities
+# total nr records
+nrows <- df_tx %>% 
+  summarise(count = n()) %>%
+  select(count) %>%
+  collect() %>% 
+  as.numeric()
 
-# selection buttons
-if(DEFAULT_USESELECT){
-  GROUP_BUTTONS <- as.matrix(unique(
-    df_master[DEFAULT_SELECT]
-  ))[,1]
-}
 
-# extract species list
-extract_list <- function(s){
-    if(is.na(s)) return(c())
-    if(s == "[]") return(c())
-    else{
-      l <- s %>% 
-        str_replace_all('\'|\\[|\\]', "") %>%
-          str_split(',')
-      return(sapply(l[[1]], str_trim))
-    }
+# domain logos
+domainlogo <- function(domain){
+  domainset <- c("nature.com",
+                 "journals.plos.org",
+                 "conbio.onlinelibrary.wiley.com",
+                 "avianres.biomedcentral.com",
+                 "ace-eco.org" ,
+                 "cambridge.org",
+                 "link.springer.com",
+                 "mdpi.com",
+                 "sciendo.com",
+                 "int-res.com",
+                 "orientalbirdclub.org",
+                 "tandfonline.com",
+                 "journals.sfu.ca",
+                 "bioone.org/action/oai",
+                 "bioone.org",
+                 "asociacioncolombianadeornitologia.org",
+                 "sciencedirect.com",
+                 "academic.oup.com",
+                 "biorxiv.org",
+                 "nisc.co.za")
+  logoset <- c("nature_logo.jpg",
+               "PLOS_logo.jpg",
+               "conbio.jpeg",
+               "avianres.png",
+               "ace-eco.png",
+               "cambridge.jpg",
+               "springer_link.jpg",
+               "mdpi.jpg",
+               "sciendo.jpg",
+               "int-res.jpg",
+               "orientalbirdclub.jpg",
+               "tandfonline.jpg",
+               "neotropica.jpg",
+               "bioone.jpg",
+               "bioone.jpg",
+               "colombiana.jpg",
+               "sciencedirect.jpg",
+               "oup.jpg",
+               "biorxiv.jpg",
+               "nisc.jpg")
+  if(domain %in% domainset){
+    icon <- logoset[which(domainset == domain)]
+    # return
+    sprintf("<img src='%s' width=100>", icon)
+  } else {
+    sprintf("<b>%s</b>", domain)
   }
-SPECIES_LIST <- c("",
-                    sapply(df_master$species, extract_list) %>%
-                      unique() %>%
-                      unlist() %>%
-                      unique() %>%
-                      sort())
+}
 
-#########################################################################
+

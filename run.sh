@@ -4,22 +4,31 @@
 today=`date +'%Y-%m-%d'`
 
 # paths/filenames
-stfile="data/searchterms_general.txt"
-qfilebing="data/bing_cs_queries.json"
-doifile="data/doi_data_cr.csv"
-xprfile="data/xpath_rules.csv"
+datapath="/Volumes/blitshare" # Azure file share mounted locally
+localpath="./data" # for temporary/short-lived files
 
-infile="data/master.csv"
-outfile="data/master-$today.csv"
+stfile="$datapath/searchterms_general.txt"
+stresfile="$datapath/searchterms_restricted.csv"
+qfilebing="$datapath/bing_cs_queries.json"
+oaifile="$datapath/oai_bioone_sources.csv"
+
+doifile="$datapath/doi_data_cr.csv"
+xprfile="$datapath/xpath_rules.csv"
+
+infile="$datapath/master.csv"
+outfile="$localpath/master-$today.csv"
 cp $infile $outfile
 
 # taxonomy and model files
-birdfile="data/BirdLife_species_list_Jan_2022.xlsx"
-blimodelfile="data/bli_model_bow.json"
+birdfile="$datapath/BirdLife_species_list_Jan_2022.xlsx"
+blimodelfile="$datapath/bli_model_bow.json"
 
-bakfile="data/master-BAK.csv"
-txfile="data/tx-master.csv"
+bakfile="$datapath/master-BAK.csv"
+txfile="$datapath/tx-master.csv"
 dockerpath="webapp"
+
+AZURE_CONTAINER_REGISTRY='blitscanappcontainers.azurecr.io'
+appname='blitscansqlapp'
 
 ########################
 # SCRAPE STAGE
@@ -30,11 +39,11 @@ dockerpath="webapp"
 
 # (2) scan OAI relevant journals (currently under BioOne)
 # - maintain source list for this step
-./scrape/scan_oai_sources.R $outfile 
+./scrape/scan_oai_sources.R $outfile $oaifile
 
 # (3) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
 # - maintain source list for this step
-./scrape/archive_indexes_to_csv.R $outfile
+./scrape/archive_indexes_to_csv.R $outfile $stresfile
 
 # (4) directed (bespoke per-journal) search where permitted 
 # - maintain source list for this step
@@ -47,13 +56,10 @@ dockerpath="webapp"
 ./scrape/cs_get_pdf_text.py $outfile $xprfile
 
 # (7) update DOI database from CrossRef - and use DOIs to find missing dates
-#./scrape/update_DOI_data.R $outfile $doifile # <--- NEEDS ATTENTION
+./scrape/update_DOI_data.R $outfile $doifile
 
 # (8) date corrections and set BADLINK for old dates
 ./scrape/cs_fix_dates.py $outfile
-
-# COPY FILES TO AZURE STORAGE ACCOUNTS
-# see ../dev/datastore_DEV.sh
 
 ########################
 # PROCESS STAGE
@@ -67,15 +73,22 @@ cp $infile $bakfile
 cp $outfile $infile             # <--- $outfile bad links all kept
 cp $txfile $dockerpath/data     # <--- $txfile all bad links removed
 
+# TEMPORARY (from CSV) update SQLite database
+mv $localpath/master.sqlite $localpath/master.pre.sqlite 
+./process/build_database.R
+cp $localpath/master.sqlite $datapath/master.bak.sqlite
+rm $outfile
+
 # scraper metrics (R markdown)
-R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
+R -e "Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/quarto/bin/tools');
+    rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
 cp ./scrape/scraper_dashboard.html $dockerpath/www
 mv ./scrape/scraper_dashboard.html ./reports/scraper_dashboard-$today.html
 
 ########################
 # WEBAPP STAGE
 # build docker image(s)
-docker build -t blitscanappcontainers.azurecr.io/blitscanapp $dockerpath 
+docker build -t blitscanappcontainers.azurecr.io/blitscansqlapp $dockerpath 
 
 # authenticate to Azure if needed
 # az login --scope https://management.core.windows.net//.default

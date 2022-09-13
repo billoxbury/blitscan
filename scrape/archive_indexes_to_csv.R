@@ -2,24 +2,28 @@
 
 # coordinate bespoke journal index scrapers
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-library(lubridate)
+library(rvest, warn.conflicts=FALSE)
+library(stringr, warn.conflicts=FALSE)
+library(dplyr, warn.conflicts=FALSE)
+library(purrr, warn.conflicts=FALSE)
+library(readr, warn.conflicts=FALSE)
+library(lubridate, warn.conflicts=FALSE)
 
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
 
-if(length(args) < 1){
-  cat("Usage: journal_indexes_to_csv.R csvfile\n")
+if(length(args) < 2){
+  cat("Usage: journal_indexes_to_csv.R csvfile searchtermfile\n")
   quit(status=1)
 }
 datafile <- args[1]
+stfile <- args[2] 
 
 # datafile <- "./data/master-2022-06-26.csv" 
 df_master <- read_csv(datafile, show_col_types = FALSE)
+
+# load search terms
+df_st <- read_csv(stfile, show_col_types = FALSE)
 
 
 #############

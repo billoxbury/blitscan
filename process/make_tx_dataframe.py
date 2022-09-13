@@ -17,7 +17,7 @@ import re
 
 # global constants
 LOGZERO = -20.0
-TX_THRESHOLD = 0.1 # score quantile below which items are discarded for TX
+TX_THRESHOLD = 0.0 # score quantile below which items are discarded for TX
 
 # read command line
 try:
@@ -38,8 +38,7 @@ df = pd.read_csv(infile, header=0).fillna('')
 def make_tx_data_frame(df):
 	"""
 	restrict to rows with BADLINK false, GOTSCORE true and score not 'log zero';
-	then restrict to scores in the upper 60% or with >0 number of species mentions
-	or explicitly referring to 'bird' or 'avian'... 
+	then restrict to scores in the upper 90%  
 	"""
 	avian = re.compile(r'bird|avian')
 
