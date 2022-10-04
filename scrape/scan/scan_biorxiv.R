@@ -1,11 +1,5 @@
 # Bespoke scanner for Ostrich web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 # URLs
 biorxiv_prefix <- "https://www.biorxiv.org"
 search_url <- function(searchterm){

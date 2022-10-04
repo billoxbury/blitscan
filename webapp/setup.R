@@ -1,9 +1,15 @@
 #########################################################################
 
-PATH <- "../../blitscan/data" # for local shiny
-#PATH <- "./data"  # in Docker container
+LOCAL <- FALSE
 
-DATA_FILE <-  paste(PATH, "master.sqlite", sep="/")
+if(LOCAL){
+  PATH <- "../data"
+  DATA_FILE <-  paste(PATH, "master.db", sep="/")
+} else {
+  PATH <- "./data" 
+  DATA_FILE <-  paste(PATH, "master.azure.db", sep="/")
+}
+
 USER_FILE <- paste(PATH, "users.sqlite", sep="/")
 
 RECENT_DAYS <- 14

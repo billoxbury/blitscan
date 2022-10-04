@@ -1,0 +1,6 @@
+HTTP/1.1 500 Internal Server Error
+Content-Type: application/json
+Date: Fri, 30 Sep 2022 16:44:43 GMT
+Content-Length: 187
+Connection: keep-alive
+

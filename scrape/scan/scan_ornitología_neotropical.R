@@ -1,12 +1,5 @@
 # Bespoke scanner for Journal of Ornithology web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
-
 # URL formats
 archive <- "https://journals.sfu.ca/ornneo/index.php/ornneo/issue/archive"
 

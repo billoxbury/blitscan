@@ -1,11 +1,5 @@
 # Bespoke scanner for Avian Research web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 avianres_prefix <- "https://avianres.biomedcentral.com"
 browse_prefix <- "https://avianres.biomedcentral.com/articles"
 

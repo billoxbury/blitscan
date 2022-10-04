@@ -1,11 +1,5 @@
 # Bespoke scanner for Ostrich web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 ostrich_prefix <- "https://www.nisc.co.za/products/11/journals/ostrich-journal-of-african-ornithology"
 
 

@@ -1,12 +1,5 @@
 # Bespoke scanner for Oryx web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
-
 # URL formats
 cambridge_prefix <- "https://www.cambridge.org"
 browse_prefix <- "https://www.cambridge.org/core/journals/oryx/all-issues"

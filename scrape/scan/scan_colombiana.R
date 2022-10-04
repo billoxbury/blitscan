@@ -1,13 +1,5 @@
 # Bespoke scanner for Ostrich web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-library(lubridate)
-
-
 start_page <- "https://asociacioncolombianadeornitologia.org/revista-ornitologia-colombiana/"
 
 # find all issues

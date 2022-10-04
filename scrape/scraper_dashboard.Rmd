@@ -1,5 +1,5 @@
 ---
-title: "Dashboard forBirdLife LitScan scraper"
+title: "Dashboard for BirdLife LitScan scraper"
 author: "Bill Oxbury"
 date: "`r Sys.Date()`"
 output: html_document
@@ -353,7 +353,7 @@ date %>%
        y = "Article count")
 ```
 <p>
-Note that points beyond today's date usually indicates instances where publication comes later than online announcement. 
+Note that points beyond today's date usually indicate instances where publication comes later than online announcement. 
 
 Reading of dates can be a fallible process - how well are we able to parse publication dates for URLs?
 

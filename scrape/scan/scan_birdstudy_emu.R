@@ -1,11 +1,5 @@
 # Bespoke scanner for Bird Study & Emu web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 tandfonline_prefix <- "https://www.tandfonline.com"
 birdstudy_prefix <- str_c(tandfonline_prefix, "/toc/tbis20/current")
 emu_prefix <- str_c(tandfonline_prefix, "/toc/temu20/current")

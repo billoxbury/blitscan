@@ -1,11 +1,5 @@
 # Bespoke scanner for Bird Conservation International web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 
 # URL formats
 cambridge_prefix <- "https://www.cambridge.org"

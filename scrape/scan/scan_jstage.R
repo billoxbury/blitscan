@@ -1,12 +1,5 @@
 # Bespoke scanner for Ostrich web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
-
 # URLs
 jstage_prefix <- "https://www.jstage.jst.go.jp"
 search_url <- function(searchterm){

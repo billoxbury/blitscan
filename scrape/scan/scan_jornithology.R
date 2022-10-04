@@ -1,12 +1,5 @@
 # Bespoke scanner for Journal of Ornithology web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
-
 # URL formats
 springer_prefix <- "https://www.springer.com"
 link_prefix <- "https://link.springer.com"

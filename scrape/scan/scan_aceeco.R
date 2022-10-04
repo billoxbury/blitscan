@@ -1,14 +1,8 @@
 # Bespoke scanner for ACE-ECO web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 # URL formats
 aceeco_prefix <- "https://www.ace-eco.org"
-front_page <- str_c(aceeco_prefix, "/index.php")
+front_page <- str_c(aceeco_prefix, "/issue/")
 
 # find most recent issues
 get_recent_issues <- function(){
@@ -17,11 +11,10 @@ get_recent_issues <- function(){
   close(url_conn)
   
   nodes <- page %>% 
-    html_elements("#home_toc") %>%
-    html_elements('li a') %>%
+    html_elements(".volume__issuetitle") %>%
     html_attr('href')
   # return
-  str_c(aceeco_prefix, nodes[1:2])
+  nodes[1:2]
 }
 
 # page by page
@@ -31,16 +24,18 @@ get_page <- function(cpage){
   close(url_conn)
   
   nodes <- page %>% 
-    html_elements(xpath = '//div[@class="article"]')
+    html_elements(".toc__title") 
   title <- nodes %>%  
     html_text2() %>%
     str_split('\n\n') %>%
-    sapply(function(x) str_trim(x[1]))
-
+    sapply(function(x) 
+      str_trim(str_remove(x[1], 
+                          ' PDF Icons/Download Add annotation if one exists')))
+  nt <- length(title)
   link <- nodes %>%
     html_elements('a') %>%
     html_attr('href')
-  link <-  str_c(aceeco_prefix, link)
+  link <- link[2*(1:nt) - 1]
   # return
   tibble(link, title)
 }

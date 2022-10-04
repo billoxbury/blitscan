@@ -1,12 +1,5 @@
 # Bespoke scanner for Ostrich web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-library(lubridate)
-
 bioone_prefix <- "https://bioone.org"
 wilson_prefix <- str_c(bioone_prefix, "/journals/the-wilson-journal-of-ornithology/issues/")
 

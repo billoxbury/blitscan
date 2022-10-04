@@ -1,11 +1,5 @@
 # Bespoke scanner for (topic-based) PLOS One web pages
 
-library(rvest)
-library(stringr)
-library(dplyr)
-library(purrr)
-library(readr)
-
 plos_prefix <- "https://journals.plos.org"
 browse_prefix <- "https://journals.plos.org/plosone/browse/"
 
