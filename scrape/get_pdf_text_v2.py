@@ -36,7 +36,7 @@ except:
 MAXCALLS = 100
 MAXFNAMESIZE = 128
 
-#  global constants
+#  global constants - filename regex
 fn_patt = re.compile(" |=|\?|\:|/|\.")
 
 # PDF download functions
@@ -87,8 +87,7 @@ domains = Table('domains', metadata_obj,
              )
 
 def main():
-    # create text update list, initialise counters
-    update_list = []
+    # initialise counters
     totalcalls = 0
     ngood = 0
 
@@ -103,6 +102,8 @@ def main():
         for drow in domain_set:
             thisdomain = drow.domain    
             print(f'Domain {thisdomain}:')
+            # initialise update list for this domain
+            update_list = []
             # get links for this domain
             link_selecter = select(links).\
                 where(
@@ -171,27 +172,27 @@ def main():
                     continue
             totalcalls += ncalls
             # END OF __for lrow in link_set__
-    # quit if no output
-    if update_list == []:
-        print(f'Got text from {ngood} files out of {totalcalls} requests')
-        return 0
-    
-    # make update instructions 
-    updater = links.update().\
-        where(links.c.pdf_link == bindparam('pdfvalue')).\
-        values(
-            date = bindparam('datevalue'), 
-            title = bindparam('titlevalue'),
-            abstract = bindparam('abstractvalue'),
-            pdftext = bindparam('pdftextvalue'),
-            GOTTEXT = bindparam('textflagvalue'),
-            DONEPDF = bindparam('pdfflagvalue'),
-            BADLINK = bindparam('badlinkvalue')  
-            )
-    # ... and commit to remote table
-    with engine.connect() as conn:
-        conn.execute(updater, update_list)
-    
+
+            # skip to next domain if no output
+            if update_list == []:
+                continue
+            
+            # make update instructions to capture data this domain
+            updater = links.update().\
+                where(links.c.pdf_link == bindparam('pdfvalue')).\
+                values(
+                    date = bindparam('datevalue'), 
+                    title = bindparam('titlevalue'),
+                    abstract = bindparam('abstractvalue'),
+                    pdftext = bindparam('pdftextvalue'),
+                    GOTTEXT = bindparam('textflagvalue'),
+                    DONEPDF = bindparam('pdfflagvalue'),
+                    BADLINK = bindparam('badlinkvalue')  
+                    )
+            # ... and commit to remote table
+            conn.execute(updater, update_list)
+            # END OF __for drow in domain_set__
+
     # clean up ...
     os.system(f'rm {pdfpath}/*')
 

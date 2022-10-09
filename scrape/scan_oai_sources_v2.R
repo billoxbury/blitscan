@@ -9,6 +9,7 @@ library(dbplyr, warn.conflicts=FALSE)
 library(lubridate, warn.conflicts=FALSE)
 library(oai, warn.conflicts=FALSE)
 
+
 ########################################################
 # read data path from command line
 args <- commandArgs(trailingOnly=T)
@@ -60,17 +61,8 @@ setspecs <- page %>%
   html_elements('setspec') %>%
   html_text2()
 
-# update database table
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
-oai_sources <- tbl(conn, 'oai') %>% collect()
-oai_new <- tibble(Society = setnames[bioone_avian_sets])
-oai_sources <- full_join(oai_sources, oai_new, by = 'Society')
-DBI::dbWriteTable(conn, 'oai', oai_sources, overwrite = TRUE)
-DBI::dbDisconnect(conn)
-
 ########################################################
 # scanner functions
-
 
 database_to_table <- function(database, setname, from = FROM){
   
@@ -134,12 +126,12 @@ scan_bioone <- function(sets = bioone_avian_sets){
 }
 
 ########################################################
-# run scanner and prepare data frame
+# run scanner 
 
 df_oai <- scan_bioone(bioone_avian_sets)
 
 # add to main data frame
-doi_prefix <- "https://doi.org/"
+
 df_new <- tibble(
   date = character(),
   link = character(),
@@ -161,6 +153,8 @@ df_new <- tibble(
   GOTTRANSLATION = numeric(),
   DONECROSSREF = numeric()
 )
+
+doi_prefix <- "https://doi.org/"
 
 for(i in 1:nrow(df_oai)){
   

@@ -1,10 +1,10 @@
 library(stringr)
-library(lubridate)
 
 shinyServer(
   
   function(input, output, session) {
     
+    if(!LOCAL){
       credentials <- shinyauthr::loginServer(
         id = "login",
         data = user_base,
@@ -13,13 +13,14 @@ shinyServer(
         sodium_hashed = TRUE,
         log_out = reactive(logout_init())
       )
+      
+      # logout to hide
+      logout_init <- shinyauthr::logoutServer(
+        id = "logout",
+        active = reactive(credentials()$user_auth)
+      )
+    }
 
-    # logout to hide
-    logout_init <- shinyauthr::logoutServer(
-      id = "logout",
-      active = reactive(credentials()$user_auth)
-    )
-  
     # set traffic light points
     score <- df_tx %>%
       pull(score)
@@ -46,9 +47,10 @@ shinyServer(
     # pull data frame of recent items
     # (not reactive, but could be made reactive to user-selected date range)
     df_recent <- df_tx %>%
-      filter(daysago <= RECENT_DAYS & !is.na(date)) %>%
+      filter(!is.na(date)) %>%
       collect() %>%
       mutate(date = as_date(date), query_date = as_date(query_date)) %>%
+      filter(as.integer(today() - date) <= RECENT_DAYS) %>%
       arrange(desc(score))
     
     # pull data frame in response to search term
@@ -72,14 +74,14 @@ shinyServer(
 
     output$header <- renderText({
       # show only when authenticated
-      req(credentials()$user_auth)
+      if(!LOCAL) req(credentials()$user_auth)
       "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
       <i>&#946 version</i><hr>"
     })
     
     output$search <- renderUI({
       # show only when authenticated
-      req(credentials()$user_auth)
+      if(!LOCAL) req(credentials()$user_auth)
       
       tagList(
         textInput("search", 
@@ -90,7 +92,7 @@ shinyServer(
     
     output$search_info <- renderText({
       # show only when authenticated
-      req(credentials()$user_auth)
+      if(!LOCAL) req(credentials()$user_auth)
       
       # returned data frame
       df_out <- if(input$search == ""){ 
@@ -148,7 +150,7 @@ shinyServer(
     
     output$signoff <- renderText({
       # show only when authenticated
-      req(credentials()$user_auth)
+      if(!LOCAL) req(credentials()$user_auth)
       
       "<hr>
        <a href='mailto: bill.oxbury@birdlife.org'>&#169; BirdLife International 2022</a>"
@@ -156,14 +158,14 @@ shinyServer(
 
     output$sidebar <- renderText({
       # show only when authenticated
-      req(credentials()$user_auth)
+      if(!LOCAL) req(credentials()$user_auth)
       
       sprintf("
       <br>
       <hr>
       <h3>Getting started</h3>
       <p>This site contains scientific articles of relevance to the work of BirdLife International published in a number of open-access journals.</p>
-      <p>The database is updated regularly and currently contains <b>%d articles</b>.</p>
+      <p>The database is updated regularly and currently contains <b>%s articles</b>.</p>
               <p>All articles for which the date is available are published within the <b color='red'>past 6 years</b>.</p>
               <p>The relevance of articles to conservation is estimated based on text analysis using the red-list species assessments of Birdlife International.</p>
               <p>The estimate is indicated on this page by a traffic light 
@@ -175,7 +177,7 @@ shinyServer(
               <a href='scraper_dashboard.html'>More information can be found here.</a>
               </p>
               <hr>
-              ", nrows)
+              ", format(nrows, big.mark=','))
     })
    }
 )

@@ -1,3 +1,9 @@
+library(shiny)
+library(shinyauthr)
+library(dplyr)
+library(dbplyr)
+library(lubridate)
+
 #########################################################################
 
 LOCAL <- FALSE
@@ -12,13 +18,10 @@ if(LOCAL){
 
 USER_FILE <- paste(PATH, "users.sqlite", sep="/")
 
+MAX_DAYS <- 2200
+start_date <- today() - MAX_DAYS
 RECENT_DAYS <- 14
-
-library(shiny)
-library(shinyauthr)
-library(dplyr)
-library(dbplyr)
-
+LOGZERO <- -20.0
 
 # data frame that holds usernames, passwords and other user data
 conn <- DBI::dbConnect(RSQLite::SQLite(), USER_FILE)
@@ -31,7 +34,10 @@ DBI::dbDisconnect(conn)
 
 conn <- DBI::dbConnect(RSQLite::SQLite(), DATA_FILE)
 df_master <- tbl(conn, 'links')
-df_tx <- df_master %>% filter(GOTTEXT == 1 & BADLINK == 0 & score > -20.0)
+df_tx <- df_master %>% filter(GOTTEXT == 1 & 
+                         BADLINK == 0 & 
+                         score > -20.0 &
+                         (is.na(date) | date > start_date) )
 
 # total nr records
 nrows <- df_tx %>% 

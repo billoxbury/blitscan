@@ -2,7 +2,7 @@
 # build and run Docker image with
 #
 # docker build -t blitscanapp .
-# docker run --rm -dp 3838:3838 -v /Users/bill/Projects/202201_BI_literature_scanning/blitscan/data:/srv/shiny-server/data blitscanapp
+# docker run --rm -dp 3838:3838 -v /path/to/blitscan/data:/srv/shiny-server/data blitscanapp
 
 FROM rocker/shiny:4.1.1
 

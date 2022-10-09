@@ -140,3 +140,28 @@ cat("Updated database\n")
 DBI::dbDisconnect(conn)
 
 # DONE
+
+# TEMPORARY
+
+DBFILE <- 'data/master.db'
+conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+
+df <- tbl(conn, 'species') %>%
+  mutate(SISRecID = as.integer(SISRecID)) %>%
+  collect() %>%
+  mutate(date = as.character(as_date(date))) %>%
+  select(-c(x,y))
+
+#for(i in 1:nrow(df)){
+#  if(str_detect(df$created[i], '\\.0')){
+#    df$created[i] <- df$created[i] %>%
+#      as.numeric() %>%
+#      as_date() %>%
+#      as.character()
+#  } 
+#}
+
+DBI::dbWriteTable(conn, 'temp', df)
+DBI::dbDisconnect(conn)
+
+

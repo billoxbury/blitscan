@@ -22,18 +22,24 @@ library(purrr, warn.conflicts=FALSE)
 library(lubridate, warn.conflicts=FALSE)
 library(ggplot2, warn.conflicts=FALSE)
 
-dbfile <- "../data/master.sqlite"
+MAX_DAYS <- 2200
+start_date <- today() - MAX_DAYS
+
+dbfile <- "../data/master.db"
 
 conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
 df <- tbl(conn, 'links')
-df_tx <- df %>% filter(GOTTEXT == 1 & BADLINK == 0 & score > -20.0)
+df_tx <- df %>% filter(GOTTEXT == 1 & 
+                         BADLINK == 0 & 
+                         score > -20.0 &
+                         (is.na(date) | date > start_date) )
 ```
 
 
 ### First statistics
 
 The
-<a href="http://blitscan.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications:
+<a href="http://blitscansql.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications:
 
 ```{r nr-records, echo=FALSE, warning=FALSE}
 
@@ -41,9 +47,9 @@ nr <- df_tx %>%
   summarise(count = n()) %>%
   select(count) %>%
   collect() %>% 
-  as.numeric()
+  as.numeric() 
 
-cat("Number of articles:", nr, '\n')
+cat("Number of articles:", format(nr, big.mark = ','), '\n')
 ```
 
 ```{r nr-species, echo=FALSE, warning=FALSE}
@@ -61,7 +67,7 @@ species_nonunique <- species$species %>%
 species_unique <-  species_nonunique %>%
   unique() 
 
-cat("Number of species:", length(species_unique), '\n')
+cat("Number of species:", format( length(species_unique), big.mark = ','), '\n')
 ```
 
 ```{r nr-journals-SQL, echo=FALSE, warning=FALSE}
@@ -72,16 +78,15 @@ title_dois <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
   select(Journal = container.title) %>%
   filter(!is.na(Journal)) %>%
   collect()
-title_journals <- tbl(conn, 'journals') %>%
-  select('Journal') %>%
-  collect()
 title_oai <- tbl(conn, 'oai') %>%
   select('Journal') %>%
   collect()
   
-title_list <- rbind(title_dois, title_journals, title_oai) %>%
+title_list <- rbind(title_dois, 
+                    title_oai) %>%
   distinct()
-nt <- nrow(title_list)
+nt <- nrow(title_list) %>%
+  format(big.mark = ',')
 
 cat("Number of journals/proceedings:", nt, '\n')
 ```
@@ -94,7 +99,8 @@ publishers <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
   distinct() %>%
   collect()
 
-np <- nrow(publishers)
+np <- nrow(publishers) %>%
+  format(big.mark = ',')
 
 cat("Number of publishers:", np, '\n')
 ```
@@ -133,7 +139,9 @@ df_out <- full_join(df_blit, df_status, by = 'status') %>%
   arrange(desc(OutOf))
 
 df_out %>%
-  knitr::kable(format = "html", table.attr = "style='width:50%;'")
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:50%;'")
 ```
 <p>
 (Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are estimated by a crawl of DataZone pages.)
@@ -201,10 +209,13 @@ df_tx_oai <- df_tx_searchterm %>%
 df_oai <- tbl(conn, 'oai') %>%
   collect()
 
-full_join(df_oai, df_tx_oai, by = 'Society') %>%
+inner_join(df_oai, df_tx_oai, by = 'Society') %>%
   arrange(Journal) %>%
-  knitr::kable(format = "html", table.attr = "style='width:100%;'")
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:100%;'")
 ```
+
 
 #### Step 3: preprint archives
 
@@ -233,7 +244,9 @@ df_tx_archiv <- df_tx_archiv %>%
   
 inner_join(df_archiv, df_tx_archiv, by = 'label') %>%
   select(Archive, Language, URL, Count) %>%
-  knitr::kable(format = "html", table.attr = "style='width:100%;'")
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:100%;'")
 ```
 
 <p> In the URLs above, 'search_term' is selected from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_restricted.csv">list of scientific genus names containing vulnerable species</a> (that is, having red-list status not _LC_ or _EX_).
@@ -256,7 +269,7 @@ df_tx_searchterm <- df_tx %>%
   collect() %>%
   transmute(SearchPrefix = sapply(search_term, normal_plos)) 
 
-journals <- tbl(conn, 'journals') %>%
+journals <- tbl(conn, 'contentscans') %>%
   select('Journal', 'SearchPrefix', 'Language', 'URL') %>%
   collect()
 
@@ -290,7 +303,9 @@ df_out$Count[is.na(df_out$Count)] <- 0
 names(df_out) <- c('Domain', 'Minable?','Count')
 
 df_out %>%
-  knitr::kable(format = "html", table.attr = "style='width:50%;'")
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:50%;'")
 ```
 
 <p>The binary indicator 'minable' refers to domain policy which in some cases (minable = 0) prohibits or limits text extraction later on. Notable examples are _conbio.onlinelibrary.wiley.com_ and _academic.oup.com_. In some cases we are able to work with these domains via open archive initiatives.
@@ -316,7 +331,9 @@ df_out$Count[is.na(df_out$Count)] <- 0
 
 df_out %>%
   arrange(desc(Count)) %>%
-  knitr::kable(format = "html", table.attr = "style='width:50%;'")
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:50%;'")
 ```
 <p> In this table, 'Count' refers to the current database while 'OutOf' refers to the wider data set of articles that is stored before filtering down to the database used. Filtering is based on both date and relevance. 
 
@@ -374,7 +391,8 @@ By domain this looks like:
 domain <- df_tx %>%
   select(domain) %>%
   collect() %>%
-  pull(domain)
+  pull(domain) %>%
+  str_remove('^www\\.')
 
 df_out <- table(domain, !baddate) %>%
   tibble()
@@ -467,7 +485,8 @@ problem_domains <- df %>%
 
 domain <- df %>% 
   filter(!(domain %in% problem_domains))%>% 
-  pull(domain)
+  pull(domain) %>%
+  str_remove('^www\\.')
   
 text <- df %>% 
   filter(!(domain %in% problem_domains))%>% 

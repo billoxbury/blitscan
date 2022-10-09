@@ -1,54 +1,106 @@
 #!/usr/local/bin/python
 
 """
-Take master CSV file and go through normalising the dates, and set BADLINK for old dates
+First make sure all dates are set to 'created' field from CrossRef, where we have DOI; 
+then normalise all dates to yyyy-mm-dd format.
+
+E.g. 
+
+dbfile="./data/master.db"
+
+./scrape/fix_dates_v2.py $dbfile
+
 """
 
-import sys
-import pandas as pd
+import sys 
+from sqlalchemy import create_engine, update, select, bindparam, text
+from sqlalchemy import Table, Column, String, MetaData
 from dateutil.parser import parse
-from datetime import datetime
-
-DEFAULT_DAYSAGO = -1
-MAX_DAYSAGO = 2200
-
-#  global constants
-today = datetime.now().date()
+#from datetime import datetime
 
 # read command line
 try:
-	csvfile = sys.argv[1];			del sys.argv[1]
+	dbfile = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "csv_file")
+	print("Usage:", sys.argv[0], "db_file")
 	sys.exit(1)
 
-# initialise
-df = pd.read_csv(csvfile, index_col = None).fillna('')
+# SQL command string
+sql_cmd = '\
+    UPDATE links \
+        SET date = ( \
+                SELECT dois.created \
+                FROM dois \
+                WHERE dois.doi = links.doi \
+                ) \
+    WHERE EXISTS ( \
+        SELECT * \
+        FROM dois \
+        WHERE dois.doi = links.doi \
+        )'
 
+# open connection to database
+engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+
+# create SQL tables
+metadata_obj = MetaData()
+links = Table('links', metadata_obj,
+              Column('link', String, primary_key=True),
+              Column('date', String),
+              Column('doi', String)
+             )
+dois = Table('dois', metadata_obj,
+              Column('doi', String, primary_key=True),
+              Column('created', String)
+             )
 
 def main():
-    global df
-
-    # repair dates - this includes parsing those extracted from HTML in 'cs_get_html_text.R'
-    # as well as from PDF 
-    for i in range(df.shape[0]):
-
-        thisdate = df.at[i,'date']
-        try:
-            date = parse(thisdate, fuzzy=True).date()
-            df.at[i, 'date'] = date.strftime("%Y-%m-%d")
-            delta = today - date
-            df.at[i, 'daysago'] = delta.days
-            if delta.days > MAX_DAYSAGO:
-                df.at[i, 'BADLINK'] = 1
-        except:
-            df.at[i, 'date'] = ""
-            df.at[i, 'daysago'] = DEFAULT_DAYSAGO
-            continue
-
-    # write to disk
-    df.to_csv(csvfile, index = False)
-    print(f'{df.shape[0]} records written to {csvfile}')
+    # (1) send SQL command to update dates to value against corresponding DOI
+    print('Aligning all dates with DOI values to CrossRef data ...')
+    with engine.connect() as conn:
+        result1 = conn.execute(text(sql_cmd))
+    
+    # (2) normalise all dates in main table
+    print('Normalising all dates to yyyy-mm-dd format ...')
+    update_list = []
+    # select relevant records
+    selecter = select(links).\
+        where(links.c.date != None)
+    # process results
+    ndates = 0
+    nupdates = 0
+    with engine.connect() as conn:
+        result2 = conn.execute(selecter)
+        for row in result2:
+            ndates += 1
+            thisdate = row.date
+            try:
+                newdate = parse(thisdate, fuzzy=True).date()
+                newdate = newdate.strftime("%Y-%m-%d")
+            except:
+                newdate = thisdate
+                continue
+            if newdate != thisdate:
+                nupdates += 1
+                update_list += [{
+                    'linkvalue': row.link,
+                    'datevalue': newdate
+                    }]
+                print(f'{thisdate} --> {newdate}')
+    # quit if no output
+    if update_list == []:
+        print(f"Normalised {nupdates} dates out of {ndates}")
+        return 0
+    
+    # make update instructions 
+    updater = links.update().\
+        where(links.c.link == bindparam('linkvalue')).\
+        values(date=bindparam('datevalue'))
+    
+    # ... and commit to database
+    with engine.connect() as conn:
+        conn.execute(updater, update_list)
+    print("Normalised {nupdates} dates out of {ndates}")
     return 0
 
 if __name__ == '__main__':

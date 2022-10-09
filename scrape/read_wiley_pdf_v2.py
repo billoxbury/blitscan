@@ -17,7 +17,6 @@ import os, sys
 import re
 import fitz
 import pdf2txt
-#from sqlite3 import IntegrityError
 from sqlalchemy import create_engine, update, select, bindparam
 from sqlalchemy import Table, Column, String, Integer, MetaData
 
@@ -30,7 +29,7 @@ except:
 	sys.exit(1)
 
 # parameters
-MAXFILES = 500
+MAXFILES = 100
 
 # open connection to database
 engine = create_engine(f'sqlite:///{dbfile}', echo=False)
@@ -66,7 +65,7 @@ def main():
     # process results
     with engine.connect() as conn:
         result = conn.execute(selecter)
-    
+        totalfiles = MAXFILES
         nfiles = 0
         nres = 0
         ngood = 0
@@ -87,7 +86,7 @@ def main():
                     text_list = pdf2txt.get_text(nlp, pdf_doc)
                     abstract = pdf2txt.get_abstract(text_list)
                     # verbose output
-                    print()
+                    print(f'{totalfiles - nfiles + 1} remaining:')
                     print(date)
                     print(title)
                     print(row.doi)

@@ -1,3 +1,5 @@
+#!/usr/local/bin/Rscript
+
 library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)
 library(dplyr, warn.conflicts=FALSE)
@@ -47,14 +49,26 @@ clean_url <- function(url){
 dois <- sapply(urls, clean_url) %>%
   unique()
 cat(sprintf("Found %d unique DOIs\n", length(dois)))
+# discriminator for ConBio journals
+set_search_term <- function(doi){
+  if(str_detect(doi, 'cobi')){ 
+    'wiley-cobi' 
+  } else if(str_detect(doi, 'conl')){
+      'wiley-conl'
+  } else if(str_detect(doi, 'csp')){
+      'wiley-csp'
+  } else {
+      'wiley-contents'
+    }
+}
 
 # create data frame for results
 df_new <- tibble(
   link = str_c(conbio_prefix, dois),
   doi = dois,
+  search_term = sapply(dois, set_search_term)
 )
 df_new['language'] <- 'en'
-df_new['search_term'] <- 'wiley-contents'
 df_new['query_date'] <- as.character(today())
 df_new['domain'] <- 'conbio.onlinelibrary.wiley.com'
 df_new['BADLINK'] <- 0
@@ -68,24 +82,26 @@ df_new['DONECROSSREF'] <- 0
 ##########################################################
 # write to disk
 
-# re-open database connection
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
-
-# check for links already in database
-dups <- sapply(1:nrow(df_new), function(i){
-  query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
-                   df_new$link[i])
-  # return
-  as.integer( DBI::dbGetQuery(conn, query) )
-})
-# ... and remove these
-df_new <- df_new[dups==0,] 
-cat(sprintf("Found %d new items\n", nrow(df_new)))
-
 # add rest of data frame to the database
-DBI::dbWriteTable(conn, 'links', df_new, append = TRUE)
+if(nrow(df_new) > 0){
+  # re-open database connection
+  conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+  
+  # check for links already in database
+  dups <- sapply(1:nrow(df_new), function(i){
+    query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
+                     df_new$link[i])
+    # return
+    as.integer( DBI::dbGetQuery(conn, query) )
+  })
+  # ... and remove these
+  df_new <- df_new[dups==0,] 
+  cat(sprintf("Found %d new items\n", nrow(df_new)))
+  
+  DBI::dbWriteTable(conn, 'links', df_new, append = TRUE)
+  # close database connection
+  DBI::dbDisconnect(conn)
+}
 
-# close database connection
-DBI::dbDisconnect(conn)
 
 # DONE

@@ -6,7 +6,6 @@ library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)
 library(dplyr, warn.conflicts=FALSE)
 library(dbplyr, warn.conflicts=FALSE)
-library(lubridate, warn.conflicts=FALSE)
 
 ########################################################
 # read data path from command line
@@ -26,11 +25,9 @@ conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
 xpr <- tbl(conn, 'domains') %>%
   collect()
 
-
 # global variables
 ABSTRACTBLOCKS <- 6
 DEDUPE_TITLE <- FALSE
-MAX_DAYS <-  2200
 MAXCALLS <- 256
 VERBOSE <- TRUE
 
@@ -148,7 +145,6 @@ for(domain in domains){
     # verbose
     cat(sprintf("%d %d: %s\n", maxcalls, i, domain_df$link[i]))
   
-
     link <- domain_df$link[i]
     # check whether link is PDF:
     if( is_pdf(link) ){
@@ -184,10 +180,6 @@ for(domain in domains){
     }
   }
   # update database - delete old and then append the new
-  domain_df <- domain_df %>%
-    mutate(date = as.character(date),
-           query_date = as.character(query_date))
-  
   del_statement <- sprintf("%s %s", 
                            delete_prefix,
                            query_condition)
@@ -200,3 +192,4 @@ for(domain in domains){
 DBI::dbDisconnect(conn)
 
 # DONE
+
