@@ -19,15 +19,28 @@ dbfile <- args[1]
 
 # dbfile <- "data/master.db"
 
+# global variables
+MAXSEARCHES <- 250
+
 # open database connection
 conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
 
-# load search terms
-df_st <- tbl(conn, 'searchterms') %>%
+# read genus table with species counts
+df_genus <- tbl(conn, 'genera') %>%
   collect()
 # close database connection
 DBI::dbDisconnect(conn)
 
+# function to create set of search terms
+make_search_terms <- function(k = MAXSEARCHES, correction = 0){
+  genera <- df_genus$genus
+  weights <- df_genus$vu_count + correction
+  # return
+  sample(genera, 
+         k,
+         replace = FALSE, 
+         prob = weights)
+}
 
 # create data frame for results
 df_new <- tibble(
@@ -60,7 +73,8 @@ cat("Scanning biorxiv.org\n")
 source("./scrape/scan/scan_biorxiv.R")
 
 try({
-  df_biorxiv <- scan_biorxiv(MAXCALLS = 100)
+  searchset <- make_search_terms()
+  df_biorxiv <- scan_biorxiv(searchset)
   # add to main data frame
   for(i in 1:nrow(df_biorxiv)){
     if(df_biorxiv$link[i] %in% df_new$link) next
@@ -98,7 +112,8 @@ cat("Scanning J-Stage\n")
 source("./scrape/scan/scan_jstage.R")
 
 try({
-  df_jstage <- scan_jstage(MAXCALLS = 100)
+  searchset <- make_search_terms()
+  df_jstage <- scan_jstage(searchset)
   # add to main data frame
   for(i in 1:nrow(df_jstage)){
     if(df_jstage$link[i] %in% df_new$link) next

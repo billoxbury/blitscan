@@ -11,10 +11,10 @@ dbfile="./data/master.db"
 
 """
 
-import os, sys 
+import sys 
 import re
 from sqlalchemy import create_engine, update, select, bindparam
-from sqlalchemy import Table, Column, String, MetaData, ForeignKey
+from sqlalchemy import Table, Column, String, MetaData
 
 # read command line
 try:
@@ -45,7 +45,10 @@ def main():
     # create DOI conversion list 
     convert_list = []
     # select relevant records
-    selecter = select(links).where(links.c.doi == None).where(links.c.link.like('%/doi/%'))
+    selecter = select(links).where(
+        links.c.doi == None,
+        links.c.link.like('%/doi/%')
+        )
     # process results
     with engine.connect() as conn:
         result = conn.execute(selecter)

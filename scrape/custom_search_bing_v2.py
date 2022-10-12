@@ -7,10 +7,9 @@ and adds the responses to a temporary data frame. Dedupes data frame and adds ne
 
 E.g. 
 
-stfile="/Volumes/blitshare/searchterms_general.txt"
 dbfile="./data/master.db"
 
-./scrape/custom_search_bing_v2.py $stfile $dbfile
+./scrape/custom_search_bing_v2.py $dbfile
 
 
 """
@@ -19,6 +18,7 @@ import requests
 import os, sys 
 import time
 import re
+from random import choices
 from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd 
@@ -35,7 +35,7 @@ endpoint = os.environ['BING_CUSTOM_SEARCH_ENDPOINT']
 customConfigId = os.environ['BING_CUSTOM_CONFIG'] 
 
 # set wait time (days) before query term used again
-CSLIMIT = 256
+CSLIMIT = 1000
 WAITTIME = 0.01  # time between calls: 1 second on F0 free tier, 0.01 second on S1 standard tier
 
 # how far back in time to allow (6 years)
@@ -43,22 +43,19 @@ MAX_DAYS = 2200
 
 # read command line
 try:
-	searchterm_file = sys.argv[1];			del sys.argv[1]
 	dbfile = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "search_term_file db_file")
+	print("Usage:", sys.argv[0], "db_file")
 	sys.exit(1)
-
-# get search terms
-with open(searchterm_file, 'r') as sf:
-    words = [w.strip() for w in sf.readlines()]
-    # shuffle search terms to prevent bias to start of the array
-    np.random.shuffle(words) 
-sf.close()
-print("Read %d search terms" % len(words))
 
 # open connection to database
 engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+
+# read genus table with species counts 
+df_genus = pd.read_sql_table(
+    'genera',
+    con=engine
+)
 
 # date routines
 today = str( datetime.now().date() )
@@ -72,8 +69,19 @@ pdf_patt = re.compile(r"\.pdf$")
 def is_pdf(s):
     return bool(pdf_patt.search(s))
 
+# search terms
+def make_search_terms(k = CSLIMIT, correction = 0):
+    '''
+    sample genus with probability weights 'vu_count + correction' from the dataframe 'df_genus' 
+    By default correction = 0, but setting > 0 allows LC genera to be included as well
+    '''
+    searchpop = df_genus['genus']
+    weights = df_genus['vu_count']
+    sample = choices(searchpop, weights, k = k)
+    return list(set(sample))
+
 # main loop
-def get_responses():
+def get_responses(searchterms):
     # initialise data frame
     df = pd.DataFrame(columns = ['date',
                                 'link',
@@ -87,8 +95,8 @@ def get_responses():
     good_ctr = 0 # count good links
     bad_ctr = 0  # count bad links
     # loop over query terms
-    ctr = CSLIMIT
-    for w in words:    
+    ctr = len(searchterms)
+    for w in searchterms:    
         search_term = w + "+(bird+species)"
         get_string = endpoint + "/v7.0/custom/search?" \
                                 + "&sort=date&q=" + search_term \
@@ -223,7 +231,9 @@ def write_to_database(df):
 )
 
 def main():
-    df = get_responses()
+    searchterms = make_search_terms()
+    print(f"Read {len(searchterms)} search terms")
+    df = get_responses(searchterms)
     write_to_database(df)
     return 0
 

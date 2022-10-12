@@ -46,7 +46,7 @@ single_search <- function(searchterm){
 
 
 # loop through a set of search terms
-scan_jstage <- function(MAXCALLS = 100){
+scan_jstage <- function(searchset){
   
   # initialise data frame
   df_jstage <- tibble(
@@ -56,16 +56,11 @@ scan_jstage <- function(MAXCALLS = 100){
     search_term = character()
   )
   
-  # assign a random permutation of the vulnerable genus names
-  searchset <- df_st$genus[df_st$vu_count > 0]
+  # loop over all search terms
   n <- length(searchset)
-  searchset <- sample(searchset, n, replace = FALSE)
-  
   for(searchterm in searchset){
     # count down
-    if(MAXCALLS <= 0) break
-    MAXCALLS <- MAXCALLS - 1
-    
+    n <- n - 1
     try({
       # call single search 
       nextdf <- single_search(searchterm)
@@ -73,7 +68,7 @@ scan_jstage <- function(MAXCALLS = 100){
       # update data frame
       df_jstage <- rbind(df_jstage, nextdf)
       cat(sprintf("%d: %s --> %d\n",
-                  MAXCALLS,
+                  n,
                   searchterm,
                   nrow(df_jstage)))
     })

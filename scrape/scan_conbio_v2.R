@@ -18,7 +18,7 @@ dbfile <- args[1]
 filepath <- args[2]
 
 # dbfile <- "data/master.db"
-# filepath <- './data/wiley/html'
+# filepath <- '/Volumes/blitshare/wiley/html'
 
 # locate the DOI references in the HTML files
 files <- list.files(filepath)

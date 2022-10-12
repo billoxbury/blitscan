@@ -16,7 +16,7 @@ library(readr, warn.conflicts=FALSE)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) < 1){
-  cat("Usage: scan_oai_sources.R dbfile\n")
+  cat("Usage: update_DOI_data.R dbfile\n")
   quit(status=1)
 }
 dbfile <- args[1]
@@ -45,6 +45,7 @@ fields0 <- tbl(conn, 'dois') %>%
   head() %>%
   collect() %>%
   names()
+fields <- fields0
 
 ########################################################
 # MAIN LOOP
@@ -101,7 +102,12 @@ tmpfile <- 'tmp.csv'
 write_csv(df_doi, tmpfile)
 
 df_tmp <- read_csv(tmpfile, show_col_types = FALSE) %>%
-  distinct(doi, .keep_all = TRUE) 
+  distinct(doi, .keep_all = TRUE) %>%
+  mutate(created = as.character(created),
+         deposited = as.character(deposited),
+         indexed = as.character(indexed),
+         issued = as.character(issued)
+         )
 
 DBI::dbWriteTable(conn, 'dois', df_tmp, append = TRUE)
 cat(sprintf("Added %d records to DOI table\n",
@@ -112,27 +118,13 @@ system('rm tmp.csv')
 # update 'links' table
 
 # DONECROSSREF flag
-flag_statements <- paste0('UPDATE links SET DONECROSSREF = 1 WHERE doi = "', newdoi, '"')
+flag_statements <- paste0('UPDATE links SET DONECROSSREF = 1 WHERE doi = "', 
+                          newdoi, 
+                          '"')
 for(s in flag_statements){
   res = DBI::dbSendStatement(conn, s)
   DBI::dbClearResult(res)
 }
-
-# dates
-date_statement <- "UPDATE links
-SET
-date = (SELECT dois.created
-        FROM dois
-        WHERE dois.doi = links.doi )
-WHERE
-EXISTS (
-  SELECT *
-  FROM dois
-  WHERE dois.doi = links.doi
-) 
-AND links.date IS NULL"
-res = DBI::dbSendStatement(conn, date_statement)
-DBI::dbClearResult(res)
 
 cat("Updated database\n")
 
@@ -140,28 +132,3 @@ cat("Updated database\n")
 DBI::dbDisconnect(conn)
 
 # DONE
-
-# TEMPORARY
-
-DBFILE <- 'data/master.db'
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
-
-df <- tbl(conn, 'species') %>%
-  mutate(SISRecID = as.integer(SISRecID)) %>%
-  collect() %>%
-  mutate(date = as.character(as_date(date))) %>%
-  select(-c(x,y))
-
-#for(i in 1:nrow(df)){
-#  if(str_detect(df$created[i], '\\.0')){
-#    df$created[i] <- df$created[i] %>%
-#      as.numeric() %>%
-#      as_date() %>%
-#      as.character()
-#  } 
-#}
-
-DBI::dbWriteTable(conn, 'temp', df)
-DBI::dbDisconnect(conn)
-
-

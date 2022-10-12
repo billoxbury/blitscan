@@ -12,7 +12,7 @@ library(dbplyr, warn.conflicts=FALSE)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) < 1){
-  cat("Usage: scan_oai_sources.R dbfile\n")
+  cat("Usage: get_html_text.R dbfile\n")
   quit(status=1)
 }
 dbfile <- args[1]
@@ -27,8 +27,7 @@ xpr <- tbl(conn, 'domains') %>%
 
 # global variables
 ABSTRACTBLOCKS <- 6
-DEDUPE_TITLE <- FALSE
-MAXCALLS <- 256
+MAXCALLS <- 100
 VERBOSE <- TRUE
 
 ##########################################################
@@ -116,7 +115,9 @@ add_day_to_month <- function(date){
 domains <- xpr$domain[xpr$minable == 1]
 select_prefix <- "SELECT * FROM links" 
 delete_prefix <- "DELETE FROM links" 
-condition_prefix <- "WHERE BADLINK==0 AND GOTTEXT==0 AND domain LIKE"
+condition_prefix <- "WHERE BADLINK=0 AND GOTTEXT=0 AND domain LIKE"
+update_count <- 0
+domain_count <- 0
 
 for(domain in domains){
   
@@ -176,6 +177,7 @@ for(domain in domains){
           }
         }
         if(VERBOSE){ print(out) }
+        update_count <- update_count + 1
       })
     }
   }
@@ -186,10 +188,47 @@ for(domain in domains){
   res <-  DBI::dbSendStatement(conn, del_statement)
   DBI::dbClearResult(res)
   DBI::dbWriteTable(conn, 'links', domain_df, append = TRUE)
+  if(nrow(domain_df) > 0){
+    domain_count <- domain_count + 1
+  }
 } 
-
+# report
+cat(sprintf("Done - %d updates made for %d domains\n", 
+            update_count,
+            domain_count))
 # close database connection
 DBI::dbDisconnect(conn)
 
 # DONE
 
+# TEMPORARY:
+
+#library(stringr, warn.conflicts=FALSE)
+#library(dplyr, warn.conflicts=FALSE)
+#library(dbplyr, warn.conflicts=FALSE)
+#library(lubridate)
+
+#dbfile <- "data/master.db"
+#conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+
+#df <- tbl(conn, 'dois') %>%
+#  collect()
+
+#for(i in 1:nrow(df)){
+#  if(!is.na(df$created[i])){
+#    if(str_detect(df$created[i], '\\.0')){
+#      d <- as.character(
+#        as_date(
+#          as.numeric(
+#            df$created[i]
+#          )
+#        )
+#      cat(sprintf('%s --> %s\n', df$created[i], d))
+#      )
+#      df$created[i] <- d
+#    }
+#  }
+#}
+
+#DBI::dbWriteTable(conn, 'dois', df, overwrite = TRUE)
+#DBI::dbDisconnect(conn)

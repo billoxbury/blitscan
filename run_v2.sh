@@ -12,9 +12,6 @@ wileypdf="$datapath/wiley/pdf"
 wileyhtml="$datapath/wiley/html"
 tmppath="./data/tmp"
 
-# DEPRECATE SOON:
-stfile="$datapath/searchterms_general.txt"
-
 # taxonomy and model files
 birdfile="$datapath/BirdLife_species_list_Jan_2022.xlsx"
 blimodelfile="$datapath/bli_model_bow_11107.json"
@@ -22,18 +19,20 @@ blimodelfile="$datapath/bli_model_bow_11107.json"
 # webapp Docker
 dockerpath="webapp"
 
+# webapp on Azure
 AZURE_CONTAINER_REGISTRY='blitscanappcontainers.azurecr.io'
 appname='blitscansqlapp'
 
 ########################
 # SCRAPE STAGE
+# Scrape I: collect URLs
 
 # (1) Bing custom search
-./scrape/custom_search_bing_v2.py $stfile $dbfile_local # TO DO: use st from db file
+./scrape/custom_search_bing_v2.py $dbfile_local 
 
 # (2) scan OAI relevant journals (currently under BioOne)
 # - maintain source list for this step
-#./scrape/scan_oai_sources_v2.R $dbfile_local # UNDER EDIT
+./scrape/scan_oai_sources_v2.R $dbfile_local
 
 # (3) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
 # - maintain source list for this step
@@ -45,10 +44,14 @@ appname='blitscansqlapp'
 
 # (4a) ... including Wiley ConBio
 # DOIs are extracted directly here
+open -g $AZURE_VOLUME
 ./scrape/scan_conbio_v2.R $dbfile_local $wileyhtml
 
 # (5) extract (other) DOIs from article URLs
 ./scrape/find_link_dois_v2.py $dbfile_local
+
+########################
+# Scrape II: collect text
 
 # (6) web scraping against links where text not already obtained
 ./scrape/get_html_text_v2.R $dbfile_local
@@ -58,33 +61,42 @@ appname='blitscansqlapp'
 ./scrape/update_DOI_data_v2.R $dbfile_local
 
 # (8) download Wiley SCB pdf files
+open -g $AZURE_VOLUME
 ./scrape/get_wiley_pdf_v2.py $dbfile_local $wileypdf
 
 # (9) scan Wiley PDFs and get text
+open -g $AZURE_VOLUME
 ./scrape/read_wiley_pdf_v2.py $dbfile_local $wileypdf
 
 # (10) ... and PDF links for other domains
 ./scrape/get_pdf_text_v2.py $dbfile_local $tmppath
 
-# (11) date correction from (CrossRef) 'dois' table and normalisation
-./scrape/fix_dates_v2.py $dbfile_local
+# (11) remove duplicate records 
+# i.e. different links for same title/abstract
+./scrape/remove_duplicates.sh $dbfile_local
 
 ########################
 # PROCESS STAGE
 
-# (12) pass text to Azure for English translation
+# (12) date correction from (CrossRef) 'dois' table and normalisation
+./process/fix_dates_v2.py $dbfile_local
+
+# (13) pass text to Azure for English translation
 ./process/translate_to_english_v2.py $dbfile_local
 
-# (13) score title/abstract (not pdftext at this stage) on BLI text model
+# (14) score title/abstract (not pdftext at this stage) on BLI text model
+open -g $AZURE_VOLUME
 ./process/score_for_topic_v2.py $dbfile_local $blimodelfile
 
-# (14) find species references in all text
+# (15) find species references in all text
+open -g $AZURE_VOLUME
 ./process/find_species_v2.py $dbfile_local $birdfile
 
 ########################
 # CLEAN UP
 
 # copy local database file to Azure
+open -g $AZURE_VOLUME
 cp -v $dbfile_local $dbfile_azure
 
 # scraper metrics (R markdown)

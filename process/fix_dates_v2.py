@@ -32,8 +32,11 @@ sql_cmd = '\
                 SELECT dois.created \
                 FROM dois \
                 WHERE dois.doi = links.doi \
-                ) \
-    WHERE EXISTS ( \
+                ), \
+            DATECHECK = 1 \
+    WHERE DATECHECK = 0 \
+    AND \
+    EXISTS ( \
         SELECT * \
         FROM dois \
         WHERE dois.doi = links.doi \
@@ -100,7 +103,7 @@ def main():
     # ... and commit to database
     with engine.connect() as conn:
         conn.execute(updater, update_list)
-    print("Normalised {nupdates} dates out of {ndates}")
+    print("{nupdates} dates changed out of {ndates}")
     return 0
 
 if __name__ == '__main__':

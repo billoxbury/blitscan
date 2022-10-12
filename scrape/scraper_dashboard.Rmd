@@ -160,7 +160,7 @@ df_blit <- inner_join(article_counts, df_redlist, by = 'SISRecID') %>%
 
 df_blit %>%
   group_by(status) %>%
-  ggplot(aes(x = reorder(status, -count, mean), y = count)) +
+  ggplot(aes(x = reorder(status, -count, min), y = count)) +
   geom_boxplot(colour = "blue",
                fill = "lightblue") +
   scale_y_continuous(trans='log10') +
