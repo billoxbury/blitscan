@@ -3,25 +3,24 @@
 # today's date
 today=`date +'%Y-%m-%d'`
 
-# database paths
-# open $AZURE_VOLUME
-datapath='/Volumes/blitshare'
-dbfile_azure="/Volumes/blitshare/master.azure.db" 
-dbfile_local="./data/master.db" 
-wileypdf="$datapath/wiley/pdf"
-wileyhtml="$datapath/wiley/html"
+# data paths
+azurepath='/Volumes/blitshare'
+pgpath="$azurepath/pg"
+wileypdf="$azurepath/data/wiley/pdf"
+wileyhtml="$azurepath/data/wiley/html"
 tmppath="./data/tmp"
 
 # taxonomy and model files
-birdfile="$datapath/BirdLife_species_list_Jan_2022.xlsx"
-blimodelfile="$datapath/bli_model_bow_11107.json"
+birdfile="$azurepath/data/BirdLife_species_list_Jan_2022.xlsx"
+blimodelfile="$azurepath/data/bli_model_bow_11107.json"
 
 # webapp Docker
 dockerpath="webapp"
 
 # webapp on Azure
 AZURE_CONTAINER_REGISTRY='blitscanappcontainers.azurecr.io'
-appname='blitscansqlapp'
+WEBAPPNAME='blitscanapp'
+IMGNAME='blitscanpg'
 
 ########################
 # SCRAPE STAGE
@@ -108,27 +107,34 @@ mv ./scrape/scraper_dashboard.html ./reports/scraper_dashboard-$today.html
 ########################
 # WEBAPP DEPLOYMENT
 # build docker image(s)
-docker build -t $AZURE_CONTAINER_REGISTRY/$appname $dockerpath 
+docker build --no-cache -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath 
 
-# to test
-# docker run --rm -dp 3838:3838 -v /path/to/blitscan/data:/srv/shiny-server/data $AZURE_CONTAINER_REGISTRY/$appname
+########################
+# TO TEST LOCALLY:
+#docker build --no-cache -t $IMGNAME $dockerpath 
+#open -g $AZURE_VOLUME
+#docker run --rm -dp 3838:3838 -v /Volumes/blitshare:/srv/shiny-server/blitshare $IMGNAME
+#docker rmi -f $IMGNAME
+#
+# NOTE the argument --no-cache solved a thorny conflict which prevent installation of libpq-dev. 
+########################
 
 # authenticate to Azure if needed
 # ... and push to cloud
 az acr login -n $AZURE_CONTAINER_REGISTRY
-docker push $AZURE_CONTAINER_REGISTRY/$appname
+docker push $AZURE_CONTAINER_REGISTRY/$IMGNAME
 
 # clean up local Docker
-docker rmi -f $AZURE_CONTAINER_REGISTRY/$appname
+docker rmi -f $AZURE_CONTAINER_REGISTRY/$IMGNAME
 
 # restart container
-az container restart \
-    --name $appname \
-    --resource-group webappRG
+az webapp restart \
+    --resource-group $AZURE_RESOURCE_GROUP \
+    --name $WEBAPPNAME
 
 # report the public IP address of the container
-echo "Updated BLitScan app served at http://"`az container show \
-    --name $appname \
+echo "Updated BLitScan app served at http://"`az webapp show \
+    --name $WEBAPPNAME \
     --resource-group webappRG \
     --query ipAddress.ip --output tsv`":3838"
 

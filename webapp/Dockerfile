@@ -12,21 +12,19 @@ FROM rocker/shiny:4.1.1
 # discover system deps:
 # https://packagemanager.rstudio.com/client/#/repos/2/packages/A3
 
-RUN apt-get update 
+RUN apt-get update
 RUN apt-get install -y make 
+RUN apt-get install -y libpq-dev
 RUN apt-get install -y zlib1g-dev libicu-dev
-RUN apt-get install -y libsodium-dev
-RUN apt-get install -y sqlite3
 
 # install required R packages but fix the date
 # for future reproducibility
 
 RUN R -e 'install.packages(c(\
               "shiny", \
-              "shinyauthr", \
               "stringr", \
               "lubridate", \
-              "RSQLite", \
+              "RPostgres", \
               "dplyr", \
               "dbplyr" \
             ), \

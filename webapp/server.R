@@ -1,26 +1,7 @@
-library(stringr)
-
 shinyServer(
   
   function(input, output, session) {
     
-    if(!LOCAL){
-      credentials <- shinyauthr::loginServer(
-        id = "login",
-        data = user_base,
-        user_col = user,
-        pwd_col = password,
-        sodium_hashed = TRUE,
-        log_out = reactive(logout_init())
-      )
-      
-      # logout to hide
-      logout_init <- shinyauthr::logoutServer(
-        id = "logout",
-        active = reactive(credentials()$user_auth)
-      )
-    }
-
     # set traffic light points
     score <- df_tx %>%
       pull(score)
@@ -48,41 +29,30 @@ shinyServer(
     # (not reactive, but could be made reactive to user-selected date range)
     df_recent <- df_tx %>%
       filter(!is.na(date)) %>%
-      collect() %>%
-      mutate(date = as_date(date), query_date = as_date(query_date)) %>%
+      mutate(date = as_date(date)) %>%
       filter(as.integer(today() - date) <= RECENT_DAYS) %>%
-      arrange(desc(score))
+      arrange(desc(score)) %>%
+      collect()
     
     # pull data frame in response to search term
-    dftx_text_query <- function(st){
-      search <- sprintf("%%%s%%", st)
-      # return
-      sprintf("SELECT * FROM links \
-                          WHERE GOTTEXT=1 AND BADLINK=0 AND score > -20.0 \
-                          AND (title LIKE '%s' OR abstract LIKE '%s' \
-                          OR title_translation LIKE '%s' OR abstract_translation LIKE '%s')", 
-              search, search, search, search)
-    }
     df_returned <- reactive({
-      sql_query <- dftx_text_query(input$search)
+      st <- input$search %>% tolower()
       # return
-      tbl(conn, sql(sql_query)) %>%
-        collect() %>%
-        mutate(date = as_date(date), query_date = as_date(query_date)) %>%
-        arrange(desc(score))
+      df_tx %>%
+        filter(str_detect(tolower(title), st) |
+                 str_detect(tolower(title_translation), st) |
+                 str_detect(tolower(abstract), st) |
+                 str_detect(tolower(abstract_translation), st)) %>%
+        arrange(desc(score)) %>%
+        collect() 
     })
 
     output$header <- renderText({
-      # show only when authenticated
-      if(!LOCAL) req(credentials()$user_auth)
       "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
       <i>&#946 version</i><hr>"
     })
     
     output$search <- renderUI({
-      # show only when authenticated
-      if(!LOCAL) req(credentials()$user_auth)
-      
       tagList(
         textInput("search", 
                   label = "Search", 
@@ -91,9 +61,6 @@ shinyServer(
     })
     
     output$search_info <- renderText({
-      # show only when authenticated
-      if(!LOCAL) req(credentials()$user_auth)
-      
       # returned data frame
       df_out <- if(input$search == ""){ 
           df_recent 
@@ -149,28 +116,34 @@ shinyServer(
      })
     
     output$signoff <- renderText({
-      # show only when authenticated
-      if(!LOCAL) req(credentials()$user_auth)
-      
       "<hr>
        <a href='mailto: bill.oxbury@birdlife.org'>&#169; BirdLife International 2022</a>"
     })
 
     output$sidebar <- renderText({
-      # show only when authenticated
-      if(!LOCAL) req(credentials()$user_auth)
-      
       sprintf("
       <br>
       <hr>
       <h3>Getting started</h3>
-      <p>This site contains scientific articles of relevance to the work of BirdLife International published in a number of open-access journals.</p>
-      <p>The database is updated regularly and currently contains <b>%s articles</b>.</p>
-              <p>All articles for which the date is available are published within the <b color='red'>past 6 years</b>.</p>
-              <p>The relevance of articles to conservation is estimated based on text analysis using the red-list species assessments of Birdlife International.</p>
-              <p>The estimate is indicated on this page by a traffic light 
-              <img src='redlight.png' width=20><img src='amberlight.png' width=20><img src='greenlight.png' width=20>.</p>
-              <p>The relevance algorithm is under development and doesn't always get it right (yet)! <b>User feedback is welcome</b> to help improve it and to speedily highlight valuable research.</p>
+      <p>
+      This site identifies scientific articles of relevance to Red List assessments for birds undertaken by BirdLife International. It covers articles published in a number of primarily open-access journals.
+      </p>
+      <p>
+      The database is updated regularly and currently contains <b>%s articles</b>.
+      </p>
+              <p>
+              All articles for which the date is available are published within the <b color='red'>past 6 years</b>.
+              </p>
+              <p>
+              The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.
+              </p>
+              <p>
+              The estimate is indicated on this page by a traffic light 
+              <img src='redlight.png' width=20><img src='amberlight.png' width=20><img src='greenlight.png' width=20>.
+              </p>
+              <p>
+              The relevance algorithm is under development and doesn't always get it right (yet)! <b>User feedback is welcome</b> to help improve it and to speedily highlight valuable research.
+              </p>
               <p>Recent articles should appear here daily.</p> 
               <p>Search <b>by keyword/phrase</b>.</p>
               <p>

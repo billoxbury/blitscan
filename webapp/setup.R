@@ -1,39 +1,42 @@
 library(shiny)
-library(shinyauthr)
 library(dplyr)
 library(dbplyr)
+library(stringr)
 library(lubridate)
 
 #########################################################################
+# Postgres private parameters
 
 LOCAL <- FALSE
 
-if(LOCAL){
-  PATH <- "../data"
-  DATA_FILE <-  paste(PATH, "master.db", sep="/")
+PATH <- if(LOCAL){
+  '/Volumes/blitshare/pg'
 } else {
-  PATH <- "./data" 
-  DATA_FILE <-  paste(PATH, "master.azure.db", sep="/")
+  'blitshare/pg'
 }
+PARAM_FILE <- paste(PATH, "param.R", sep="/")
+source(PARAM_FILE)
 
-USER_FILE <- paste(PATH, "users.sqlite", sep="/")
+#########################################################################
+# app parameters
 
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
 RECENT_DAYS <- 14
 LOGZERO <- -20.0
 
-# data frame that holds usernames, passwords and other user data
-conn <- DBI::dbConnect(RSQLite::SQLite(), USER_FILE)
-user_base <- tbl(conn, 'users') %>%
-  collect()
-DBI::dbDisconnect(conn)
-
 #########################################################################
-# connect data 
+# open PG database
 
-conn <- DBI::dbConnect(RSQLite::SQLite(), DATA_FILE)
-df_master <- tbl(conn, 'links')
+connPG <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = HOST_NAME,
+  port = 5432,
+  user = USER,
+  password = PWD,
+  dbname = DB_NAME)
+df_master <- tbl(connPG, 'links')
 df_tx <- df_master %>% filter(GOTTEXT == 1 & 
                          BADLINK == 0 & 
                          score > -20.0 &

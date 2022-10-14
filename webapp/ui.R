@@ -4,9 +4,6 @@ source("setup.R")
 
 shinyUI(fluidPage(
   
-  # login section
-  shinyauthr::loginUI(id = "login"),
-  
   # suppresses spurious 
   # 'progress' error messages after all the debugging 
   # is done:
@@ -55,7 +52,6 @@ shinyUI(fluidPage(
         htmlOutput("signoff"), # footer
       ),
       sidebarPanel( 
-        logoutUI(id = "logout"), # logout button
         htmlOutput("sidebar")
       )
     )

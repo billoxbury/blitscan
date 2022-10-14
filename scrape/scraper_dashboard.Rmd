@@ -25,9 +25,18 @@ library(ggplot2, warn.conflicts=FALSE)
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
 
-dbfile <- "../data/master.db"
+source('/Volumes/blitshare/pg/param.R')
 
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = HOST_NAME,
+  port = 5432,
+  user = USER,
+  password = PWD,
+  dbname = DB_NAME)
+
+
 df <- tbl(conn, 'links')
 df_tx <- df %>% filter(GOTTEXT == 1 & 
                          BADLINK == 0 & 
