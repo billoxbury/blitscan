@@ -15,11 +15,14 @@ library(oai, warn.conflicts=FALSE)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) < 1){
-  cat("Usage: scan_oai_sources.R dbfile\n")
+  cat("Usage: scan_oai_sources.R pgfile\n")
   quit(status=1)
 }
-dbfile <- args[1]
-# dbfile <- "data/master.db"
+pgfile <- args[1]
+# pgfile <- "/Volumes/blitshare/pg/param.R"
+
+# read postgres parameters
+source(pgfile)
 
 ########################################################
 # OAI parameters & functions
@@ -145,13 +148,13 @@ df_new <- tibble(
   doi = character(),
   search_term = character(), 
   query_date = character(),
-  BADLINK = numeric(),
-  DONEPDF = numeric(),
-  GOTTEXT = numeric(),
-  GOTSCORE = numeric(),
-  GOTSPECIES = numeric(),
-  GOTTRANSLATION = numeric(),
-  DONECROSSREF = numeric()
+  BADLINK = integer(),
+  DONEPDF = integer(),
+  GOTTEXT = integer(),
+  GOTSCORE = integer(),
+  GOTSPECIES = integer(),
+  GOTTRANSLATION = integer(),
+  DONECROSSREF = integer()
 )
 
 doi_prefix <- "https://doi.org/"
@@ -191,9 +194,17 @@ for(i in 1:nrow(df_oai)){
 # write to disk
 
 # open database connection
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 
 # check for links already in database
+# NEEDS A BETTER IMPLEMENTATION! 
 dups <- sapply(1:nrow(df_new), function(i){
   query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
                    df_new$link[i])

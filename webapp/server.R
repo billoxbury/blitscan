@@ -37,14 +37,21 @@ shinyServer(
     # pull data frame in response to search term
     df_returned <- reactive({
       st <- input$search %>% tolower()
-      # return
-      df_tx %>%
-        filter(str_detect(tolower(title), st) |
-                 str_detect(tolower(title_translation), st) |
-                 str_detect(tolower(abstract), st) |
-                 str_detect(tolower(abstract_translation), st)) %>%
-        arrange(desc(score)) %>%
-        collect() 
+      df_out <- if(input$pdfsearch) { df_tx %>%
+        filter(str_detect(tolower(pdftext), st) |
+                 str_detect(tolower(pdftext_translation), st)) 
+      } else {
+        df_tx %>%
+          filter(str_detect(tolower(title), st) |
+                   str_detect(tolower(title_translation), st) |
+                   str_detect(tolower(abstract), st) |
+                   str_detect(tolower(abstract_translation), st)) 
+      }
+        
+        # return
+        df_out %>%
+          arrange(desc(score)) %>%
+          collect() 
     })
 
     output$header <- renderText({
@@ -56,7 +63,10 @@ shinyServer(
       tagList(
         textInput("search", 
                   label = "Search", 
-                  value = "")
+                  value = ""),
+        checkboxInput("pdfsearch",
+                      label = "Search full PDF text", 
+                      value = FALSE)
       )
     })
     
@@ -147,10 +157,13 @@ shinyServer(
               <p>Recent articles should appear here daily.</p> 
               <p>Search <b>by keyword/phrase</b>.</p>
               <p>
-              <a href='scraper_dashboard.html'>More information can be found here.</a>
+              <a href='%s'>More information can be found here.</a>
               </p>
               <hr>
-              ", format(nrows, big.mark=','))
+              ", 
+              format(nrows, big.mark=','),
+              sprintf("scraper_dashboard.html")
+      )
     })
    }
 )

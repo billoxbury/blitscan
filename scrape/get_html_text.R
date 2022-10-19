@@ -12,14 +12,24 @@ library(dbplyr, warn.conflicts=FALSE)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) < 1){
-  cat("Usage: get_html_text.R dbfile\n")
+  cat("Usage: get_html_text.R pgfile\n")
   quit(status=1)
 }
-dbfile <- args[1]
-# dbfile <- "data/master.db"
+pgfile <- args[1]
+# pgfile <- "/Volumes/blitshare/pg/param.R"
+
+# read postgres parameters
+source(pgfile)
 
 # open database connection
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 
 # get data frame of x-path rules
 xpr <- tbl(conn, 'domains') %>%
@@ -113,9 +123,9 @@ add_day_to_month <- function(date){
 # MAIN LOOP over minable domains
 
 domains <- xpr$domain[xpr$minable == 1]
-select_prefix <- "SELECT * FROM links" 
-delete_prefix <- "DELETE FROM links" 
-condition_prefix <- "WHERE BADLINK=0 AND GOTTEXT=0 AND domain LIKE"
+select_prefix <- 'SELECT * FROM links' 
+delete_prefix <- 'DELETE FROM links'
+condition_prefix <- 'WHERE "BADLINK"=0 AND "GOTTEXT"=0 AND domain LIKE'
 update_count <- 0
 domain_count <- 0
 

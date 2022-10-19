@@ -7,11 +7,11 @@ over the set of fields specified, using a taxonomy given as a command line argum
 
 E.g.
 
-dbfile='data/master.db'
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.txt"
 birdfile='/Volumes/blitshare/BirdLife_species_list_Jan_2022.xlsx'
 
-
-./process/find_species_v2.py $dbfile $birdfile
+./process/find_species.py $pgfile $birdfile
 
 """
 
@@ -29,14 +29,21 @@ from sqlalchemy import Table, Column, String, Integer, Float, MetaData
 
 # read command line
 try:
-	dbfile = sys.argv[1];			    del sys.argv[1]
+	pgfile = sys.argv[1];			    del sys.argv[1]
 	birdfile = sys.argv[1];				del sys.argv[1]	
 except:
-	print("Usage:", sys.argv[0], "db_file species_file")
+	print("Usage:", sys.argv[0], "pg_file species_file")
 	sys.exit(1)
 
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo = False)
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
+	sys.exit(1)
+
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # create SQL table
 metadata_obj = MetaData()

@@ -1,6 +1,6 @@
 #!/usr/local/bin/Rscript
 
-# coordinate bespoke journal index scrapers
+# coordinate preprint archive scrapers
 
 library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)
@@ -12,18 +12,27 @@ library(lubridate, warn.conflicts=FALSE)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) < 1){
-  cat("Usage: journal_indexes_v2.R dbfile\n")
+  cat("Usage: archive_indexes.R pgfile\n")
   quit(status=1)
 }
-dbfile <- args[1]
+pgfile <- args[1]
+# pgfile <- "/Volumes/blitshare/pg/param.R"
 
-# dbfile <- "data/master.db"
+# read postgres parameters
+source(pgfile)
 
 # global variables
 MAXSEARCHES <- 250
 
 # open database connection
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 
 # read genus table with species counts
 df_genus <- tbl(conn, 'genera') %>%
@@ -56,13 +65,13 @@ df_new <- tibble(
   doi = character(),
   search_term = character(), 
   query_date = character(),
-  BADLINK = numeric(),
-  DONEPDF = numeric(),
-  GOTTEXT = numeric(),
-  GOTSCORE = numeric(),
-  GOTSPECIES = numeric(),
-  GOTTRANSLATION = numeric(),
-  DONECROSSREF = numeric()
+  BADLINK = integer(),
+  DONEPDF = integer(),
+  GOTTEXT = integer(),
+  GOTSCORE = integer(),
+  GOTSPECIES = integer(),
+  GOTTRANSLATION = integer(),
+  DONECROSSREF = integer()
 )
 
 
@@ -148,9 +157,17 @@ try({
 # write to disk
 
 # re-open database connection
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 
 # check for links already in database
+# NEEDS A BETTER IMPLEMENTATION! 
 dups <- sapply(1:nrow(df_new), function(i){
   query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
                    df_new$link[i])

@@ -11,17 +11,24 @@ library(lubridate, warn.conflicts=FALSE)
 args <- commandArgs(trailingOnly=T)
 
 if(length(args) < 2){
-  cat("Usage: scan_conbio_v2.R dbfile htmlpath\n")
+  cat("Usage: scan_conbio.R pgfile htmlpath\n")
   quit(status=1)
 }
-dbfile <- args[1]
+pgfile <- args[1]
 filepath <- args[2]
 
-# dbfile <- "data/master.db"
+# pgfile <- "/Volumes/blitshare/pg/param.R"
 # filepath <- '/Volumes/blitshare/wiley/html'
+
+# read postgres parameters
+source(pgfile)
 
 # locate the DOI references in the HTML files
 files <- list.files(filepath)
+if(length(files) == 0){
+  cat("No HTML files found\n")
+  quit(status=0)
+}
 
 urls <- c()
 conbio_prefix <- 'https://conbio.onlinelibrary.wiley.com/doi/'
@@ -84,8 +91,15 @@ df_new['DONECROSSREF'] <- 0
 
 # add rest of data frame to the database
 if(nrow(df_new) > 0){
-  # re-open database connection
-  conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+  # open database connection
+  conn <- DBI::dbConnect(
+    RPostgres::Postgres(),
+    bigint = 'integer',  
+    host = PGHOST,
+    port = 5432,
+    user = PGUSER,
+    password = PGPASSWORD,
+    dbname = PGDATABASE)
   
   # check for links already in database
   dups <- sapply(1:nrow(df_new), function(i){
@@ -102,6 +116,5 @@ if(nrow(df_new) > 0){
   # close database connection
   DBI::dbDisconnect(conn)
 }
-
 
 # DONE

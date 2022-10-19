@@ -5,9 +5,10 @@ Checks for records without DOI but where DOI is inside the link URL, and extract
 
 E.g. 
 
-dbfile="./data/master.db"
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.R"
 
-./scrape/find_link_dois_v2.py $dbfile
+./scrape/find_link_dois.py $pgfile
 
 """
 
@@ -18,19 +19,26 @@ from sqlalchemy import Table, Column, String, MetaData
 
 # read command line
 try:
-	dbfile = sys.argv[1];			        del sys.argv[1]
+	pgfile = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "db_file")
+	print("Usage:", sys.argv[0], "pg_file")
 	sys.exit(1)
+
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
+	sys.exit(1)
+
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # DOI extraction
 prefix = re.compile(r'.+/doi/([a-z]+/)?')
 suffix = re.compile(r'\?.+$')
 def clean_doi(x):
     return re.sub(suffix, '', re.sub(prefix, '', x))
-
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
 
 # create SQL table
 metadata_obj = MetaData()

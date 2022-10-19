@@ -9,12 +9,12 @@ library(lubridate)
 
 LOCAL <- FALSE
 
-PATH <- if(LOCAL){
-  '/Volumes/blitshare/pg'
+SHAREPATH <- if(LOCAL){
+  '/Volumes/blitshare'
 } else {
-  'blitshare/pg'
+  'blitshare'
 }
-PARAM_FILE <- paste(PATH, "param.R", sep="/")
+PARAM_FILE <- paste(SHAREPATH, "pg/param.txt", sep="/")
 source(PARAM_FILE)
 
 #########################################################################
@@ -31,11 +31,11 @@ LOGZERO <- -20.0
 connPG <- DBI::dbConnect(
   RPostgres::Postgres(),
   bigint = 'integer',  
-  host = HOST_NAME,
+  host = PGHOST,
   port = 5432,
-  user = USER,
-  password = PWD,
-  dbname = DB_NAME)
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 df_master <- tbl(connPG, 'links')
 df_tx <- df_master %>% filter(GOTTEXT == 1 & 
                          BADLINK == 0 & 
@@ -71,7 +71,8 @@ domainlogo <- function(domain){
                  "sciencedirect.com",
                  "academic.oup.com",
                  "biorxiv.org",
-                 "nisc.co.za")
+                 "nisc.co.za",
+                 "jstage.jst.go.jp")
   logoset <- c("nature_logo.jpg",
                "PLOS_logo.jpg",
                "conbio.jpeg",
@@ -91,7 +92,8 @@ domainlogo <- function(domain){
                "sciencedirect.jpg",
                "oup.jpg",
                "biorxiv.jpg",
-               "nisc.jpg")
+               "nisc.jpg",
+               "jstage.jpg")
   if(domain %in% domainset){
     icon <- logoset[which(domainset == domain)]
     # return

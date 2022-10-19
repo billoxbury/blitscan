@@ -25,16 +25,16 @@ library(ggplot2, warn.conflicts=FALSE)
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
 
-source('/Volumes/blitshare/pg/param.R')
+source('/Volumes/blitshare/pg/param.txt')
 
 conn <- DBI::dbConnect(
   RPostgres::Postgres(),
   bigint = 'integer',  
-  host = HOST_NAME,
+  host = PGHOST,
   port = 5432,
-  user = USER,
-  password = PWD,
-  dbname = DB_NAME)
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 
 
 df <- tbl(conn, 'links')
@@ -48,7 +48,7 @@ df_tx <- df %>% filter(GOTTEXT == 1 &
 ### First statistics
 
 The
-<a href="http://blitscansql.uksouth.azurecontainer.io:3838/">BlitScan app</a> is built over a data set of journal articles/research publications:
+<a href="https://blitscanapp.azurewebsites.net/">BlitScan app</a> is built over a data set of journal articles/research publications:
 
 ```{r nr-records, echo=FALSE, warning=FALSE}
 

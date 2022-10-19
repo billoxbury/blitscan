@@ -6,10 +6,11 @@ update 'links' table.
 
 E.g.
 
-dbfile="data/master.db"
+pgfile="/Volumes/blitshare/pg/param.R"
 pdfpath="/Volumes/blitshare/wiley/pdf"
 
-./scrape/read_wiley_pdf_v2.py $dbfile $pdfpath
+open -g $AZURE_VOLUME
+./scrape/read_wiley_pdf_v2.py $pgfile $pdfpath
 
 """
 
@@ -22,17 +23,24 @@ from sqlalchemy import Table, Column, String, Integer, MetaData
 
 # read command line
 try:
-	dbfile = sys.argv[1];			        del sys.argv[1]
+	pgfile = sys.argv[1];			        del sys.argv[1]
 	pdfpath = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "db_file pdf_path")
+	print("Usage:", sys.argv[0], "pg_file pdf_path")
+	sys.exit(1)
+
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
 	sys.exit(1)
 
 # parameters
 MAXFILES = 100
 
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # create SQL table
 metadata_obj = MetaData()
@@ -78,8 +86,21 @@ def main():
             if check:
                 nfiles += 1
                 try:
-                    # get text
                     pdf_doc = fitz.open(filename)
+                except:
+                    update_list += [{
+                        'doivalue': row.doi,
+                        'datevalue': row.date, 
+                        'titlevalue': row.title,
+                        'abstractvalue': row.abstract,
+                        'pdftextvalue': "",
+                        'textflagvalue': row.GOTTEXT,
+                        'pdfflagvalue': 0,
+                        'badlinkvalue': 1
+                        }]
+                    continue
+                try:
+                    # get text
                     date = pdf2txt.parse_creation_date(pdf_doc)
                     title = pdf2txt.get_title(pdf_doc)
                     nlp = pdf2txt.make_nlp_pipeline()

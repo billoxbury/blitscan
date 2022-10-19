@@ -5,10 +5,11 @@ Downloads PDF files for Wiley SCB articles
 
 E.g. 
 
-dbfile="./data/master.db"
-pdfpath="./data/wiley/pdf"
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.R"
+pdfpath="/Volumes/blitshare/data/wiley/pdf"
 
-./scrape/get_wiley_pdf_v2.py $dbfile $pdfpath
+./scrape/get_wiley_pdf.py $pgfile $pdfpath
 
 """
 
@@ -22,10 +23,17 @@ import time
 
 # read command line
 try:
-	dbfile = sys.argv[1];			        del sys.argv[1]
+	pgfile = sys.argv[1];			        del sys.argv[1]
 	pdfpath = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "db_file pdf_path")
+	print("Usage:", sys.argv[0], "pg_file pdf_path")
+	sys.exit(1)
+
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
 	sys.exit(1)
 
 # normalise path
@@ -41,14 +49,14 @@ MAXAGE = 2200
 today = datetime.now().date()
 
 # local database query to get DOIs
-scb_query = "\
-        SELECT doi,created,`container.title` FROM dois \
-        WHERE publisher LIKE '%wiley%' \
-        AND `container.title` like 'Conservation%' \
-        "
+scb_query = '\
+        SELECT doi,created,"container.title" FROM dois \
+        WHERE publisher LIKE \'%Wiley%\' \
+        AND "container.title" like \'Conservation%\' \
+        '
 
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # ... and get DOIs
 with engine.connect() as conn:
@@ -65,7 +73,8 @@ for i in range(df.shape[0]):
     age = (today - date).days
     if age > MAXAGE:
         too_old += [i]
-df = df.drop(too_old)
+if len(too_old) > 0:
+    df = df.drop(too_old)
 print(f'Read {df.shape[0]} DOIs not older than {MAXAGE} days')
 
 # path and URL encodings

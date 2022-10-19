@@ -8,10 +8,10 @@ NEW 13/6/2022: looks for title/abstract translations to score instead in case la
 
 E.g. 
 
-dbfile='data/master.db'
-blimodelfile='/Volumes/blitshare/bli_model_bow_11107.json'
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.txt"
 
-./process/score_for_topic_v2.py $dbfile $blimodelfile
+./process/score_for_topic.py $pgfile $blimodelfile
 
 
 """
@@ -26,14 +26,21 @@ from math import log, isnan
 
 # read command line
 try:
-	dbfile = sys.argv[1];			    del sys.argv[1]
+	pgfile = sys.argv[1];			    del sys.argv[1]
 	modelfile = sys.argv[1];			del sys.argv[1]	
 except:
-	print("Usage:", sys.argv[0], "db_file model_file")
+	print("Usage:", sys.argv[0], "pg_file model_file")
 	sys.exit(1)
 
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
+	sys.exit(1)
+
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # create SQL table
 metadata_obj = MetaData()

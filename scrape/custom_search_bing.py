@@ -7,9 +7,10 @@ and adds the responses to a temporary data frame. Dedupes data frame and adds ne
 
 E.g. 
 
-dbfile="./data/master.db"
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.txt"
 
-./scrape/custom_search_bing_v2.py $dbfile
+./scrape/custom_search_bing.py $pgfile
 
 
 """
@@ -43,13 +44,20 @@ MAX_DAYS = 2200
 
 # read command line
 try:
-	dbfile = sys.argv[1];			        del sys.argv[1]
+	pgfile = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "db_file")
+	print("Usage:", sys.argv[0], "pg_file")
 	sys.exit(1)
 
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
+	sys.exit(1)
+
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # read genus table with species counts 
 df_genus = pd.read_sql_table(
@@ -208,7 +216,7 @@ def write_to_database(df):
     dups = []
     for i in range(df.shape[0]):
         link = df.at[i,'link']
-        ct = engine.execute(f'SELECT count(*) FROM links WHERE link LIKE "{link}"').fetchall()[0][0]
+        ct = engine.execute(f'SELECT count(*) FROM links WHERE link LIKE \'{link}\'').fetchall()[0][0]
         if ct > 0: 
             dups += [i]
     # ... and remove these

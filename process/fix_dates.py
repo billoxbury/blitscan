@@ -6,9 +6,10 @@ then normalise all dates to yyyy-mm-dd format.
 
 E.g. 
 
-dbfile="./data/master.db"
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.txt"
 
-./scrape/fix_dates_v2.py $dbfile
+./process/fix_dates.py $pgfile
 
 """
 
@@ -20,10 +21,20 @@ from dateutil.parser import parse
 
 # read command line
 try:
-	dbfile = sys.argv[1];			        del sys.argv[1]
+	pgfile = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "db_file")
+	print("Usage:", sys.argv[0], "pgfile")
 	sys.exit(1)
+
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
+	sys.exit(1)
+
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # SQL command string
 sql_cmd = '\
@@ -33,17 +44,14 @@ sql_cmd = '\
                 FROM dois \
                 WHERE dois.doi = links.doi \
                 ), \
-            DATECHECK = 1 \
-    WHERE DATECHECK = 0 \
+            "DATECHECK" = 1 \
+    WHERE "DATECHECK" = 0 \
     AND \
     EXISTS ( \
         SELECT * \
         FROM dois \
         WHERE dois.doi = links.doi \
         )'
-
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
 
 # create SQL tables
 metadata_obj = MetaData()
@@ -92,7 +100,7 @@ def main():
                 print(f'{thisdate} --> {newdate}')
     # quit if no output
     if update_list == []:
-        print(f"Normalised {nupdates} dates out of {ndates}")
+        print(f"{nupdates} dates changed out of {ndates}")
         return 0
     
     # make update instructions 
@@ -103,7 +111,7 @@ def main():
     # ... and commit to database
     with engine.connect() as conn:
         conn.execute(updater, update_list)
-    print("{nupdates} dates changed out of {ndates}")
+    print(f"{nupdates} dates changed out of {ndates}")
     return 0
 
 if __name__ == '__main__':

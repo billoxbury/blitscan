@@ -19,11 +19,21 @@ if(length(args) < 1){
   cat("Usage: update_DOI_data.R dbfile\n")
   quit(status=1)
 }
-dbfile <- args[1]
-# dbfile <- "data/master.db"
+pgfile <- args[1]
+# pgfile <- "/Volumes/blitshare/pg/param.R"
+
+# read postgres parameters
+source(pgfile)
 
 # open database connection
-conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
 
 ########################################################
 # find & normalise new blitscan DOIs not yet in DOI database
@@ -91,7 +101,6 @@ while(TRUE){
 # reduce fields to base set
 df_doi <- df_doi[intersect(fields, fields0)]
 
-
 ########################################################
 # update 'dois' table
 # THIS IS A HACK because DBI::dbWriteTable()
@@ -110,7 +119,7 @@ df_tmp <- read_csv(tmpfile, show_col_types = FALSE) %>%
          )
 
 DBI::dbWriteTable(conn, 'dois', df_tmp, append = TRUE)
-cat(sprintf("Added %d records to DOI table\n",
+cat(sprintf("Adding %d records to DOI table ...\n",
             nrow(df_tmp)))
 system('rm tmp.csv')
 
@@ -118,15 +127,15 @@ system('rm tmp.csv')
 # update 'links' table
 
 # DONECROSSREF flag
-flag_statements <- paste0('UPDATE links SET DONECROSSREF = 1 WHERE doi = "', 
+flag_statements <- paste0('UPDATE links SET "DONECROSSREF" = 1 WHERE doi = \'', 
                           newdoi, 
-                          '"')
+                          '\'')
 for(s in flag_statements){
   res = DBI::dbSendStatement(conn, s)
   DBI::dbClearResult(res)
 }
 
-cat("Updated database\n")
+cat("... done\n")
 
 # disconnect
 DBI::dbDisconnect(conn)

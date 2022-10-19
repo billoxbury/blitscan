@@ -7,11 +7,10 @@ translation fields 'title_translation', 'abstract_translation', 'pdftext_transla
 
 E.g. 
 
-dbfile='data/master.db'
+open -g $AZURE_VOLUME
+pgfile="/Volumes/blitshare/pg/param.txt"
 
-./process/translate_to_english_v2.py $dbfile
-
-
+./process/translate_to_english.py $pgfile
 
 """
 
@@ -22,9 +21,16 @@ from sqlalchemy import Table, Column, String, Integer, MetaData
 
 # read command line
 try:
-	dbfile = sys.argv[1];			        del sys.argv[1]
+	pgfile = sys.argv[1];			        del sys.argv[1]
 except:
-	print("Usage:", sys.argv[0], "db_file")
+	print("Usage:", sys.argv[0], "pg_file")
+	sys.exit(1)
+
+# read Postgres parameters
+try:
+	exec(open(pgfile).read())
+except:
+	print(f'Cannot open file {pgfile}')
 	sys.exit(1)
 
 # Subscription key endpoint, parameters etc
@@ -43,8 +49,8 @@ headers = {
     'X-ClientTraceId': str(uuid.uuid4())
 }
 
-# open connection to database
-engine = create_engine(f'sqlite:///{dbfile}', echo=False)
+# open connection to database  
+engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
 # create SQL table
 metadata_obj = MetaData()

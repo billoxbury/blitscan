@@ -5,10 +5,13 @@ today=`date +'%Y-%m-%d'`
 
 # data paths
 azurepath='/Volumes/blitshare'
-pgpath="$azurepath/pg"
 wileypdf="$azurepath/data/wiley/pdf"
 wileyhtml="$azurepath/data/wiley/html"
 tmppath="./data/tmp"
+
+# postgres
+pgpath="$azurepath/pg"
+pgfile="$pgpath/param.txt"
 
 # taxonomy and model files
 birdfile="$azurepath/data/BirdLife_species_list_Jan_2022.xlsx"
@@ -23,80 +26,76 @@ WEBAPPNAME='blitscanapp'
 IMGNAME='blitscanpg'
 
 ########################
+# open access to Azure file share
+
+open -g $AZURE_VOLUME
+
+########################
 # SCRAPE STAGE
 # Scrape I: collect URLs
 
 # (1) Bing custom search
-./scrape/custom_search_bing_v2.py $dbfile_local 
+./scrape/custom_search_bing.py $pgfile
 
 # (2) scan OAI relevant journals (currently under BioOne)
 # - maintain source list for this step
-./scrape/scan_oai_sources_v2.R $dbfile_local
+./scrape/scan_oai_sources.R $pgfile
 
 # (3) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
 # - maintain source list for this step
-./scrape/archive_indexes_v2.R $dbfile_local
+./scrape/archive_indexes.R $pgfile
 
 # (4) directed (bespoke per-journal) search where permitted 
 # - maintain source list for this step
-./scrape/journal_indexes_v2.R $dbfile_local
+./scrape/journal_indexes.R $pgfile
 
 # (4a) ... including Wiley ConBio
 # DOIs are extracted directly here
-open -g $AZURE_VOLUME
-./scrape/scan_conbio_v2.R $dbfile_local $wileyhtml
+./scrape/scan_conbio.R $pgfile $wileyhtml
 
 # (5) extract (other) DOIs from article URLs
-./scrape/find_link_dois_v2.py $dbfile_local
+./scrape/find_link_dois.py $pgfile
 
 ########################
 # Scrape II: collect text
 
 # (6) web scraping against links where text not already obtained
-./scrape/get_html_text_v2.R $dbfile_local
+./scrape/get_html_text.R $pgfile
 
 # (7) update DOI database from CrossRef - and use DOIs to find missing dates
-# processes in blocks (default 50)
-./scrape/update_DOI_data_v2.R $dbfile_local
+# - processes in blocks (default size 50)
+./scrape/update_DOI_data.R $pgfile
 
 # (8) download Wiley SCB pdf files
-open -g $AZURE_VOLUME
-./scrape/get_wiley_pdf_v2.py $dbfile_local $wileypdf
+./scrape/get_wiley_pdf.py $pgfile $wileypdf
 
 # (9) scan Wiley PDFs and get text
-open -g $AZURE_VOLUME
-./scrape/read_wiley_pdf_v2.py $dbfile_local $wileypdf
+./scrape/read_wiley_pdf.py $pgfile $wileypdf
 
 # (10) ... and PDF links for other domains
-./scrape/get_pdf_text_v2.py $dbfile_local $tmppath
+./scrape/get_pdf_text.py $pgfile $tmppath
 
 # (11) remove duplicate records 
 # i.e. different links for same title/abstract
-./scrape/remove_duplicates.sh $dbfile_local
+./scrape/remove_duplicates.sh $pgfile
 
 ########################
 # PROCESS STAGE
 
 # (12) date correction from (CrossRef) 'dois' table and normalisation
-./process/fix_dates_v2.py $dbfile_local
+./process/fix_dates.py $pgfile
 
 # (13) pass text to Azure for English translation
-./process/translate_to_english_v2.py $dbfile_local
+./process/translate_to_english.py $pgfile
 
 # (14) score title/abstract (not pdftext at this stage) on BLI text model
-open -g $AZURE_VOLUME
-./process/score_for_topic_v2.py $dbfile_local $blimodelfile
+./process/score_for_topic.py $pgfile $blimodelfile
 
 # (15) find species references in all text
-open -g $AZURE_VOLUME
-./process/find_species_v2.py $dbfile_local $birdfile
+./process/find_species.py $pgfile $birdfile
 
 ########################
-# CLEAN UP
-
-# copy local database file to Azure
-open -g $AZURE_VOLUME
-cp -v $dbfile_local $dbfile_azure
+# METRICS
 
 # scraper metrics (R markdown)
 R -e "Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/quarto/bin/tools');
@@ -107,7 +106,7 @@ mv ./scrape/scraper_dashboard.html ./reports/scraper_dashboard-$today.html
 ########################
 # WEBAPP DEPLOYMENT
 # build docker image(s)
-docker build --no-cache -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath 
+docker build -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath 
 
 ########################
 # TO TEST LOCALLY:
@@ -132,10 +131,7 @@ az webapp restart \
     --resource-group $AZURE_RESOURCE_GROUP \
     --name $WEBAPPNAME
 
-# report the public IP address of the container
-echo "Updated BLitScan app served at http://"`az webapp show \
-    --name $WEBAPPNAME \
-    --resource-group webappRG \
-    --query ipAddress.ip --output tsv`":3838"
+# report 
+echo "Process complete."
 
 ##############################################################
