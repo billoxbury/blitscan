@@ -2,6 +2,7 @@
 
 # today's date
 today=`date +'%Y-%m-%d'`
+date_mod_10=$((`date +'%d'`%10))
 
 # data paths
 azurepath='/Volumes/blitshare'
@@ -37,21 +38,26 @@ open -g $AZURE_VOLUME
 # (1) Bing custom search
 ./scrape/custom_search_bing.py $pgfile
 
-# (2) scan OAI relevant journals (currently under BioOne)
-# - maintain source list for this step
-./scrape/scan_oai_sources.R $pgfile
-
-# (3) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
+# (2) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
 # - maintain source list for this step
 ./scrape/archive_indexes.R $pgfile
 
-# (4) directed (bespoke per-journal) search where permitted 
-# - maintain source list for this step
-./scrape/journal_indexes.R $pgfile
+if [ $date_mod_10 -eq 0 ]
+then
+    # (3) scan OAI relevant journals (currently under BioOne)
+    # - maintain source list for this step
+    ./scrape/scan_oai_sources.R $pgfile
 
-# (4a) ... including Wiley ConBio
-# DOIs are extracted directly here
-./scrape/scan_conbio.R $pgfile $wileyhtml
+    # (4) directed (bespoke per-journal) search where permitted 
+    # - maintain source list for this step
+    ./scrape/journal_indexes.R $pgfile
+
+    # (4a) ... including Wiley ConBio
+    # DOIs are extracted directly here
+    ./scrape/scan_conbio.R $pgfile $wileyhtml
+else
+    echo "Skipping journal scan ..."
+fi
 
 # (5) extract (other) DOIs from article URLs
 ./scrape/find_link_dois.py $pgfile

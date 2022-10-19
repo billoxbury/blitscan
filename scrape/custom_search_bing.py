@@ -216,7 +216,8 @@ def write_to_database(df):
     dups = []
     for i in range(df.shape[0]):
         link = df.at[i,'link']
-        ct = engine.execute(f'SELECT count(*) FROM links WHERE link LIKE \'{link}\'').fetchall()[0][0]
+        link = link.replace('%', '%%') # otherwise % in URL can break the DB command
+        ct = engine.execute(f'SELECT count(*) FROM links WHERE link = \'{link}\'').fetchall()[0][0]
         if ct > 0: 
             dups += [i]
     # ... and remove these

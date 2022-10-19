@@ -16,7 +16,7 @@ if(length(args) < 1){
   quit(status=1)
 }
 pgfile <- args[1]
-# pgfile <- "/Volumes/blitshare/pg/param.R"
+# pgfile <- "/Volumes/blitshare/pg/param.txt"
 
 # read postgres parameters
 source(pgfile)

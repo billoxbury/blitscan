@@ -52,6 +52,7 @@ nrows <- df_tx %>%
 
 # domain logos
 domainlogo <- function(domain){
+  domain <- str_remove(domain, '^www\\.')
   domainset <- c("nature.com",
                  "journals.plos.org",
                  "conbio.onlinelibrary.wiley.com",
