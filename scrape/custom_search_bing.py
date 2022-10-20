@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/python3
 
 """
 Performs Bing Custom Search. Reads 'searchterm_file' for next batch of queries, 
