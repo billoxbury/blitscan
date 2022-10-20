@@ -5,7 +5,7 @@ today=`date +'%Y-%m-%d'`
 date_mod_10=$((`date +'%d'`%10))
 
 # data paths
-azurepath='/Volumes/blitshare'
+azurepath='../blitstore/blitshare'
 wileypdf="$azurepath/data/wiley/pdf"
 wileyhtml="$azurepath/data/wiley/html"
 tmppath="./data/tmp"
