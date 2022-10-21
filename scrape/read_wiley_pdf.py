@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 Get DOIs of unread ConBio PDFs from 'links' table; check Wiley path for corresponding PDFs; extract text and
 update 'links' table.

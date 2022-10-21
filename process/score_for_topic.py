@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 Take main database (SQLite) file and JSON file of word probabilities.
 Use the latter to compute average log-likelihoods of conjoined title/abstract, and write these 

@@ -1,5 +1,3 @@
-#!/usr/local/bin/Rscript
-
 # coordinate bespoke journal index scrapers
 
 library(rvest, warn.conflicts=FALSE)

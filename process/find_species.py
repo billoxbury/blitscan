@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 Read text columns 'title/abstract/pdftext' and update column 'species'.
 'species' is a string formed by concatenating SISRecID's with | delimiter.

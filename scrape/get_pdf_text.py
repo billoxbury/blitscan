@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 Get unread pdf_links from 'links' table; attempt to download to tmp folder; extract text and
 update 'links' table; delete PDF.

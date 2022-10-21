@@ -36,50 +36,50 @@ open -g $AZURE_VOLUME
 # Scrape I: collect URLs
 
 # (1) Bing custom search
-./scrape/custom_search_bing.py $pgfile
+python3 ./scrape/custom_search_bing.py $pgfile
 
 # (2) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
 # - maintain source list for this step
-./scrape/archive_indexes.R $pgfile
+Rscript ./scrape/archive_indexes.R $pgfile
 
 if [ $date_mod_10 -eq 0 ]
 then
     # (3) scan OAI relevant journals (currently under BioOne)
     # - maintain source list for this step
-    ./scrape/scan_oai_sources.R $pgfile
+    Rscript ./scrape/scan_oai_sources.R $pgfile
 
     # (4) directed (bespoke per-journal) search where permitted 
     # - maintain source list for this step
-    ./scrape/journal_indexes.R $pgfile
+    Rscript ./scrape/journal_indexes.R $pgfile
 
     # (4a) ... including Wiley ConBio
     # DOIs are extracted directly here
-    ./scrape/scan_conbio.R $pgfile $wileyhtml
+    Rscript ./scrape/scan_conbio.R $pgfile $wileyhtml
 else
     echo "Skipping journal scan ..."
 fi
 
 # (5) extract (other) DOIs from article URLs
-./scrape/find_link_dois.py $pgfile
+python3 ./scrape/find_link_dois.py $pgfile
 
 ########################
 # Scrape II: collect text
 
 # (6) web scraping against links where text not already obtained
-./scrape/get_html_text.R $pgfile
+Rscript ./scrape/get_html_text.R $pgfile
 
 # (7) update DOI database from CrossRef - and use DOIs to find missing dates
 # - processes in blocks (default size 50)
-./scrape/update_DOI_data.R $pgfile
+Rscript ./scrape/update_DOI_data.R $pgfile
 
 # (8) download Wiley SCB pdf files
-./scrape/get_wiley_pdf.py $pgfile $wileypdf
+python3 ./scrape/get_wiley_pdf.py $pgfile $wileypdf
 
 # (9) scan Wiley PDFs and get text
-./scrape/read_wiley_pdf.py $pgfile $wileypdf
+python3 ./scrape/read_wiley_pdf.py $pgfile $wileypdf
 
 # (10) ... and PDF links for other domains
-./scrape/get_pdf_text.py $pgfile $tmppath
+python3 ./scrape/get_pdf_text.py $pgfile $tmppath
 
 # (11) remove duplicate records 
 # i.e. different links for same title/abstract
@@ -89,16 +89,16 @@ fi
 # PROCESS STAGE
 
 # (12) date correction from (CrossRef) 'dois' table and normalisation
-./process/fix_dates.py $pgfile
+python3 ./process/fix_dates.py $pgfile
 
 # (13) pass text to Azure for English translation
-./process/translate_to_english.py $pgfile
+python3 ./process/translate_to_english.py $pgfile
 
 # (14) score title/abstract (not pdftext at this stage) on BLI text model
-./process/score_for_topic.py $pgfile $blimodelfile
+python3 ./process/score_for_topic.py $pgfile $blimodelfile
 
 # (15) find species references in all text
-./process/find_species.py $pgfile $birdfile
+python3 ./process/find_species.py $pgfile $birdfile
 
 ########################
 # METRICS

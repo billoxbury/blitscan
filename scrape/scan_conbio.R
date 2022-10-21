@@ -1,5 +1,3 @@
-#!/usr/local/bin/Rscript
-
 library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)
 library(dplyr, warn.conflicts=FALSE)
@@ -17,8 +15,8 @@ if(length(args) < 2){
 pgfile <- args[1]
 filepath <- args[2]
 
-# pgfile <- "/Volumes/blitshare/pg/param.R"
-# filepath <- '/Volumes/blitshare/wiley/html'
+# pgfile <- "/Volumes/blitshare/pg/param.txt"
+# filepath <- '/Volumes/blitshare/data/wiley/html'
 
 # read postgres parameters
 source(pgfile)

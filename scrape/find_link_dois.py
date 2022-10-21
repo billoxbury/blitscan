@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 Checks for records without DOI but where DOI is inside the link URL, and extracts that to the DOI field. 
 

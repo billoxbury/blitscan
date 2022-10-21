@@ -1,5 +1,3 @@
-#!/usr/bin/Rscript
-
 # coordinate preprint archive scrapers
 
 library(rvest, warn.conflicts=FALSE)

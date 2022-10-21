@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 Take database records for which language field is not 'en' and GOTTRANSLATION is not yet set;
 make Azure Translator query for fields 'title', 'abstract', 'pdftext'; and populate the 

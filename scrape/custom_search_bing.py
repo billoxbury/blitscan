@@ -1,5 +1,3 @@
-#!/usr/bin/python3
-
 """
 Performs Bing Custom Search. Reads 'searchterm_file' for next batch of queries, 
 runs queries until CSLIMIT reached or response code 429 (daily query allowance exhausted under account policy)
@@ -11,7 +9,6 @@ open -g $AZURE_VOLUME
 pgfile="/Volumes/blitshare/pg/param.txt"
 
 ./scrape/custom_search_bing.py $pgfile
-
 
 """
 

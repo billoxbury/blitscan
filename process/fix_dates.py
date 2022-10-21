@@ -1,5 +1,3 @@
-#!/usr/local/bin/python
-
 """
 First make sure all dates are set to 'created' field from CrossRef, where we have DOI; 
 then normalise all dates to yyyy-mm-dd format.

@@ -1,5 +1,3 @@
-#!/usr/local/bin/Rscript
-
 # runs query for DOI, abstract etc against OAI sources (currently BioOne)
 
 library(rvest, warn.conflicts=FALSE)

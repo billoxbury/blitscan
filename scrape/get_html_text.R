@@ -1,5 +1,3 @@
-#!/usr/local/bin/Rscript
-
 # Recovers data (date,title,abstract,DOI,pdf URL etc) from new URLs
 
 library(rvest, warn.conflicts=FALSE)

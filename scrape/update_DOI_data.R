@@ -1,5 +1,3 @@
-#!/usr/local/bin/Rscript
-
 # scans for new DOIs, updates DOI database from CrossRef, 
 # uses new DOI to fix any missing dates
 
