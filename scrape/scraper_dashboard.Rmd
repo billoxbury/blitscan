@@ -119,7 +119,7 @@ More detail on journals and publishers is given below. A full list of journals/p
 
 ### Red-list coverage
 
-The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier and classified by red-list status) occuring in any title or abstract of the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
+The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier and classified by red-list status) referenced in the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
 
 ```{r red-list, echo=FALSE, warning=FALSE}
 

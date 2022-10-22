@@ -1,6 +1,6 @@
 # BirdLife LitScan
 
-This repository contains code for a Birdlife International project [blitscan](http://blitscan.uksouth.azurecontainer.io:3838/) on search/information discovery from the scientific literature. 
+This repository contains code for a Birdlife International project [blitscan](https://blitscan.birdlife.org) on search/information discovery from the scientific literature. 
 
 The aims of the project are to compile in one place links to web resources (currently that means open access journal articles, but we hope to grow the scope) relevant to the work of BirdLife in making assessments of species' red-list status.
 

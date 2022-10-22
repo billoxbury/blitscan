@@ -8,7 +8,7 @@ date_mod_10=$((`date +'%d'`%10))
 azurepath='../blitstore/blitshare'
 wileypdf="$azurepath/data/wiley/pdf"
 wileyhtml="$azurepath/data/wiley/html"
-tmppath="./data/tmp"
+tmppath="$azurepath/data/tmp"
 
 # postgres
 pgpath="$azurepath/pg"

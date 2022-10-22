@@ -18,7 +18,7 @@ if(length(args) < 1){
   quit(status=1)
 }
 pgfile <- args[1]
-# pgfile <- "/Volumes/blitshare/pg/param.R"
+# pgfile <- "../blitstore/blitshare/pg/param.txt"
 
 # read postgres parameters
 source(pgfile)
@@ -26,7 +26,7 @@ source(pgfile)
 # open database connection
 conn <- DBI::dbConnect(
   RPostgres::Postgres(),
-  bigint = 'integer',  
+  bigint = 'integer',
   host = PGHOST,
   port = 5432,
   user = PGUSER,

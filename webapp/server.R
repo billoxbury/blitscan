@@ -139,15 +139,10 @@ shinyServer(
       This site identifies scientific articles of relevance to Red List assessments for birds undertaken by BirdLife International. It covers articles published in a number of primarily open-access journals.
       </p>
       <p>
-      The database is updated regularly and currently contains <b>%s articles</b>.
-      </p>
-              <p>
-              All articles for which the date is available are published within the <b color='red'>past 6 years</b>.
+      The database is updated regularly and currently contains <b>%s articles</b> published in the <b color='red'>past 6 years</b>.
               </p>
               <p>
               The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.
-              </p>
-              <p>
               The estimate is indicated on this page by a traffic light 
               <img src='redlight.png' width=20><img src='amberlight.png' width=20><img src='greenlight.png' width=20>.
               </p>
