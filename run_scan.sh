@@ -9,6 +9,7 @@ azurepath='../blitstore/blitshare'
 wileypdf="$azurepath/data/wiley/pdf"
 wileyhtml="$azurepath/data/wiley/html"
 tmppath="$azurepath/data/tmp"
+reportpath="$azurepath/reports/scraper"
 
 # postgres
 pgpath="$azurepath/pg"
@@ -27,9 +28,9 @@ WEBAPPNAME='blitscanapp'
 IMGNAME='blitscanpg'
 
 ########################
-# open access to Azure file share
+# open access to Azure file share (Mac OS)
 
-open -g $AZURE_VOLUME
+#open -g $AZURE_VOLUME
 
 ########################
 # SCRAPE STAGE
@@ -104,10 +105,19 @@ python3 ./process/find_species.py $pgfile $birdfile
 # METRICS
 
 # scraper metrics (R markdown)
+# Mac OS
 R -e "Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/quarto/bin/tools');
-    rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
-cp ./scrape/scraper_dashboard.html $dockerpath/www
-mv ./scrape/scraper_dashboard.html ./reports/scraper_dashboard-$today.html
+    rmarkdown::render('./scrape/scraper_dashboard.Rmd', 
+                    rmarkdown::html_document(toc = TRUE),
+                    output_file = scraper_dashboard-$today.html,
+                    output_dir = $reportpath
+                    )"
+# Ubuntu
+#R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
+
+cp $reportpath/scraper_dashboard-$today.html $dockerpath/www/scraper_dashboard.html
+#cp ./scrape/scraper_dashboard.html $dockerpath/www
+#mv ./scrape/scraper_dashboard.html $reportpath/scraper_dashboard-$today.html
 
 ########################
 # WEBAPP DEPLOYMENT

@@ -46,10 +46,10 @@ shinyUI(fluidPage(
     position="left",
     fluid = TRUE,
     mainPanel( 
-        htmlOutput("header"), # title bar
-        uiOutput("search"),
+        htmlOutput("header"),      # title bar
+        uiOutput("search"),        # search input
         htmlOutput("search_info"), # search results
-        htmlOutput("signoff"), # footer
+        htmlOutput("signoff"),     # footer
       ),
       sidebarPanel( 
         htmlOutput("sidebar")

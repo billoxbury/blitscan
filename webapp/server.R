@@ -31,29 +31,34 @@ shinyServer(
       filter(!is.na(date)) %>%
       mutate(date = as_date(date)) %>%
       filter(as.integer(today() - date) <= RECENT_DAYS) %>%
+      select(date, title, abstract, score, link, domain) %>%
       arrange(desc(score)) %>%
       collect()
     
     # pull data frame in response to search term
     df_returned <- reactive({
-      st <- input$search %>% tolower()
-      df_out <- if(input$pdfsearch) { df_tx %>%
-        filter(str_detect(tolower(pdftext), st) |
-                 str_detect(tolower(pdftext_translation), st)) 
+      if(input$search == ""){
+        df_recent
       } else {
-        df_tx %>%
-          filter(str_detect(tolower(title), st) |
-                   str_detect(tolower(title_translation), st) |
-                   str_detect(tolower(abstract), st) |
-                   str_detect(tolower(abstract_translation), st)) 
-      }
-        
+        st <- input$search %>% tolower()
+        df_out <- if(input$pdfsearch) { df_tx %>%
+            filter(str_detect(tolower(pdftext), st) |
+                     str_detect(tolower(pdftext_translation), st)) 
+        } else {
+          df_tx %>%
+            filter(str_detect(tolower(title), st) |
+                     str_detect(tolower(title_translation), st) |
+                     str_detect(tolower(abstract), st) |
+                     str_detect(tolower(abstract_translation), st)) 
+        }
         # return
         df_out %>%
+          select(date, title, abstract, score, link, domain) %>%
           arrange(desc(score)) %>%
           collect() 
+      }
     })
-
+    
     output$header <- renderText({
       "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
       <i>&#946 version</i><hr>"
@@ -72,11 +77,7 @@ shinyServer(
     
     output$search_info <- renderText({
       # returned data frame
-      df_out <- if(input$search == ""){ 
-          df_recent 
-        } else { 
-          df_returned()
-        }
+      df_out <- df_returned()
       nresults <- nrow(df_out)
       
       # components to display
@@ -85,8 +86,9 @@ shinyServer(
       title <- df_out$title
       link <- df_out$link
       score <- df_out$score
-      abstract <- df_out$abstract
-        
+      abstract <- df_out$abstract %>% 
+        str_remove_all("<\\/?[a-z][0-9]?>") 
+
       # mark up search terms
       if(input$search != ""){
         title <- title %>% 
@@ -95,7 +97,6 @@ shinyServer(
         abstract <- abstract %>% 
           str_replace_all(regex(input$search, ignore_case = TRUE), 
                           sprintf("<mark>%s</mark>", input$search))
-        
       } 
       
       # create output HTML
