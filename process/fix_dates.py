@@ -109,7 +109,7 @@ def main():
     # ... and commit to database
     with engine.connect() as conn:
         conn.execute(updater, update_list)
-    print(f"{nupdates} dates changed out of {ndates}")
+    print(f"{nupdates} dates reformatted out of {ndates}")
     return 0
 
 if __name__ == '__main__':

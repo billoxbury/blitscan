@@ -7,7 +7,7 @@ library(lubridate)
 #########################################################################
 # Postgres private parameters
 
-LOCAL <- TRUE
+LOCAL <- FALSE
 
 SHAREPATH <- if(LOCAL){
   '/Volumes/blitshare'
@@ -24,6 +24,7 @@ MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
 RECENT_DAYS <- 14
 LOGZERO <- -20.0
+#SCORE_Q_THRESHOLD <- 0.1
 
 #########################################################################
 # open PG database
@@ -49,6 +50,14 @@ nrows <- df_tx %>%
   collect() %>% 
   as.numeric()
 
+# prune lowest SCORE_Q_THRESHOLD on score?
+
+#minscore <- df_tx %>% 
+#  pull(score)  %>% 
+#  quantile(SCORE_Q_THRESHOLD) %>%
+#  as.numeric()
+#df_tx <- df_tx %>%
+#  filter(score > minscore)
 
 # domain logos
 domainlogo <- function(domain){
@@ -103,5 +112,4 @@ domainlogo <- function(domain){
     sprintf("<b>%s</b>", domain)
   }
 }
-
 

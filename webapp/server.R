@@ -35,12 +35,21 @@ shinyServer(
       arrange(desc(score)) %>%
       collect()
     
+    # decouple query term from live text input
+    query <- reactive({
+      if(str_detect(input$search, '\n')){
+        str_remove(input$search, '\n')
+      } else {
+        ''
+      }
+    })
+    
     # pull data frame in response to search term
     df_returned <- reactive({
-      if(input$search == ""){
+      if(query() == ""){
         df_recent
       } else {
-        st <- input$search %>% tolower()
+        st <- query() %>% tolower()
         df_out <- if(input$pdfsearch) { df_tx %>%
             filter(str_detect(tolower(pdftext), st) |
                      str_detect(tolower(pdftext_translation), st)) 
@@ -66,7 +75,7 @@ shinyServer(
     
     output$search <- renderUI({
       tagList(
-        textInput("search", 
+        textAreaInput("search", 
                   label = "Search", 
                   value = ""),
         checkboxInput("pdfsearch",
@@ -87,15 +96,15 @@ shinyServer(
       link <- df_out$link
       score <- df_out$score
       abstract <- df_out$abstract %>% 
-        str_remove_all("<\\/?[a-z][0-9]?>") 
+        str_replace_all("<\\/?[a-z][0-9]?>", " ") 
 
       # mark up search terms
-      if(input$search != ""){
+      if(query() != ""){
         title <- title %>% 
-          str_replace_all(regex(input$search, ignore_case = TRUE), 
+          str_replace_all(regex(query(), ignore_case = TRUE), 
                           sprintf("<mark>%s</mark>", input$search))
         abstract <- abstract %>% 
-          str_replace_all(regex(input$search, ignore_case = TRUE), 
+          str_replace_all(regex(query(), ignore_case = TRUE), 
                           sprintf("<mark>%s</mark>", input$search))
       } 
       
@@ -109,7 +118,7 @@ shinyServer(
       text_out <- str_c(c("<table>", paste0(s2,s3,s4,s5,s6), "</table>"), collapse="")
       
       # return
-      if(input$search == ""){
+      if(query() == ""){
         sprintf("<h3>Recent articles</h3> 
                 %s",
                 text_out)
@@ -151,7 +160,7 @@ shinyServer(
               The relevance algorithm is under development and doesn't always get it right (yet)! <b>User feedback is welcome</b> to help improve it and to speedily highlight valuable research.
               </p>
               <p>Recent articles should appear here daily.</p> 
-              <p>Search <b>by keyword/phrase</b>.</p>
+              <p>Search <b>by keyword/phrase</b> (followed by return).</p>
               <p>
               <a href='%s'>More information can be found here.</a>
               </p>
