@@ -39,7 +39,8 @@ df_new <- tibble(
   GOTSCORE = integer(),
   GOTSPECIES = integer(),
   GOTTRANSLATION = integer(),
-  DONECROSSREF = integer()
+  DONECROSSREF = integer(),
+  DATECHECK = integer()
 )
 
 ###############################################################
@@ -76,7 +77,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -113,7 +115,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -151,7 +154,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -188,7 +192,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -225,7 +230,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -262,7 +268,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -299,7 +306,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -337,7 +345,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -375,7 +384,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }
@@ -412,7 +422,8 @@ try({
           GOTSCORE = 0,
           GOTSPECIES = 0,
           GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          DONECROSSREF = 0,
+          DATECHECK = 0
         )
     }
   }

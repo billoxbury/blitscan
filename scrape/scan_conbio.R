@@ -83,6 +83,7 @@ df_new['GOTSCORE'] <- 0
 df_new['GOTSPECIES'] <- 0
 df_new['GOTTRANSLATION'] <- 0
 df_new['DONECROSSREF'] <- 0
+df_new['DATECHECK'] <- 0
 
 ##########################################################
 # write to disk

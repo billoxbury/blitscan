@@ -69,7 +69,7 @@ today = str( datetime.now().date() )
 bad_link_patt = re.compile(r'journalSearch|siteregister|wiley.com/toc|announcements|nature.com.subjects|special_issues/Birds_2021|\.(com|org)[/]?$')
 bad_name_patt = re.compile(r'club tours|club news|^forktail|^birdingasia|^birdwatching areas|appendix')
 
-# pdf detection
+# pdf detection
 pdf_patt = re.compile(r"\.pdf$")    
 def is_pdf(s):
     return bool(pdf_patt.search(s))
@@ -228,6 +228,7 @@ def write_to_database(df):
     df['GOTSPECIES'] = 0
     df['GOTTRANSLATION'] = 0
     df['DONECROSSREF'] = 0
+    df['DATECHECK'] = 0
     # ... and add to database
     df.to_sql(
         'links', # name of SQL table

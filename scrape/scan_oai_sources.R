@@ -152,7 +152,8 @@ df_new <- tibble(
   GOTSCORE = integer(),
   GOTSPECIES = integer(),
   GOTTRANSLATION = integer(),
-  DONECROSSREF = integer()
+  DONECROSSREF = integer(),
+  DATECHECK = integer()
 )
 
 doi_prefix <- "https://doi.org/"
@@ -184,7 +185,8 @@ for(i in 1:nrow(df_oai)){
         GOTSCORE = 0,
         GOTSPECIES = 0,
         GOTTRANSLATION = 0,
-        DONECROSSREF = 0
+        DONECROSSREF = 0,
+        DATECHECK = 0
       )
 }
 

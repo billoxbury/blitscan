@@ -43,7 +43,7 @@ sql_cmd = '\
                 WHERE dois.doi = links.doi \
                 ), \
             "DATECHECK" = 1 \
-    WHERE "DATECHECK" = 0 \
+    WHERE NOT "DATECHECK" = 1 \
     AND \
     EXISTS ( \
         SELECT * \
