@@ -43,6 +43,9 @@ python3 ./scrape/custom_search_bing.py $pgfile
 # - maintain source list for this step
 Rscript ./scrape/archive_indexes.R $pgfile
 
+# (*) TO DO scan OpenAlex for individual species
+#Rscript ./scrape/scan_openalex.R $pgfile
+
 if [ $date_mod_10 -eq 0 ]
 then
     # (3) scan OAI relevant journals (currently under BioOne)
@@ -108,16 +111,14 @@ python3 ./process/find_species.py $pgfile $birdfile
 # Mac OS
 R -e "Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/quarto/bin/tools');
     rmarkdown::render('./scrape/scraper_dashboard.Rmd', 
-                    rmarkdown::html_document(toc = TRUE),
-                    output_file = scraper_dashboard-$today.html,
-                    output_dir = $reportpath
+                    rmarkdown::html_document(toc = TRUE)
                     )"
 # Ubuntu
 #R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
 
-cp $reportpath/scraper_dashboard-$today.html $dockerpath/www/scraper_dashboard.html
-#cp ./scrape/scraper_dashboard.html $dockerpath/www
-#mv ./scrape/scraper_dashboard.html $reportpath/scraper_dashboard-$today.html
+#cp $reportpath/scraper_dashboard-$today.html $dockerpath/www/scraper_dashboard.html
+cp ./scrape/scraper_dashboard.html $dockerpath/www
+mv ./scrape/scraper_dashboard.html $reportpath/scraper_dashboard-$today.html
 
 ########################
 # WEBAPP DEPLOYMENT
@@ -127,11 +128,12 @@ docker build -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath
 ########################
 # TO TEST LOCALLY:
 #docker build --no-cache -t $IMGNAME $dockerpath 
+#docker build -t $IMGNAME $dockerpath 
 #open -g $AZURE_VOLUME
 #docker run --rm -dp 3838:3838 -v /Volumes/blitshare:/srv/shiny-server/blitshare $IMGNAME
 #docker rmi -f $IMGNAME
 #
-# NOTE the argument --no-cache solved a thorny conflict which prevent installation of libpq-dev. 
+# NOTE the argument --no-cache solved a thorny conflict which prevented installation of libpq-dev. 
 ########################
 
 # authenticate to Azure if needed

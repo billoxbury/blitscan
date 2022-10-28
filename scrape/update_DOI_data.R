@@ -23,6 +23,9 @@ pgfile <- args[1]
 # read postgres parameters
 source(pgfile)
 
+# parameters
+MAX_NR_DOIS <- 1000
+
 # open database connection
 conn <- DBI::dbConnect(
   RPostgres::Postgres(),
@@ -39,6 +42,9 @@ conn <- DBI::dbConnect(
 newdoi <- tbl(conn, 'links') %>%
   filter(DONECROSSREF == 0 & !is.na(doi)) %>%
   pull(doi) 
+if(length(newdoi) > MAX_NR_DOIS){
+  newdoi <- newdoi[1:MAX_NR_DOIS]
+}
 cat(sprintf("Found %d new DOIs\n\n", 
             length(newdoi)))
 
@@ -132,7 +138,6 @@ for(s in flag_statements){
   res = DBI::dbSendStatement(conn, s)
   DBI::dbClearResult(res)
 }
-
 cat("... done\n")
 
 # disconnect

@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyWidgets)
 library(dplyr)
 library(dbplyr)
 library(stringr)
@@ -7,7 +8,7 @@ library(lubridate)
 #########################################################################
 # Postgres private parameters
 
-LOCAL <- FALSE
+LOCAL <- TRUE
 
 SHAREPATH <- if(LOCAL){
   '/Volumes/blitshare'
@@ -58,6 +59,18 @@ nrows <- df_tx %>%
 #  as.numeric()
 #df_tx <- df_tx %>%
 #  filter(score > minscore)
+
+# given a DOI, find publisher from OpenAlex table
+find_publisher <- function(doi){
+  query <- sprintf('SELECT publisher FROM openalex WHERE doi = \'%s\'', doi)
+  df <- DBI::dbGetQuery(connPG, query)
+  # return
+  if(nrow(df) > 0){
+    as.character(df)
+  } else{
+    'doi.org'
+  }
+}
 
 # domain logos
 domainlogo <- function(domain){

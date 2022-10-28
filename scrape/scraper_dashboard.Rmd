@@ -1,11 +1,11 @@
 ---
-title: "Dashboard for BirdLife LitScan scraper"
+title: "Dashboard for BirdLife LitScan processing"
 author: "Bill Oxbury"
 date: "`r Sys.Date()`"
 output: html_document
 ---
 
-_This file is updated automatically as part of the scraper processing._
+_This file is updated automatically as part of the scanner processing._
 
 
 ```{r set-up-SQL-version, include=FALSE, warning=FALSE}
@@ -172,7 +172,7 @@ df_blit %>%
   ggplot(aes(x = reorder(status, -count, min), y = count)) +
   geom_boxplot(colour = "blue",
                fill = "lightblue") +
-  scale_y_continuous(trans='log10') +
+  scale_y_continuous(trans='log10', breaks=c(1,2,3,4,5,10,20,30,40,50,100)) +
   labs(y="Article count", x="Status", 
        subtitle="")
 
@@ -401,7 +401,8 @@ domain <- df_tx %>%
   select(domain) %>%
   collect() %>%
   pull(domain) %>%
-  str_remove('^www\\.')
+  str_remove('^www\\.') %>%
+  str_remove('/.+$')
 
 df_out <- table(domain, !baddate) %>%
   tibble()
@@ -450,6 +451,8 @@ cat("Count threshold for plot: ", threshold)
 # how does score distribution vary with domain?
 
 df_score %>% 
+  mutate(domain = str_remove(domain, '^www\\.')) %>%
+  mutate(domain = str_remove(domain, '/action/oai$')) %>%
   group_by(domain) %>%
   mutate(count = n()) %>%
   filter(count > threshold) %>%
@@ -481,9 +484,9 @@ Finally, a visual check on _link.springer.com_ is useful just because Springer t
 
 All of the above statistics refer to articles in the Blitscan database for which text has been successfully retrieved. But that represents a subset of a larger dataset of URLs (coming from steps 1-4 above) for which text retrieval was attempted. Here we summarise the success or not, by domain, of text retrieval on this fuller dataset.
 
-We've indicated above ('Step 1 revisited') that not all domains consistently permit web crawling. Among responsive domains, the following counts show URLs from which text was retrieved (1) versus not (0):
+We've indicated above ('Step 1 revisited') that not all domains consistently permit web crawling. Among responsive domains, the following counts show URLs from which text was retrieved:
 
-```{r compare-responsive-domains, echo=FALSE}
+```{r compare-responsive-domains, echo=FALSE, warning=FALSE}
 # which (responsive) domains can I get text from?
 
 problem_domains <- df %>% 
@@ -492,17 +495,38 @@ problem_domains <- df %>%
   filter(count == 0) %>%
   pull(domain) 
 
-domain <- df %>% 
+df %>% 
   filter(!(domain %in% problem_domains))%>% 
-  pull(domain) %>%
-  str_remove('^www\\.')
-  
-text <- df %>% 
-  filter(!(domain %in% problem_domains))%>% 
-  pull(GOTTEXT)
-
-table(domain, text)
+  mutate(Domain = str_remove(domain, '^www\\.')) %>%
+  mutate(Domain = str_remove(Domain, '/.+$')) %>%
+  group_by(Domain) %>%
+  summarise(GotText = sum(GOTTEXT, na.rm = TRUE),
+            Total = n(),
+            Percent = round(1.0*sum(GOTTEXT)/n() * 100.0, 1)) %>%
+  arrange(desc(GotText)) %>%
+  collect() %>%
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:70%;'")
 ```
+
+<p> Where possible, text is harvested from PDFs as well as HTML. The following are the current PDF counts in the database, by domain:
+
+```{r count-PDFs, echo=FALSE, warning=FALSE}
+
+df_tx %>%
+  filter(length(pdftext) > 0) %>%
+  mutate(Domain = str_remove(domain, '^www\\.')) %>%
+  mutate(Domain = str_remove(Domain, '/.+$')) %>%
+  group_by(Domain) %>%
+  summarise(PDF = n()) %>%
+  arrange(desc(PDF)) %>%
+  collect() %>%
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:60%;'")
+```
+
 
 ### Appendix: list of all journals/proceedings
 

@@ -22,6 +22,7 @@ RUN apt-get install -y zlib1g-dev libicu-dev
 
 RUN R -e 'install.packages(c(\
               "shiny", \
+              "shinyWidgets", \
               "stringr", \
               "lubridate", \
               "RPostgres", \

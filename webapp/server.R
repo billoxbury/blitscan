@@ -37,11 +37,12 @@ shinyServer(
     
     # decouple query term from live text input
     query <- reactive({
-      if(str_detect(input$search, '\n')){
-        str_remove(input$search, '\n')
-      } else {
-        ''
-      }
+      #if(str_detect(input$search, '\n')){
+      #  str_remove(input$search, '\n')
+      #} else {
+      #  ''
+      #}
+      input$search
     })
     
     # pull data frame in response to search term
@@ -75,9 +76,12 @@ shinyServer(
     
     output$search <- renderUI({
       tagList(
-        textAreaInput("search", 
-                  label = "Search", 
-                  value = ""),
+        searchInput(label = "Search", 
+                    inputId = "search", 
+                    placeholder = "",
+                    btnSearch = icon("magnifying-glass"),
+                    width = "500px"
+        ),
         checkboxInput("pdfsearch",
                       label = "Search full PDF text", 
                       value = FALSE)
