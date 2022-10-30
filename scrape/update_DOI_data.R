@@ -42,11 +42,14 @@ conn <- DBI::dbConnect(
 newdoi <- tbl(conn, 'links') %>%
   filter(DONECROSSREF == 0 & !is.na(doi)) %>%
   pull(doi) 
+cat(sprintf("Found %d new DOIs\n", 
+            length(newdoi)))
 if(length(newdoi) > MAX_NR_DOIS){
   newdoi <- newdoi[1:MAX_NR_DOIS]
 }
-cat(sprintf("Found %d new DOIs\n\n", 
-            length(newdoi)))
+cat(sprintf("... processing %d (max set at %d)\n", 
+            length(newdoi),
+            MAX_NR_DOIS))
 
 # exit if none to do
 if(length(newdoi) == 0) quit(status = 0)
@@ -131,6 +134,7 @@ system('rm tmp.csv')
 # update 'links' table
 
 # DONECROSSREF flag
+cat("Updating links table ...")
 flag_statements <- paste0('UPDATE links SET "DONECROSSREF" = 1 WHERE doi = \'', 
                           newdoi, 
                           '\'')
@@ -138,7 +142,7 @@ for(s in flag_statements){
   res = DBI::dbSendStatement(conn, s)
   DBI::dbClearResult(res)
 }
-cat("... done\n")
+cat(" done\n")
 
 # disconnect
 DBI::dbDisconnect(conn)

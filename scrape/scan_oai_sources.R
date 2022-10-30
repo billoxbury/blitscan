@@ -17,7 +17,7 @@ if(length(args) < 1){
   quit(status=1)
 }
 pgfile <- args[1]
-# pgfile <- "/Volumes/blitshare/pg/param.R"
+# pgfile <- "/Volumes/blitshare/pg/param.txt"
 
 # read postgres parameters
 source(pgfile)
@@ -103,7 +103,7 @@ database_to_table <- function(database, setname, from = FROM){
 scan_bioone <- function(sets = bioone_avian_sets){
   
   database <- "https://bioone.org/action/oai" 
-  domain <- str_remove(database, 'https://')
+  domain <- "bioone.org"
   df <- tibble(
     source = character(),
     domain = character(), 
@@ -204,18 +204,13 @@ conn <- DBI::dbConnect(
   dbname = PGDATABASE)
 
 # check for links already in database
-# NEEDS A BETTER IMPLEMENTATION! 
-dups <- sapply(1:nrow(df_new), function(i){
-  query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
-                   df_new$link[i])
-  # return
-  as.integer( DBI::dbGetQuery(conn, query) )
-})
-# ... and remove these
-df_new <- df_new[dups==0,] %>%
-  distinct(link, .keep_all = TRUE) %>%
-  mutate(date = as.character(date),
-         query_date = as.character(query_date))
+# check for links already in database
+link_list <- tbl(conn, 'links') %>%
+  pull(link)
+
+# ... and filter them out
+df_new <- df_new %>%
+  filter(!(link %in% link_list))
 cat(sprintf("Found %d new items\n", nrow(df_new)))
 
 # add rest of data frame to the database

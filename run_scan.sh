@@ -74,7 +74,11 @@ Rscript ./scrape/get_html_text.R $pgfile
 
 # (7) update DOI database from CrossRef - and use DOIs to find missing dates
 # - processes in blocks (default size 50)
-Rscript ./scrape/update_DOI_data.R $pgfile
+
+#for i in {1..9}
+#do
+    Rscript ./scrape/update_DOI_data.R $pgfile
+#done 
 
 # (8) download Wiley SCB pdf files
 python3 ./scrape/get_wiley_pdf.py $pgfile $wileypdf
@@ -86,7 +90,8 @@ python3 ./scrape/read_wiley_pdf.py $pgfile $wileypdf
 python3 ./scrape/get_pdf_text.py $pgfile $tmppath
 
 # (11) remove duplicate records 
-# i.e. different links for same title/abstract
+# i.e. different links for same title/abstract,
+# different doi records with same DOI
 ./scrape/remove_duplicates.sh $pgfile
 
 ########################
@@ -96,7 +101,8 @@ python3 ./scrape/get_pdf_text.py $pgfile $tmppath
 python3 ./process/fix_dates.py $pgfile
 
 # (13) pass text to Azure for English translation
-python3 ./process/translate_to_english.py $pgfile
+# NEEDS REVIEW
+#python3 ./process/translate_to_english.py $pgfile
 
 # (14) score title/abstract (not pdftext at this stage) on BLI text model
 python3 ./process/score_for_topic.py $pgfile $blimodelfile

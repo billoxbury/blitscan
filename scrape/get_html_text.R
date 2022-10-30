@@ -14,7 +14,7 @@ if(length(args) < 1){
   quit(status=1)
 }
 pgfile <- args[1]
-# pgfile <- "/Volumes/blitshare/pg/param.R"
+# pgfile <- "/Volumes/blitshare/pg/param.txt"
 
 # read postgres parameters
 source(pgfile)
@@ -146,11 +146,11 @@ for(domain in domains){
   
   # reset max nr calls to make
   maxcalls <- MAXCALLS
-  
+
   # loop over this domain
   for(i in 1:nrow(domain_df)){
     
-    if(maxcalls < 0) break
+    if(maxcalls <= 0) break
     # verbose
     cat(sprintf("%d %d: %s\n", maxcalls, i, domain_df$link[i]))
   
@@ -208,35 +208,3 @@ cat(sprintf("Done - %d updates made for %d domains\n",
 DBI::dbDisconnect(conn)
 
 # DONE
-
-# TEMPORARY:
-
-#library(stringr, warn.conflicts=FALSE)
-#library(dplyr, warn.conflicts=FALSE)
-#library(dbplyr, warn.conflicts=FALSE)
-#library(lubridate)
-
-#dbfile <- "data/master.db"
-#conn <- DBI::dbConnect(RSQLite::SQLite(), dbfile)
-
-#df <- tbl(conn, 'dois') %>%
-#  collect()
-
-#for(i in 1:nrow(df)){
-#  if(!is.na(df$created[i])){
-#    if(str_detect(df$created[i], '\\.0')){
-#      d <- as.character(
-#        as_date(
-#          as.numeric(
-#            df$created[i]
-#          )
-#        )
-#      cat(sprintf('%s --> %s\n', df$created[i], d))
-#      )
-#      df$created[i] <- d
-#    }
-#  }
-#}
-
-#DBI::dbWriteTable(conn, 'dois', df, overwrite = TRUE)
-#DBI::dbDisconnect(conn)

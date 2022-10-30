@@ -35,7 +35,7 @@ except:
 	sys.exit(1)
 
 # parameters
-MAXFILES = 100
+MAXFILES = 50
 
 # open connection to database  
 engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)

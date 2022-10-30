@@ -8,7 +8,7 @@ library(lubridate)
 #########################################################################
 # Postgres private parameters
 
-LOCAL <- TRUE
+LOCAL <- FALSE
 
 SHAREPATH <- if(LOCAL){
   '/Volumes/blitshare'

@@ -31,7 +31,7 @@ shinyServer(
       filter(!is.na(date)) %>%
       mutate(date = as_date(date)) %>%
       filter(as.integer(today() - date) <= RECENT_DAYS) %>%
-      select(date, title, abstract, score, link, domain) %>%
+      select(date, title, abstract, score, link, domain, doi) %>%
       arrange(desc(score)) %>%
       collect()
     
@@ -63,7 +63,7 @@ shinyServer(
         }
         # return
         df_out %>%
-          select(date, title, abstract, score, link, domain) %>%
+          select(date, title, abstract, score, link, domain, doi) %>%
           arrange(desc(score)) %>%
           collect() 
       }
@@ -79,7 +79,7 @@ shinyServer(
         searchInput(label = "Search", 
                     inputId = "search", 
                     placeholder = "",
-                    btnSearch = icon("magnifying-glass"),
+                    #btnSearch = icon("magnifying-glass"),
                     width = "500px"
         ),
         checkboxInput("pdfsearch",
@@ -95,12 +95,17 @@ shinyServer(
       
       # components to display
       date <- df_out$date
+      #doi <- df_out$doi
       domain <- df_out$domain
       title <- df_out$title
       link <- df_out$link
       score <- df_out$score
       abstract <- df_out$abstract %>% 
         str_replace_all("<\\/?[a-z][0-9]?>", " ") 
+      #publisher <- sapply(1:nresults, function(i){
+      #  if(domain[i] == 'doi.org') find_publisher(doi[i])
+      #  else domain[i]
+      #})
 
       # mark up search terms
       if(query() != ""){

@@ -231,3 +231,48 @@ DBI::dbWriteTable(conn, 'links', df_links, append = TRUE)
 DBI::dbDisconnect(conn)
 
 
+
+#################################################
+# TEMPORARY
+
+INSERT INTO links(link_name,
+                  date,
+                  link,
+                  doi,
+                  title,
+                  abstract,
+                  domain,
+                  search_term,
+                  query_date,
+                  "BADLINK",
+                  "GOTTEXT",
+                  "DONEPDF",
+                  "GOTSCORE",
+                  "GOTSPECIES",
+                  "GOTTRANSLATION",
+                  "DONECROSSREF",
+                  "DATECHECK")
+  SELECT 
+    id,
+    publication_date,
+    url,
+    doi,
+    display_name,
+    ab,
+    'doi.org',
+    'openalex-species-scan',
+    '2022-10-29',
+    0 AS "BADLINK",
+    1 AS "GOTTEXT",
+    0 AS "DONEPDF",
+    0 AS "GOTSCORE",
+    0 AS "GOTSPECIES",
+    0 AS "GOTTRANSLATION",
+    0 AS "DONECROSSREF",
+    1 AS "DATECHECK"
+  FROM openalex;
+
+
+
+
+

@@ -89,26 +89,15 @@ try({
     if(!(df_biorxiv$title[i] %in% df_new$title)){
       # add row to the master table
       df_new <- df_new %>%
-        add_row(#date = "",
+        add_row(
           link = df_biorxiv$link[i],
           link_name = df_biorxiv$title[i],
           doi = df_biorxiv$doi[i],
-          snippet = '',
           language = 'en',
           title = df_biorxiv$title[i],
-          abstract = '',
-          pdf_link = '',
           domain = 'biorxiv.org',
           search_term = str_c('biorxiv-', df_biorxiv$search_term[i]),
-          query_date = as.character(today()),
-          BADLINK = 0,
-          DONEPDF = 0,
-          GOTTEXT = 0,
-          GOTSCORE = 0,
-          GOTSPECIES = 0,
-          GOTTRANSLATION = 0,
-          DONECROSSREF = 0,
-          DATECHECK = 0
+          query_date = as.character(today())
         )
     }
   }
@@ -129,29 +118,31 @@ try({
     if(!(df_jstage$title[i] %in% df_new$title)){
       # add row to the master table
       df_new <- df_new %>%
-        add_row(#date = "",
+        add_row(
           link = df_jstage$link[i],
           link_name = df_jstage$title[i],
           doi = df_jstage$doi[i],
-          snippet = '',
           language = 'ja',
           title = df_jstage$title[i],
-          abstract = '',
-          pdf_link = '',
           domain = 'jstage.jst.go.jp',
           search_term = str_c('jstage-', df_jstage$search_term[i]),
-          query_date = as.character(today()),
-          BADLINK = 0,
-          DONEPDF = 0,
-          GOTTEXT = 0,
-          GOTSCORE = 0,
-          GOTSPECIES = 0,
-          GOTTRANSLATION = 0,
-          DONECROSSREF = 0
+          query_date = as.character(today())
         )
     }
   }
 })
+
+# add initial variables
+df_new['abstract'] <- ''
+df_new['BADLINK'] <- 0
+df_new['DONEPDF'] <- 0
+df_new['GOTTEXT'] <- 0
+df_new['GOTSCORE'] <- 0
+df_new['GOTSPECIES'] <- 0
+df_new['GOTTRANSLATION'] <- 0
+df_new['DONECROSSREF'] <- 0
+df_new['DATECHECK'] <- 0
+
 
 ##########################################################
 # write to disk
@@ -167,18 +158,12 @@ conn <- DBI::dbConnect(
   dbname = PGDATABASE)
 
 # check for links already in database
-# NEEDS A BETTER IMPLEMENTATION! 
-dups <- sapply(1:nrow(df_new), function(i){
-  query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
-                   df_new$link[i])
-  # return
-  as.integer( DBI::dbGetQuery(conn, query) )
-})
-# ... and remove these
-df_new <- df_new[dups==0,] %>%
-  distinct(link, .keep_all = TRUE) %>%
-  mutate(date = as.character(date),
-         query_date = as.character(query_date))
+link_list <- tbl(conn, 'links') %>%
+  pull(link)
+
+# ... and filter them out
+df_new <- df_new %>%
+  filter(!(link %in% link_list))
 cat(sprintf("Found %d new items\n", nrow(df_new)))
 
 # add rest of data frame to the database

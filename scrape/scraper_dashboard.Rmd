@@ -172,7 +172,7 @@ df_blit %>%
   ggplot(aes(x = reorder(status, -count, min), y = count)) +
   geom_boxplot(colour = "blue",
                fill = "lightblue") +
-  scale_y_continuous(trans='log10', breaks=c(1,2,3,4,5,10,20,30,40,50,100)) +
+  scale_y_continuous(trans='log10', breaks=c(1,2,3,5,10,20,30,50,100,200,300,500)) +
   labs(y="Article count", x="Status", 
        subtitle="")
 

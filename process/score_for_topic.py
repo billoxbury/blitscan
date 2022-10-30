@@ -66,6 +66,7 @@ nlp = spacy.load('en_core_web_md')
 
 # global constants
 LOGZERO = -20.0
+MAXCALLS = 5000
 
 ##########################################################
 # functions
@@ -143,6 +144,9 @@ def main():
         for row in records:
             # verbose 
             print(f'{ncalls}: {row.title}')
+            # stop if reached MAXCALLS
+            if ncalls >= MAXCALLS:
+                break
             # filter out bad records
             if row.title == "" or row.title == None or row.abstract == "" or row.abstract == None:
                 update_list += [{
@@ -175,7 +179,7 @@ def main():
                             'linkvalue': row.link,
                             'scorevalue': LOGZERO, 
                             'badflagvalue': 1,
-                            'scoreflagvalue' : 1
+                            'scoreflagvalue' : 0
                             }]
                 continue
             # END OF __for row in records__

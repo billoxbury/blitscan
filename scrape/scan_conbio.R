@@ -1,3 +1,8 @@
+# scans data/wiley/html directory for HTML files, extracts DOIs
+# and adds these to the main 'links' database table for follow-on
+# processing
+
+
 library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)
 library(dplyr, warn.conflicts=FALSE)
@@ -30,6 +35,7 @@ if(length(files) == 0){
 
 urls <- c()
 conbio_prefix <- 'https://conbio.onlinelibrary.wiley.com/doi/'
+cat("Finding DOIs ...")
 for(f in files){
   htmlfile <- sprintf("%s/%s", filepath, f)
   page <- read_html(htmlfile)
@@ -101,16 +107,14 @@ if(nrow(df_new) > 0){
     dbname = PGDATABASE)
   
   # check for links already in database
-  dups <- sapply(1:nrow(df_new), function(i){
-    query <- sprintf("SELECT '%s' IN (SELECT link FROM links)", 
-                     df_new$link[i])
-    # return
-    as.integer( DBI::dbGetQuery(conn, query) )
-  })
-  # ... and remove these
-  df_new <- df_new[dups==0,] 
-  cat(sprintf("Found %d new items\n", nrow(df_new)))
+  link_list <- tbl(conn, 'links') %>%
+    pull(link)
   
+  # ... and filter them out
+  df_new <- df_new %>%
+    filter(!(link %in% link_list))
+  cat(sprintf("Found %d new items\n", nrow(df_new)))
+
   DBI::dbWriteTable(conn, 'links', df_new, append = TRUE)
   # close database connection
   DBI::dbDisconnect(conn)
