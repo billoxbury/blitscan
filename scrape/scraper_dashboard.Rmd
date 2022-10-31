@@ -322,15 +322,17 @@ df_out %>%
 
 ### Language coverage
 
-We aim to grow the coverage of non-English language sources by taking advantage of cloud translation services.The current distribution of languages represented in the BlitScan database is as follows:
+We aim to grow the coverage of non-English language sources by taking advantage of cloud translation services. The current distribution of languages represented in the BlitScan database is shown below. (<a href='https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes'>See here for the language codes.</a>)
 
 ```{r languages, echo=FALSE}
 
 lang_all <- df %>% 
   filter(GOTTEXT == 1) %>%
+  mutate(language = str_remove(language, '\\|en$|^en\\|')) %>%
   group_by(language) %>%
   summarize(OutOf = n())
 lang_used <- df_tx %>% 
+  mutate(language = str_remove(language, '\\|en$|^en\\|')) %>%
   group_by(language) %>%
   summarize(Count = n())
 
@@ -387,7 +389,7 @@ Reading of dates can be a fallible process - how well are we able to parse publi
 
 baddate <- (is.na(date))
 cat(sprintf("Proportion of records with date parsed: %g%%\n",
-            100 * ( 1 - sum(baddate) / nr ) 
+            100 * ( 1 - sum(baddate, na.rm = TRUE) / nr ) 
             %>% round(3)
 ))
 ```
@@ -502,7 +504,7 @@ df %>%
   group_by(Domain) %>%
   summarise(GotText = sum(GOTTEXT, na.rm = TRUE),
             Total = n(),
-            Percent = round(1.0*sum(GOTTEXT)/n() * 100.0, 1)) %>%
+            Percent = round(1.0*sum(GOTTEXT, na.rm = TRUE)/n() * 100.0, 1)) %>%
   arrange(desc(GotText)) %>%
   collect() %>%
   knitr::kable(format = "html", 

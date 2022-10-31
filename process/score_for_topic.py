@@ -66,7 +66,7 @@ nlp = spacy.load('en_core_web_md')
 
 # global constants
 LOGZERO = -20.0
-MAXCALLS = 5000
+MAXCALLS = 1000
 
 ##########################################################
 # functions
@@ -142,8 +142,6 @@ def main():
         # loop over domains 
         records = conn.execute(selecter)
         for row in records:
-            # verbose 
-            print(f'{ncalls}: {row.title}')
             # stop if reached MAXCALLS
             if ncalls >= MAXCALLS:
                 break
@@ -174,6 +172,8 @@ def main():
                             'scoreflagvalue' : 1
                             }]
                 ngood += 1
+                # verbose 
+                print(f'{ncalls}: {row.title}')
             except:
                 update_list += [{
                             'linkvalue': row.link,

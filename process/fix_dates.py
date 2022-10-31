@@ -34,8 +34,18 @@ except:
 # open connection to database  
 engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
-# SQL command string
-sql_cmd = '\
+# SQL command strings
+date_ct = 0
+count_cmd = '\
+    SELECT count(*) FROM links \
+    WHERE NOT "DATECHECK" = 1 \
+    AND \
+    EXISTS ( \
+        SELECT * \
+        FROM dois \
+        WHERE dois.doi = links.doi \
+        )'
+update_cmd = '\
     UPDATE links \
         SET date = ( \
                 SELECT dois.created \
@@ -67,7 +77,14 @@ def main():
     # (1) send SQL command to update dates to value against corresponding DOI
     print('Aligning all dates with DOI values to CrossRef data ...')
     with engine.connect() as conn:
-        result1 = conn.execute(text(sql_cmd))
+        # count dates to change
+        result1 = conn.execute(text(count_cmd))
+        for row in result1:
+            date_ct = row[0]
+        print(f'Setting {date_ct} dates from CrossRef')
+        # and pass update 
+        if date_ct > 0:
+            conn.execute(text(update_cmd))
     
     # (2) normalise all dates in main table
     print('Normalising all dates to yyyy-mm-dd format ...')
@@ -109,7 +126,7 @@ def main():
     # ... and commit to database
     with engine.connect() as conn:
         conn.execute(updater, update_list)
-    print(f"{nupdates} dates reformatted out of {ndates}")
+    print(f"{nupdates} dates needed reformatting out of {ndates}")
     return 0
 
 if __name__ == '__main__':

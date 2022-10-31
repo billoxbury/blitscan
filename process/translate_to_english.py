@@ -56,10 +56,8 @@ links = Table('links', metadata_obj,
               Column('link', String, primary_key=True),
               Column('title', String),
               Column('abstract', String),
-              Column('pdftext', String),
               Column('title_translation', String),
               Column('abstract_translation', String),
-              Column('pdftext_translation', String),
               Column('GOTTEXT', Integer),
               Column('GOTTRANSLATION', Integer),
               Column('language', String)
@@ -82,7 +80,7 @@ def main():
 
     # connect to database
     with engine.connect() as conn:
-        # loop over domains 
+        # loop over records
         records = conn.execute(selecter)
         for row in records:
             thislink = row.link
@@ -94,32 +92,44 @@ def main():
             body = [
                 {'text': row.title},
                 {'text': row.abstract},
-                {'text': row.pdftext}]
+                ]
             try:
                 request = requests.post(constructed_url, params=params, headers=headers, json=body)
                 response = request.json()
+                langs = [r['detectedLanguage']['language'] for r in response]
+                language = '|'.join(list(set(langs)))
+                # skip next bit if language is all English
+                if language == 'en':
+                    update_list += [{
+                            'linkvalue': row.link,
+                            'ttransvalue': '',
+                            'atransvalue': '', 
+                            'langvalue': 'en',
+                            'transflagvalue': 1
+                            }]
+                    continue
+                # otherwise proceed
                 title_translation = response[0]["translations"][0]["text"]
                 abstract_translation = response[1]["translations"][0]["text"]
-                pdftext_translation = response[2]["translations"][0]["text"]
                 transflag = 1
                 ngood += 1
                 # verbose
                 print(row.title)
-                print(title_translation)
-                print()
-            except:
+                print(f'{language} --> {title_translation}')
+            except Exception as ex:
+                print(response['error']['message'])
                 title_translation = ""
                 abstract_translation = ""
-                pdftext_translation = ""
-                transflag = 1
+                language = row.language
+                transflag = 0
                 continue
             # record updates
             update_list += [{
                             'linkvalue': row.link,
                             'ttransvalue': title_translation,
                             'atransvalue': abstract_translation, 
-                            'ptransvalue': pdftext_translation,
-                            'transflagvalue': transflag,
+                            'langvalue': language,
+                            'transflagvalue': transflag
                             }]
             # END OF __for row in records__
         # finish if no output
@@ -130,9 +140,9 @@ def main():
         updater = links.update().\
                 where(links.c.link == bindparam('linkvalue')).\
                 values(
+                    language = bindparam('langvalue'),
                     title_translation = bindparam('ttransvalue'),
                     abstract_translation = bindparam('atransvalue'),
-                    pdftext_translation = bindparam('ptransvalue'),
                     GOTTRANSLATION = bindparam('transflagvalue')
                     )
         # ... and commit to remote table
