@@ -1,7 +1,5 @@
 source("setup.R")
 
-# setwd("~/Projects/202201_BI_literature_scanning/webappSQL/webapp")
-
 shinyUI(fluidPage(
   
   # suppresses spurious 
@@ -41,20 +39,23 @@ shinyUI(fluidPage(
          color: #4287f5;
        }
        </style>"),
-
+  
   sidebarLayout(
     position="left",
     fluid = TRUE,
     mainPanel( 
-        htmlOutput("header"),      # title bar
-        uiOutput("search"),        # search input
-        htmlOutput("search_info"), # search results
-        htmlOutput("signoff"),     # footer
-      ),
-      sidebarPanel( 
-        htmlOutput("sidebar")
-      )
+      htmlOutput("header"),      # title bar
+      uiOutput("search"),        # search input
+      htmlOutput("search_info"), # search results
+      htmlOutput("signoff")     # footer
+    ),
+    sidebarPanel( 
+      useShinyjs(), # <-- needed for show/hide capability
+      checkboxInput(inputId = "togglesidebar", 
+                    label = "Show intro",
+                    value = TRUE),
+      htmlOutput("sidebar")
     )
   )
 )
-
+)

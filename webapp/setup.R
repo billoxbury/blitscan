@@ -1,4 +1,5 @@
 library(shiny)
+library(shinyjs)
 library(shinyWidgets)
 library(dplyr)
 library(dbplyr)
@@ -24,7 +25,7 @@ source(PARAM_FILE)
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
 RECENT_DAYS <- 14
-LOGZERO <- -20.0
+LOGZERO <- -18.0
 #SCORE_Q_THRESHOLD <- 0.1
 
 #########################################################################
@@ -40,9 +41,9 @@ connPG <- DBI::dbConnect(
   dbname = PGDATABASE)
 df_master <- tbl(connPG, 'links')
 df_tx <- df_master %>% filter(GOTTEXT == 1 & 
-                         BADLINK == 0 & 
-                         score > -20.0 &
-                         (is.na(date) | date > start_date) )
+                                BADLINK == 0 & 
+                                score > LOGZERO &
+                                (is.na(date) | date > start_date) )
 
 # total nr records
 nrows <- df_tx %>% 
@@ -125,4 +126,3 @@ domainlogo <- function(domain){
     sprintf("<b>%s</b>", domain)
   }
 }
-

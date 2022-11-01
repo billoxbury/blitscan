@@ -20,7 +20,9 @@ pgfile <- args[1]
 source(pgfile)
 
 # global variables
-MAXSEARCHES <- 100
+MAXSEARCHES <- 1000 # sample size from species list
+MAXCOUNT <- 500    # upper bound on nr returns for a single search term in OA
+
 MAX_DAYS <- 2200
 from_date <- as.character(today() - MAX_DAYS)
 to_date <- as.character(today())
@@ -44,12 +46,16 @@ df_species <- tbl(conn, 'species') %>%
 # close database connection
 DBI::dbDisconnect(conn)
 
+# set data frame sample to use
+idx <- sample(1:nrow(df_species), MAXSEARCHES) %>% 
+  sort()
 
 # check how many articles will be returned
 df_species['count_sci'] <- as.integer(0)
 df_species['count_com'] <- as.integer(0)
-for(i in 1:nrow(df_species)){
-  query_term <- df_species$name_sci[i]
+for(i in idx){
+  try({
+    query_term <- df_species$name_sci[i]
     res <- oa_fetch(
       entity = "works",
       abstract.search = query_term,
@@ -59,9 +65,13 @@ for(i in 1:nrow(df_species)){
       count_only = TRUE,
       verbose = FALSE
     )
-    df_species$count_sci[i] <- as.integer(res['count'])
-    cat(sprintf("%s --> %s\n", query_term, as.integer(res['count'])))
-
+    ct <- as.integer(res['count'])
+    if(ct > 0){
+      df_species$count_sci[i] <- ct
+      cat(sprintf("%s --> %s\n", query_term, ct))
+    }
+  })
+  try({
     query_term <- df_species$name_com[i]
     res <- oa_fetch(
       entity = "works",
@@ -72,15 +82,17 @@ for(i in 1:nrow(df_species)){
       count_only = TRUE,
       verbose = FALSE
     )
-    df_species$count_com[i] <- as.integer(res['count'])
-    cat(sprintf("%s --> %s\n", query_term, as.integer(res['count'])))
+    ct <- as.integer(res['count'])
+    if(ct > 0){
+      df_species$count_com[i] <- ct
+      cat(sprintf("%s --> %s\n", query_term, ct))
+    }
+  })
 }
-
 
 # build data frame of works
 df_oa <- tibble()
-MAXCOUNT <- 500
-for(i in 1:nrow(df_species)){
+for(i in idx){
   # sci name
   ct <- df_species$count_sci[i]
   if(0 < ct & ct < MAXCOUNT){
@@ -230,47 +242,50 @@ DBI::dbWriteTable(conn, 'links', df_links, append = TRUE)
 # close database connection
 DBI::dbDisconnect(conn)
 
+# DONE
 
 
 #################################################
-# TEMPORARY
+# PG data insertion if needed
 
-INSERT INTO links(link_name,
-                  date,
-                  link,
-                  doi,
-                  title,
-                  abstract,
-                  domain,
-                  search_term,
-                  query_date,
-                  "BADLINK",
-                  "GOTTEXT",
-                  "DONEPDF",
-                  "GOTSCORE",
-                  "GOTSPECIES",
-                  "GOTTRANSLATION",
-                  "DONECROSSREF",
-                  "DATECHECK")
-  SELECT 
-    id,
-    publication_date,
-    url,
-    doi,
-    display_name,
-    ab,
-    'doi.org',
-    'openalex-species-scan',
-    '2022-10-29',
-    0 AS "BADLINK",
-    1 AS "GOTTEXT",
-    0 AS "DONEPDF",
-    0 AS "GOTSCORE",
-    0 AS "GOTSPECIES",
-    0 AS "GOTTRANSLATION",
-    0 AS "DONECROSSREF",
-    1 AS "DATECHECK"
-  FROM openalex;
+#INSERT INTO links(link_name,
+#                  date,
+#                  link,
+#                  doi,
+#                  title,
+#                  abstract,
+#                  domain,
+#                  search_term,
+#                  query_date,
+#                  "BADLINK",
+#                  "GOTTEXT",
+#                  "DONEPDF",
+#                  "GOTSCORE",
+#                  "GOTSPECIES",
+#                  "GOTTRANSLATION",
+#                  "DONECROSSREF",
+#                  "DATECHECK")
+#  SELECT 
+#    id,
+#    publication_date,
+#    url,
+#    doi,
+#    display_name,
+#    ab,
+#    'doi.org',
+#    'openalex-species-scan',
+#    '2022-10-29',
+#    0 AS "BADLINK",
+#    1 AS "GOTTEXT",
+#    0 AS "DONEPDF",
+#    0 AS "GOTSCORE",
+#    0 AS "GOTSPECIES",
+#    0 AS "GOTTRANSLATION",
+#    0 AS "DONECROSSREF",
+#    1 AS "DATECHECK"
+#  FROM openalex;
+
+
 
 
 

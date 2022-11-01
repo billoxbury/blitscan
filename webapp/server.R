@@ -2,6 +2,17 @@ shinyServer(
   
   function(input, output, session) {
     
+    # observe the 'show intro' button
+    observeEvent(input$togglesidebar, {
+      
+      if(input$togglesidebar){
+        shinyjs::show(id = "sidebar")
+      } else {
+        shinyjs::hide(id = "sidebar")
+      }
+    })
+    
+    
     # set traffic light points
     score <- df_tx %>%
       pull(score)
@@ -106,7 +117,7 @@ shinyServer(
       #  if(domain[i] == 'doi.org') find_publisher(doi[i])
       #  else domain[i]
       #})
-
+      
       # mark up search terms
       if(query() != ""){
         title <- title %>% 
@@ -123,7 +134,7 @@ shinyServer(
       s4 <- paste0("<td width=800><a href='", link, "'>", title, "</td>")
       s5 <- paste0("<td>", sapply(score, trafficlight), "</td></tr>")
       s6 <- paste0("<tr><td></td><td></td><td><p style='line-height:1.0'><font size=2.0>", abstract, "</font></p></td><td></td></tr>")
-        
+      
       text_out <- str_c(c("<table>", paste0(s2,s3,s4,s5,s6), "</table>"), collapse="")
       
       # return
@@ -142,13 +153,13 @@ shinyServer(
                   nresults, text_out)
         }
       }
-     })
+    })
     
     output$signoff <- renderText({
       "<hr>
        <a href='mailto: bill.oxbury@birdlife.org'>&#169; BirdLife International 2022</a>"
     })
-
+    
     output$sidebar <- renderText({
       sprintf("
       <br>
@@ -179,5 +190,5 @@ shinyServer(
               sprintf("scraper_dashboard.html")
       )
     })
-   }
+  }
 )
