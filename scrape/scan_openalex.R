@@ -20,13 +20,12 @@ pgfile <- args[1]
 source(pgfile)
 
 # global variables
-MAXSEARCHES <- 1000 # sample size from species list
+MAXSEARCHES <- 100 # sample size from species list
 MAXCOUNT <- 500    # upper bound on nr returns for a single search term in OA
 
 MAX_DAYS <- 2200
 from_date <- as.character(today() - MAX_DAYS)
 to_date <- as.character(today())
-
 
 # open database connection
 conn <- DBI::dbConnect(
@@ -136,6 +135,21 @@ df_oa$id <- str_remove(df_oa$id, '^https://openalex.org/')
 df_oa$so_id <- str_remove(df_oa$so_id, '^https://openalex.org/')
 df_oa$doi <- str_remove(df_oa$doi, '^https://doi.org/')
 
+# re-open database connection
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',  
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
+
+# check OA ids already in database
+id_list <- tbl(conn, 'openalex') %>%
+  pull(id)
+
+# ... and filter them out
 df_oa <- df_oa %>%
   select(id, 
          display_name,
@@ -150,9 +164,17 @@ df_oa <- df_oa %>%
          doi,
          type
          ) %>%
+  filter(!(id %in% id_list)) %>%
   distinct(id, .keep_all = TRUE)
-  
-# create second data frame fr copying to main 'links' table
+cat(sprintf("Found %d new items\n", nrow(df_oa)))
+
+# if none, quit here
+if(nrow(df_oa) == 0){
+  DBI::dbDisconnect(conn)
+  quit(status=0)
+}
+
+# ... otherwise create second data frame fr copying to main 'links' table
 df_links <- tibble(
   date = character(),
   link = character(),
@@ -207,34 +229,15 @@ for(i in 1:nrow(df_oa)){
 ##########################################################
 # write results to disk
 
-# re-open database connection
-conn <- DBI::dbConnect(
-  RPostgres::Postgres(),
-  bigint = 'integer',  
-  host = PGHOST,
-  port = 5432,
-  user = PGUSER,
-  password = PGPASSWORD,
-  dbname = PGDATABASE)
+# OA data frame 
+DBI::dbWriteTable(conn, 'openalex', df_oa, append = TRUE)
 
-# check OA ids already in database
-id_list <- tbl(conn, 'openalex') %>%
-  pull(id)
-
-# ... and filter them out
-df_out <- df_oa %>%
-  filter(!(id %in% id_list))
-cat(sprintf("Found %d new items\n", nrow(df_out)))
-
-# add rest of data frame to the database
-DBI::dbWriteTable(conn, 'openalex', df_out, append = TRUE)
-
-# ... ditto to update the 'links' table
+# update the 'links' table
 link_list <- tbl(conn, 'links') %>%
   pull(link)
 df_links <- df_links %>%
   filter(!(link %in% id_list))
-cat(sprintf("Found %d new links\n", nrow(df_out)))
+cat(sprintf("Found %d new links\n", nrow(df_links)))
 
 # add rest of data frame to the database
 DBI::dbWriteTable(conn, 'links', df_links, append = TRUE)

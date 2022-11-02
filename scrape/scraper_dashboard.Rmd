@@ -21,7 +21,6 @@ library(dbplyr, warn.conflicts=FALSE)
 library(purrr, warn.conflicts=FALSE)
 library(lubridate, warn.conflicts=FALSE)
 library(ggplot2, warn.conflicts=FALSE)
-library(forcats)
 
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
@@ -340,7 +339,7 @@ lang_all <- df %>%
   group_by(language) %>%
   summarize(OutOf = n())
 lang_used <- df_tx %>% 
-  mutate(language = str_remove(language, '\\|en$|^en\\|')) %>%
+  mutate(score = score, language = str_remove(language, '\\|en$|^en\\|')) %>%
   group_by(language) %>%
   summarize(Count = n())
 
@@ -354,8 +353,25 @@ df_out %>%
                format.args = list(big.mark = ','),
                table.attr = "style='width:50%;'")
 ```
+
 <p> In this table, 'Count' refers to the current database while 'OutOf' refers to the wider data set of articles that is stored before filtering down to the database used. Filtering is based on both date and relevance. 
 
+```{r}
+plt <- df_tx %>% 
+  mutate(score = score, language = str_remove(language, '\\|en$|^en\\|')) %>%
+  group_by(language) %>%
+  ggplot(aes(x = reorder(language, score, max), y = score)) 
+
+plt +
+  geom_boxplot(colour = "blue",
+               fill = "lightblue") +
+  coord_flip() +
+  labs(y="Relevance score", x="Language", 
+       subtitle="")
+
+
+
+```
 
 ### Date range
 
