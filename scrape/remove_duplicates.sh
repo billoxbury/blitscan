@@ -8,7 +8,8 @@ echo 'Removing link records with duplicate title,abstract ...'
 
 # formulate update command: partinio by the pair (title,abstract) and 
 # for each such pair remove those records (as indexed by 'link') beyond the first,
-# when ordered by 'doi' (where note that in PG, empty DOI comes later in the ordering)
+# when ordered by 'doi' 
+# (where note that in PG, empty DOI comes later in the ordering)
 update='
     DELETE FROM links
     WHERE link IN

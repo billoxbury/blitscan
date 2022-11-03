@@ -180,9 +180,17 @@ def main():
         for row in records:
             ncalls += 1
             # set text to search
-            txt = '\n'.join([row.title, row.abstract])
+            if row.title != None:
+                txt = row.title
+            else:
+                txt = ''
+            if row.abstract != None:
+                txt = '\n'.join([txt, row.abstract])
             if row.pdftext != None:
                 txt = '\n'.join([txt, row.pdftext])
+            if txt == '':
+                continue
+            # otherwise proceed
             txt = clean_text(txt)
             doc = nlp(txt)
             ents = [ent.label_ for ent in doc.ents]

@@ -75,10 +75,9 @@ Rscript ./scrape/get_html_text.R $pgfile
 # (2) update DOI database from CrossRef - and use DOIs to find missing dates
 # - processes in blocks (default size 50), max 1000 DOIs before writing to d/b
 
-for i in {1..5}
+for i in {1..1} # <--- SET AS NEEDED
 do
-    echo $i
-    #Rscript ./scrape/update_DOI_data.R $pgfile
+    Rscript ./scrape/update_DOI_data.R $pgfile
 done 
 
 # (3) download Wiley SCB pdf files

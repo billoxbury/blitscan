@@ -138,7 +138,7 @@ df_status <- df_redlist %>%
 
 # status counts for the blitscan list
 df_tx_species <- tibble(SISRecID = species_unique)
-df_blit <- inner_join(df_tx_species, df_redlist, 
+df_blit <- inner_join(df_tx_species, df_redlist,
                       by = 'SISRecID') %>%
   filter(!is.na(status)) %>%
   group_by(status) %>%
@@ -356,21 +356,31 @@ df_out %>%
 
 <p> In this table, 'Count' refers to the current database while 'OutOf' refers to the wider data set of articles that is stored before filtering down to the database used. Filtering is based on both date and relevance. 
 
-```{r}
+<p>
+Conservation relevance (see section 'score distribution' below):
+
+```{r language-relevance, echo = FALSE, warning = FALSE}
 plt <- df_tx %>% 
   mutate(score = score, language = str_remove(language, '\\|en$|^en\\|')) %>%
   group_by(language) %>%
-  ggplot(aes(x = reorder(language, score, max), y = score)) 
+  ggplot(aes(x = reorder(language, score, length), y = score)) 
 
+df_plt <- df_out[df_out$Count > 0,] %>% 
+  arrange(desc(Count))
 plt +
   geom_boxplot(colour = "blue",
-               fill = "lightblue") +
+               fill = "lightblue",
+               outlier.size = 0.0,
+               varwidth = TRUE) + 
+  geom_text(data = df_plt,
+            aes(x = language,
+                y = -2,
+                label = Count),
+            size = 3,
+            hjust = 1) +
   coord_flip() +
-  labs(y="Relevance score", x="Language", 
-       subtitle="")
-
-
-
+  labs(y="Relevance score", 
+       x="Language")
 ```
 
 ### Date range
