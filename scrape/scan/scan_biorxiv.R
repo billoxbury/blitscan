@@ -3,7 +3,9 @@
 # URLs
 biorxiv_prefix <- "https://www.biorxiv.org"
 search_url <- function(searchterm){
-  str_c(biorxiv_prefix, '/search/', searchterm)
+  st <- searchterm %>%
+    str_replace(' ', '\\%20')
+  str_c(biorxiv_prefix, '/search/', st)
 }
 
 # data for a single search term

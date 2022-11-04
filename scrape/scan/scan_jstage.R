@@ -3,7 +3,9 @@
 # URLs
 jstage_prefix <- "https://www.jstage.jst.go.jp"
 search_url <- function(searchterm){
-  str_c(jstage_prefix, '/result/global/-char/ja?globalSearchKey=', searchterm)
+  st <- searchterm %>%
+    str_replace(' ', '\\%20')
+  str_c(jstage_prefix, '/result/global/-char/ja?globalSearchKey=', st)
   # NOTE: we could use English
   # '/result/global/-char/en?globalSearchKey='
   # but this returns less complete listings as Japanese-only titles
