@@ -92,9 +92,7 @@ python3 ./scrape/get_pdf_text.py $pgfile $tmppath
 # (6) remove duplicate records 
 # i.e. different links for same title/abstract,
 # different doi records with same DOI
-
-# REVIEW
-#./scrape/remove_duplicates.sh $pgfile
+./scrape/remove_duplicates.sh $pgfile
 
 ########################
 # PROCESS STAGE

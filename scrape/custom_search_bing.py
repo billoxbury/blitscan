@@ -43,13 +43,13 @@ MAX_DAYS = 2200
 status_weights = dict({
     None: 1,
     'LC': 1,
-    'NT': 2,
-    'EN': 2,
-    'VU': 2,
-    'CR': 2,
-    'PE': 2,
-    'EW': 2,
-    'DD': 3,
+    'NT': 4,
+    'EN': 4,
+    'VU': 4,
+    'CR': 4,
+    'PE': 4,
+    'EW': 4,
+    'DD': 4,
     'EX': 1
 })
 
