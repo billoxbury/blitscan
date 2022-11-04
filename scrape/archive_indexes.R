@@ -22,6 +22,22 @@ source(pgfile)
 # global variables
 MAXSEARCHES <- 250
 
+# status weightings for search
+weighting <- function(s){
+  try(switch(s,
+         'LC' = 1,
+         'NT' = 2,
+         'EN' = 2,
+         'VU' = 2,
+         'CR' = 2,
+         'PE' = 2,
+         'EW' = 2,
+         'DD' = 3,
+         'EX' = 1
+  ))
+  tryCatch(1)
+}
+
 # open database connection
 conn <- DBI::dbConnect(
   RPostgres::Postgres(),
@@ -32,18 +48,20 @@ conn <- DBI::dbConnect(
   password = PGPASSWORD,
   dbname = PGDATABASE)
 
-# read genus table with species counts
-df_genus <- tbl(conn, 'genera') %>%
+# read species table for creating search terms
+df_species <- tbl(conn, 'species') %>%
+  select(status, name_com, name_sci) %>%
   collect()
+df_species$weight <- sapply(df_species$status, weighting)
 # close database connection
 DBI::dbDisconnect(conn)
 
 # function to create set of search terms
-make_search_terms <- function(k = MAXSEARCHES, correction = 0){
-  genera <- df_genus$genus
-  weights <- df_genus$vu_count + correction
+make_search_terms <- function(k = MAXSEARCHES){
+  terms <- df_species$name_sci
+  weights <- df_species$weight
   # return
-  sample(genera, 
+  sample(terms, 
          k,
          replace = FALSE, 
          prob = weights)
