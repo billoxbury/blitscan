@@ -75,7 +75,7 @@ Rscript ./scrape/get_html_text.R $pgfile
 # (2) update DOI database from CrossRef - and use DOIs to find missing dates
 # - processes in blocks (default size 50), max 1000 DOIs before writing to d/b
 
-for i in {1..1} # <--- SET AS NEEDED
+for i in {1..4} # <--- SET AS NEEDED
 do
     Rscript ./scrape/update_DOI_data.R $pgfile
 done 
@@ -92,7 +92,9 @@ python3 ./scrape/get_pdf_text.py $pgfile $tmppath
 # (6) remove duplicate records 
 # i.e. different links for same title/abstract,
 # different doi records with same DOI
-./scrape/remove_duplicates.sh $pgfile
+
+# REVIEW
+#./scrape/remove_duplicates.sh $pgfile
 
 ########################
 # PROCESS STAGE

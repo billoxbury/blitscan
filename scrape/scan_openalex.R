@@ -27,6 +27,25 @@ MAX_DAYS <- 2200
 from_date <- as.character(today() - MAX_DAYS)
 to_date <- as.character(today())
 
+INCLUDE_COMNAME <- FALSE
+
+# status weightings for search
+weighting <- function(s){
+  try(switch(s,
+             'LC' = 1,
+             'NT' = 2,
+             'EN' = 2,
+             'VU' = 2,
+             'CR' = 2,
+             'PE' = 2,
+             'EW' = 2,
+             'DD' = 3,
+             'EX' = 1
+  ))
+  tryCatch(1)
+}
+
+
 # open database connection
 conn <- DBI::dbConnect(
   RPostgres::Postgres(),
@@ -37,21 +56,34 @@ conn <- DBI::dbConnect(
   password = PGPASSWORD,
   dbname = PGDATABASE)
 
-# read genus table with species counts
+# read species table for creating search terms
 df_species <- tbl(conn, 'species') %>%
-  select(name_sci, name_com, SISRecID, status) %>%
-  filter(status %in% c('CR', 'VU','EN','DD', 'NT')) %>%
+  select(status, name_com, name_sci) %>%
   collect()
+df_species$weight <- sapply(df_species$status, weighting)
 # close database connection
 DBI::dbDisconnect(conn)
 
-# set data frame sample to use
-idx <- sample(1:nrow(df_species), MAXSEARCHES) %>% 
-  sort()
+# function to create set of search terms
+make_search_terms <- function(k = MAXSEARCHES){
+  terms <- df_species$name_sci
+  weights <- df_species$weight
+  # return
+  sample(terms, 
+         k,
+         replace = FALSE, 
+         prob = weights)
+}
+# we need the data frame indices:
+searchterms <- make_search_terms()
+idx <- which(df_species$name_sci %in% searchterms) 
 
 # check how many articles will be returned
 df_species['count_sci'] <- as.integer(0)
-df_species['count_com'] <- as.integer(0)
+if(INCLUDE_COMNAME){
+  df_species['count_com'] <- as.integer(0)
+} 
+
 for(i in idx){
   try({
     query_term <- df_species$name_sci[i]
@@ -70,23 +102,25 @@ for(i in idx){
       cat(sprintf("%s --> %s\n", query_term, ct))
     }
   })
-  try({
-    query_term <- df_species$name_com[i]
-    res <- oa_fetch(
-      entity = "works",
-      abstract.search = query_term,
-      from_publication_date = from_date,
-      to_publication_date = to_date,
-      endpoint = "https://api.openalex.org/",
-      count_only = TRUE,
-      verbose = FALSE
-    )
-    ct <- as.integer(res['count'])
-    if(ct > 0){
-      df_species$count_com[i] <- ct
-      cat(sprintf("%s --> %s\n", query_term, ct))
-    }
-  })
+  if(INCLUDE_COMNAME){
+    try({
+      query_term <- df_species$name_com[i]
+      res <- oa_fetch(
+        entity = "works",
+        abstract.search = query_term,
+        from_publication_date = from_date,
+        to_publication_date = to_date,
+        endpoint = "https://api.openalex.org/",
+        count_only = TRUE,
+        verbose = FALSE
+      )
+      ct <- as.integer(res['count'])
+      if(ct > 0){
+        df_species$count_com[i] <- ct
+        cat(sprintf("%s --> %s\n", query_term, ct))
+      }
+    })
+  }
 }
 
 # build data frame of works
@@ -111,22 +145,24 @@ for(i in idx){
       })
     }
   # common name
-  ct <- df_species$count_com[i]
-  if(0 < ct & ct < MAXCOUNT){
-    query_term <- df_species$name_com[i]
-    try({
-      res <- oa_fetch(
-        entity = "works",
-        abstract.search = query_term,
-        from_publication_date = from_date,
-        to_publication_date = to_date,
-        endpoint = "https://api.openalex.org/",
-        count_only = FALSE,
-        verbose = FALSE
-      )
-      df_oa <- rbind(df_oa, res)
-      cat(sprintf("%d: %s --> %s\n", i, query_term, nrow(df_oa)))
-    })
+  if(INCLUDE_COMNAME){
+    ct <- df_species$count_com[i]
+    if(0 < ct & ct < MAXCOUNT){
+      query_term <- df_species$name_com[i]
+      try({
+        res <- oa_fetch(
+          entity = "works",
+          abstract.search = query_term,
+          from_publication_date = from_date,
+          to_publication_date = to_date,
+          endpoint = "https://api.openalex.org/",
+          count_only = FALSE,
+          verbose = FALSE
+        )
+        df_oa <- rbind(df_oa, res)
+        cat(sprintf("%d: %s --> %s\n", i, query_term, nrow(df_oa)))
+      })
+    }
   }
 }
 

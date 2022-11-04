@@ -66,7 +66,7 @@ nlp = spacy.load('en_core_web_md')
 
 # global constants
 LOGZERO = -20.0
-MAXCALLS = 1000
+MAXCALLS = 5000
 
 ##########################################################
 # functions
