@@ -42,7 +42,9 @@ df <- tbl(conn, 'links')
 df_tx <- df %>% filter(GOTTEXT == 1 & 
                          BADLINK == 0 & 
                          score > LOGZERO &
-                         (is.na(date) | date > start_date) )
+                         (is.na(date) | date > start_date) 
+                       )
+                         
 ```
 
 
@@ -120,14 +122,14 @@ cat("Number of publishers:", np, '\n')
 More detail on journals and publishers is given below. A full list of journals/proceedings the database draws from is given in the appendix.
 
 
-### Red-list coverage
+### Species coverage
 
 The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier and classified by red-list status) referenced in the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
 
 ```{r red-list, echo=FALSE, warning=FALSE}
 
 df_redlist <- tbl(conn, 'species') %>%
-  select(SISRecID, status) %>%
+  select(SISRecID, name_com, name_sci, status) %>%
   collect()
 
 # status counts
@@ -159,9 +161,9 @@ df_out %>%
 (Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are estimated by a crawl of DataZone pages.)
 
 <p>
-How many journal articles are we seeing per-species? 
+How many journal articles are we seeing per-species? (Each 'dot' below is a species. We emphasise this by labelling the top-represented species in each group.)
 
-```{r article-counts, fig.height=3, fig.width=6, echo=FALSE, warning=FALSE}
+```{r article-counts, fig.height=4, fig.width=8, echo=FALSE, warning=FALSE}
 
 article_counts <- tibble(SISRecID = species_nonunique) %>%
   group_by(SISRecID) %>%
@@ -171,16 +173,29 @@ df_blit <- inner_join(article_counts, df_redlist, by = 'SISRecID') %>%
   filter(!is.na(status))
 
 #status <- factor( c('LC', 'NT', 'VU', 'EN', 'CR', 'PE', 'EW', 'EX', 'DD') )
+winners <- df_blit %>% 
+  group_by(status) %>% 
+  summarise(best = max(count), 
+            SISRecID = SISRecID[which.max(count)]) 
+winners <- inner_join(winners, df_redlist,
+                      by = c('SISRecID', 'status'))
 
 df_blit %>%
   group_by(status) %>%
   ggplot(aes(x = reorder(status, -count, min), y = count)) +
-  #ggplot(aes(x = status, y = count)) +
   geom_boxplot(colour = "blue",
                fill = "lightblue") +
-  scale_y_continuous(trans='log10', breaks=c(1,2,3,5,10,20,30,50,100,200,300,500)) +
+  scale_y_continuous(trans='log10', breaks=c(1,2,3,5,10,20,30,50,100,200,300,500, 1000)) +
   labs(y="Article count", x="Status", 
-       subtitle="")
+       subtitle="") +
+  geom_text(data = winners,
+            aes(x = status,
+                y = best,
+                label = name_com),
+            nudge_y = 0.1,
+            size = 3,
+            col = 'red'
+  )
 
 ```
 
@@ -360,22 +375,28 @@ df_out %>%
 Conservation relevance (see section 'score distribution' below):
 
 ```{r language-relevance, echo = FALSE, warning = FALSE}
-plt <- df_tx %>% 
+df_tmp <- df_tx %>% 
+  select(language, score) %>%
   mutate(score = score, language = str_remove(language, '\\|en$|^en\\|')) %>%
-  group_by(language) %>%
+  group_by(language) 
+
+df_plt <- df_tmp %>%
+  summarise(count = n(), bestscore = max(score)) %>%
+  arrange(desc(count), desc(bestscore)) %>%
+  collect()
+
+plt <- df_tmp %>%
   ggplot(aes(x = reorder(language, score, length), y = score)) 
 
-df_plt <- df_out[df_out$Count > 0,] %>% 
-  arrange(desc(Count))
 plt +
   geom_boxplot(colour = "blue",
                fill = "lightblue",
-               outlier.size = 0.0,
+               outlier.size = 0.2,
                varwidth = TRUE) + 
   geom_text(data = df_plt,
             aes(x = language,
                 y = -2,
-                label = Count),
+                label = count),
             size = 3,
             hjust = 1) +
   coord_flip() +

@@ -39,20 +39,6 @@ WAITTIME = 0.01  # time between calls: 1 second on F0 free tier, 0.01 second on 
 # how far back in time to allow (6 years)
 MAX_DAYS = 2200
 
-# probabilistic weights to assign to the red-list classes
-status_weights = dict({
-    None: 1,
-    'LC': 1,
-    'NT': 2,
-    'EN': 2,
-    'VU': 2,
-    'CR': 2,
-    'PE': 2,
-    'EW': 2,
-    'DD': 3,
-    'EX': 1
-})
-
 # read command line
 try:
 	pgfile = sys.argv[1];			        del sys.argv[1]
@@ -70,11 +56,11 @@ except:
 # open connection to database  
 engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
-# read species table for creating search terms
-df_species = pd.read_sql_query(
-    'select status,name_com,name_sci from "species"',
-    con = engine)
-df_species['weight'] = df_species['status'].apply(lambda x: status_weights[x])
+# read genus table with species counts 
+df_genus = pd.read_sql_table(
+    'genera',
+    con=engine
+)
 
 # date routines
 today = str( datetime.now().date() )
@@ -89,12 +75,13 @@ def is_pdf(s):
     return bool(pdf_patt.search(s))
 
 # search terms
-def make_search_terms(k = CSLIMIT):
+def make_search_terms(k = CSLIMIT, correction = 0):
     '''
-    sample species names
+    sample genus with probability weights 'vu_count + correction' from the dataframe 'df_genus' 
+    By default correction = 0, but setting > 0 allows LC genera to be included as well
     '''
-    searchpop = df_species['name_sci']
-    weights = df_species['weight']
+    searchpop = df_genus['genus']
+    weights = df_genus['vu_count']
     sample = choices(searchpop, weights, k = k)
     return list(set(sample))
 
