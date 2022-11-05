@@ -75,6 +75,7 @@ Rscript ./scrape/get_html_text.R $pgfile
 # (2) update DOI database from CrossRef - and use DOIs to find missing dates
 # - processes in blocks (default size 50), max 1000 DOIs before writing to d/b
 
+# !! RUN LOCALLY - STILL DOESN'T WORK ON AVM
 for i in {1..4} # <--- SET AS NEEDED
 do
     Rscript ./scrape/update_DOI_data.R $pgfile

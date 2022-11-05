@@ -49,7 +49,7 @@ status_weights = dict({
     'CR': 4,
     'PE': 4,
     'EW': 4,
-    'DD': 4,
+    'DD': 32,
     'EX': 1
 })
 
