@@ -20,7 +20,7 @@ pgfile <- args[1]
 source(pgfile)
 
 # global variables
-MAXSEARCHES <- 5 # sample size from species list
+MAXSEARCHES <- 500 # sample size from species list
 MAXCOUNT <- 500    # upper bound on nr returns for a single search term in OA
 
 MAX_DAYS <- 2200

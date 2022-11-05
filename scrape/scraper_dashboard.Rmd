@@ -24,7 +24,7 @@ library(ggplot2, warn.conflicts=FALSE)
 
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
-LOGZERO <- -18.0
+LOGZERO <- -15.0
 
 source('/Volumes/blitshare/pg/param.txt')
 
