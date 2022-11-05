@@ -25,7 +25,7 @@ source(PARAM_FILE)
 MAX_DAYS <- 2200
 start_date <- today() - MAX_DAYS
 RECENT_DAYS <- 14
-LOGZERO <- -18.0
+LOGZERO <- -15.0
 #SCORE_Q_THRESHOLD <- 0.1
 
 #########################################################################

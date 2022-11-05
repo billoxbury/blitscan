@@ -20,7 +20,7 @@ pgfile <- args[1]
 source(pgfile)
 
 # global variables
-MAXSEARCHES <- 500 # sample size from species list
+MAXSEARCHES <- 5 # sample size from species list
 MAXCOUNT <- 500    # upper bound on nr returns for a single search term in OA
 
 MAX_DAYS <- 2200
@@ -140,6 +140,7 @@ for(i in idx){
         count_only = FALSE,
         verbose = FALSE
       )
+      res['search_term'] <- query_term
       df_oa <- rbind(df_oa, res)
       cat(sprintf("%d: %s --> %s\n", i, query_term, nrow(df_oa)))
       })
@@ -159,6 +160,7 @@ for(i in idx){
           count_only = FALSE,
           verbose = FALSE
         )
+        res['search_term'] <- query_term
         df_oa <- rbind(df_oa, res)
         cat(sprintf("%d: %s --> %s\n", i, query_term, nrow(df_oa)))
       })
@@ -170,6 +172,7 @@ for(i in idx){
 df_oa$id <- str_remove(df_oa$id, '^https://openalex.org/')
 df_oa$so_id <- str_remove(df_oa$so_id, '^https://openalex.org/')
 df_oa$doi <- str_remove(df_oa$doi, '^https://doi.org/')
+df_oa['search_term'] <- str_c('openalex-', df_oa$search_term)
 
 # re-open database connection
 conn <- DBI::dbConnect(
@@ -190,6 +193,7 @@ df_oa <- df_oa %>%
   select(id, 
          display_name,
          ab,
+         search_term,
          publication_date,
          relevance_score,
          so_id,
@@ -248,7 +252,7 @@ for(i in 1:nrow(df_oa)){
       abstract = df_oa$ab[i],
       pdf_link = '',
       domain = 'doi.org',
-      search_term = str_c('openalex-species-scan'),
+      search_term = df_oa$search_term[i],
       query_date = as.character(today()),
       BADLINK = 0,
       DONEPDF = 0,

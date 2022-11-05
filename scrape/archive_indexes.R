@@ -20,7 +20,7 @@ pgfile <- args[1]
 source(pgfile)
 
 # global variables
-MAXSEARCHES <- 256
+MAXSEARCHES <- 200
 
 # status weightings for search
 weighting <- function(s){
