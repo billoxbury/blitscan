@@ -1,0 +1,22 @@
+HTTP/1.1 302 Redirect
+CR-TDM-Rate-Limit: 60
+CR-TDM-Rate-Limit-Remaining: 58
+CR-TDM-Rate-Limit-Reset: 1667726119698
+Date: Sun, 06 Nov 2022 09:07:44 GMT
+Location: https://alm.wiley.com/alm/api/v2/download/bbvccrPFA3cY%252FaRt1EUnZvyjiO47vNjTJPeakZUpFR91DJQTLJRUHiFjDE2yUKVojbdMJE0DqrdpLKshwPJCGg%253D%253D
+Content-Length: 0
+Connection: keep-alive
+
+HTTP/2 200 
+date: Sun, 06 Nov 2022 09:07:45 GMT
+content-type: application/pdf
+content-length: 6022044
+cf-ray: 765cae3b8c8b7484-LHR
+content-disposition: inline; filename=1c514c9f-8d5c-45fc-b9bc-ea3da38d55ea.pdf
+strict-transport-security: max-age=31536000; includeSubDomains
+cf-cache-status: DYNAMIC
+content-security-policy: frame-ancestors 'self' https://*.wiley.host https://*.wiley.com https://*.mef.io
+x-content-type-options: nosniff
+x-xss-protection: 1; mode=block
+server: cloudflare
+

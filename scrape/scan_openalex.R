@@ -251,7 +251,7 @@ for(i in 1:nrow(df_oa)){
       title = df_oa$display_name[i],
       abstract = df_oa$ab[i],
       pdf_link = '',
-      domain = 'doi.org',
+      domain = '',
       search_term = df_oa$search_term[i],
       query_date = as.character(today()),
       BADLINK = 0,
