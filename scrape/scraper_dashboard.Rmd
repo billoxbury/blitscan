@@ -55,13 +55,13 @@ The
 
 ```{r nr-records, echo=FALSE, warning=FALSE}
 
-nr <- df_tx %>% 
+progress_docs <- df_tx %>% 
   summarise(count = n()) %>%
   select(count) %>%
   collect() %>% 
   as.numeric() 
 
-cat("Number of articles:", format(nr, big.mark = ','), '\n')
+cat("Number of articles:", format(progress_docs, big.mark = ','), '\n')
 ```
 
 ```{r nr-species, echo=FALSE, warning=FALSE}
@@ -79,7 +79,10 @@ species_nonunique <- species$species %>%
 species_unique <-  species_nonunique %>%
   unique() 
 
-cat("Number of species:", format( length(species_unique), big.mark = ','), '\n')
+progress_species <- length(species_unique)
+
+
+cat("Number of species:", format( progress_species, big.mark = ','), '\n')
 ```
 
 ```{r nr-journals-SQL, echo=FALSE, warning=FALSE}
@@ -99,10 +102,11 @@ title_oai <- tbl(conn, 'oai') %>%
 title_list <- rbind(title_dois, 
                     title_oai) %>%
   distinct()
-nt <- nrow(title_list) %>%
-  format(big.mark = ',')
 
-cat("Number of journals/proceedings:", nt, '\n')
+progress_titles <- nrow(title_list)
+
+cat("Number of journals/proceedings:",
+  format(progress_titles, big.mark = ','), '\n')
 ```
 
 ```{r nr-publishers, echo=FALSE, warning=FALSE}
@@ -113,10 +117,10 @@ publishers <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
   distinct() %>%
   collect()
 
-np <- nrow(publishers) %>%
+progress_publishers <- nrow(publishers) %>%
   format(big.mark = ',')
 
-cat("Number of publishers:", np, '\n')
+cat("Number of publishers:", progress_publishers, '\n')
 ```
 
 More detail on journals and publishers is given below. A full list of journals/proceedings the database draws from is given in the appendix.
@@ -152,6 +156,16 @@ df_out <- full_join(df_blit, df_status, by = 'status') %>%
   rename(Status = status) %>%
   arrange(desc(OutOf))
 
+progress_lc <- df_out$Count[which(df_out$Status == 'LC')]
+progress_nt <- df_out$Count[which(df_out$Status == 'NT')]
+progress_vu <- df_out$Count[which(df_out$Status == 'VU')]
+progress_en <- df_out$Count[which(df_out$Status == 'EN')]
+progress_cr <- df_out$Count[which(df_out$Status == 'CR')]
+progress_ex <- df_out$Count[which(df_out$Status == 'EX')]
+progress_dd <- df_out$Count[which(df_out$Status == 'DD')]
+progress_pe <- df_out$Count[which(df_out$Status == 'PE')]
+progress_ew <- df_out$Count[which(df_out$Status == 'EW')]
+
 df_out %>%
   knitr::kable(format = "html", 
                format.args = list(big.mark = ','),
@@ -182,10 +196,16 @@ winners <- inner_join(winners, df_redlist,
 
 df_blit %>%
   group_by(status) %>%
-  ggplot(aes(x = reorder(status, -count, min), y = count)) +
+  ggplot(aes(x = reorder(status, -count, min), 
+             y = count)) +
+  stat_boxplot(geom ='errorbar', 
+               width = 0.2, 
+               colour = 'blue') +
   geom_boxplot(colour = "blue",
-               fill = "lightblue") +
-  scale_y_continuous(trans='log10', breaks=c(1,2,3,5,10,20,30,50,100,200,300,500, 1000)) +
+               fill = "lightblue",
+               varwidth = TRUE) +
+  scale_y_continuous(trans='log10', 
+                     breaks=c(1,2,3,5,10,20,30,50,100,200,300,500, 1000)) +
   labs(y="Article count", x="Status", 
        subtitle="") +
   geom_text(data = winners,
@@ -378,14 +398,17 @@ Conservation relevance (see section 'score distribution' below):
 df_tmp <- df_tx %>% 
   select(language, score) %>%
   mutate(score = score, language = str_remove(language, '\\|en$|^en\\|')) %>%
-  group_by(language) 
+  group_by(language) %>%
+  collect()
 
 df_plt <- df_tmp %>%
   summarise(count = n(), bestscore = max(score)) %>%
+  filter(count > 1) %>%
   arrange(desc(count), desc(bestscore)) %>%
   collect()
 
 plt <- df_tmp %>%
+  filter(language %in% df_plt$language) %>%
   ggplot(aes(x = reorder(language, score, length), y = score)) 
 
 plt +
@@ -444,7 +467,7 @@ Reading of dates can be a fallible process - how well are we able to parse publi
 
 baddate <- (is.na(date))
 cat(sprintf("Proportion of records with date parsed: %g%%\n",
-            100 * ( 1 - sum(baddate, na.rm = TRUE) / nr ) 
+            100 * ( 1 - sum(baddate, na.rm = TRUE) / progress_docs ) 
             %>% round(3)
 ))
 ```
@@ -571,19 +594,43 @@ df %>%
 
 ```{r count-PDFs, echo=FALSE, warning=FALSE}
 
-df_tx %>%
+df_out <- df_tx %>%
   filter(length(pdftext) > 0) %>%
   mutate(Domain = str_remove(domain, '^www\\.')) %>%
   mutate(Domain = str_remove(Domain, '/.+$')) %>%
   group_by(Domain) %>%
   summarise(PDF = n()) %>%
   arrange(desc(PDF)) %>%
-  collect() %>%
-  knitr::kable(format = "html", 
+  collect()
+
+progress_pdf <- sum(df_out$PDF)
+  
+df_out %>% knitr::kable(format = "html", 
                format.args = list(big.mark = ','),
                table.attr = "style='width:60%;'")
 ```
+```{r update-progress, include=FALSE, warning=FALSE}
 
+progress_update <- tibble(date = today()  %>% as.character(),
+                          docs = progress_docs %>% as.integer(),
+                          species = progress_species %>% as.integer(),
+                          titles = progress_titles %>% as.integer(),
+                          publishers = progress_publishers %>% as.integer(),
+                          LC = progress_lc %>% as.integer(),
+                          NT = progress_nt %>% as.integer(),
+                          VU = progress_vu %>% as.integer(),
+                          EN = progress_en %>% as.integer(),
+                          CR = progress_cr %>% as.integer(),
+                          EX = progress_ex %>% as.integer(),
+                          DD = progress_dd %>% as.integer(),
+                          PE = progress_pe %>% as.integer(),
+                          EW = progress_ew %>% as.integer(),
+                          pdf = progress_pdf %>% as.integer())
+# the following d/b write will fail if there is already a record for today's date
+try({
+  DBI::dbWriteTable(conn, 'progress', progress_update, append = TRUE)
+})
+```
 
 ### Appendix: list of all journals/proceedings
 
@@ -598,7 +645,7 @@ gotdoi <- df_tx %>%
   pull(count)
   
 cat(sprintf("Proportion of articles with known DOI: %g%%",
-            round( 100 * gotdoi[1] / nr, 3)))
+            round( 100 * gotdoi[1] / progress_docs, 3)))
 ```
 
 <p>
@@ -606,11 +653,17 @@ CrossRef then allows us to query all of the known DOIs in the Blitscan database 
 
 ```{r journals-via-crossref, echo=FALSE}
 
-inner_join(df_dois, df_tx, by = 'doi') %>%
-  select(Journal = container.title, Publisher = publisher) %>%
+df_out <- inner_join(df_dois, df_tx, by = 'doi') %>%
+  select(Journal = container.title, 
+         Publisher = publisher) %>%
   filter(!is.na(Journal)) %>%
+  mutate(Journal = str_remove(Journal, '`')) %>%
   group_by(Journal, Publisher) %>%
   summarise(Count = n(), .groups = 'keep') %>%
+  arrange(desc(Count)) %>%
+  collect()
+
+df_out %>%
   arrange(desc(Count)) %>%
   knitr::kable(format = "html", table.attr = "style='width:100%;'")
 ```

@@ -22,3 +22,14 @@ CREATE VIEW doc_count AS
         ON foo."SISRecID" = bar."SISRecID"
     ORDER BY status,count desc;
 
+
+# Journal titles coming from OpenAlex
+SELECT "container.title",count(*) 
+FROM dois 
+WHERE doi IN (
+    SELECT DISTINCT doi 
+    FROM openalex
+)
+GROUP BY "container.title"
+ORDER BY count DESC;
+

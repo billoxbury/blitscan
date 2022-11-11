@@ -14,7 +14,7 @@ if(length(args) < 1){
   quit(status=1)
 }
 pgfile <- args[1]
-# pgfile <- "/Volumes/blitshare/pg/param.txt"
+#pgfile <- "/Volumes/blitshare/pg/param.txt"
 
 # read postgres parameters
 source(pgfile)
@@ -31,19 +31,35 @@ INCLUDE_COMNAME <- FALSE
 
 # status weightings for search
 weighting <- function(s){
-  try(switch(s,
-             'LC' = 1,
-             'NT' = 4,
-             'EN' = 4,
-             'VU' = 4,
-             'CR' = 4,
-             'PE' = 4,
-             'EW' = 4,
-             'DD' = 32,
-             'EX' = 1
-  ))
-  tryCatch(1)
+  switch(s,
+         'LC' = 1,
+         'NT' = 4,
+         'EN' = 4,
+         'VU' = 4,
+         'CR' = 4,
+         'PE' = 4,
+         'EW' = 4,
+         'DD' = 32,
+         'EX' = 1,
+         1
+  )
 }
+
+# temp weighting to boost a status category:
+#weighting <- function(s){
+#  switch(s,
+#        'LC' = 1,
+#        'NT' = 0,
+#        'EN' = 0,
+#        'VU' = 0,
+#        'CR' = 0,
+#        'PE' = 0,
+#        'EW' = 0,
+#        'DD' = 0,
+#        'EX' = 0,
+#         0
+#  )
+#}
 
 
 # open database connection
@@ -68,6 +84,7 @@ DBI::dbDisconnect(conn)
 make_search_terms <- function(k = MAXSEARCHES){
   terms <- df_species$name_sci
   weights <- df_species$weight
+  k <- min(k, sum(weights > 0))
   # return
   sample(terms, 
          k,
