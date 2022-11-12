@@ -117,10 +117,9 @@ publishers <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
   distinct() %>%
   collect()
 
-progress_publishers <- nrow(publishers) %>%
-  format(big.mark = ',')
+progress_publishers <- nrow(publishers) 
 
-cat("Number of publishers:", progress_publishers, '\n')
+cat("Number of publishers:", format(progress_publishers, big.mark = ','), '\n')
 ```
 
 More detail on journals and publishers is given below. A full list of journals/proceedings the database draws from is given in the appendix.
@@ -413,7 +412,7 @@ plt <- df_tmp %>%
 
 plt +
   geom_boxplot(colour = "blue",
-               fill = "lightblue",
+               fill = "orange",
                outlier.size = 0.2,
                varwidth = TRUE) + 
   geom_text(data = df_plt,

@@ -41,6 +41,7 @@ weighting <- function(s){
          'EW' = 4,
          'DD' = 32,
          'EX' = 1,
+         # else
          1
   )
 }
