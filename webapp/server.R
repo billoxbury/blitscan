@@ -169,7 +169,7 @@ shinyServer(
       This site identifies scientific articles of relevance to Red List assessments for birds undertaken by BirdLife International. It covers articles published in a number of primarily open-access journals.
       </p>
       <p>
-      The database is updated regularly and currently contains <b>%s articles</b> published in the <b color='red'>past 6 years</b>.
+      The database was last updated <b>%s</b> and currently contains <b>%s articles</b>, covering <b>%s species</b> from the <b color='red'>past 6 years</b>.
               </p>
               <p>
               The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.
@@ -186,7 +186,9 @@ shinyServer(
               </p>
               <hr>
               ", 
-              format(nrows, big.mark=','),
+              as.character(updated),
+              format(ndocs, big.mark=','),
+              format(nspecies, big.mark=','),
               sprintf("scraper_dashboard.html")
       )
     })

@@ -49,9 +49,9 @@ weighting <- function(s){
 # temp weighting to boost a status category:
 #weighting <- function(s){
 #  switch(s,
-#        'LC' = 1,
+#        'LC' = 0,
 #        'NT' = 0,
-#        'EN' = 0,
+#        'EN' = 1,
 #        'VU' = 0,
 #        'CR' = 0,
 #        'PE' = 0,

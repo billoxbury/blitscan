@@ -44,13 +44,15 @@ df_tx <- df_master %>% filter(GOTTEXT == 1 &
                                 BADLINK == 0 & 
                                 score > LOGZERO &
                                 (is.na(date) | date > start_date) )
+df_progress <- tbl(connPG, 'progress') %>%
+  collect() %>%
+  mutate(date = as_date(date))
+last <- which(df_progress$date == max(df_progress$date))
 
-# total nr records
-nrows <- df_tx %>% 
-  summarise(count = n()) %>%
-  select(count) %>%
-  collect() %>% 
-  as.numeric()
+# current nr docs, species
+updated <- df_progress$date[last]
+ndocs <- df_progress$docs[last]
+nspecies <- df_progress$species[last]
 
 # prune lowest SCORE_Q_THRESHOLD on score?
 
