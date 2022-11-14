@@ -223,54 +223,30 @@ df_blit %>%
 The search process to find web content follows four main steps to identify articles, followed by text retrieval from those articles. These are:
 
 1. Bing Custom Search against targeted domains 
-2. Scanning of <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative</a> API to get titles/abstracts from relevant contributors
-3. Query of preprint archives against genus (Latin) names in vulnerable categories
+2. Querying preprint archives
+3. Querying open data aggregators <a href='https://openalex.org/'>OpenAlex</a> and 
+<a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative (OAI)</a> 
 4. Scanning of content lists for targeted journals.
 
 #### Step 1: <a href="https://docs.microsoft.com/en-us/bing/search-apis/bing-custom-search/overview">Custom Search</a>
 
-This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a wide reach, while the journal scans in the later steps ensure greater completeness.
+This first step uses the full power of customised web search - previously using Google, now using Microsoft Bing. It gives us a wide reach, while the journal scans in the later steps help ensure completeness.
 
-The process manages the cost of search by sampling search terms at each run, with the aim of achieving repeated coverage of all search terms over time. Custom search runs queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). Each query uses a random search term taken from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_general.txt">list of generic scientific/common bird names</a> (while checking that the search hasn't been used too recently).
+The process manages the cost of search by sampling search terms at each run, with the aim of achieving repeated coverage of all search terms over time. Custom search runs queries against a set of targeted domains (which will be listed below after describing steps 2,3,4). The queries cycle stochastically through species names. (Currently scientific names only, but that is configurable.)
 
 URLs returned from this process are stored and mined individually *after* all of steps 1-4 have completed. 
 
-#### Step 2: <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative (OAI)</a>
 
-OAI is a centralised service that collects research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, it protects these providers from cyber threats if they permit web crawling directly to their servers; on the other hand, it greatly simplifies the process for data consumers in providing a single format across a very wide community of providers.
+#### Step 2: preprint archives
 
-As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are currently using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relevant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
+Similar to step 1, except that instead of using a commercial search engine, queries are made directly to a set of preprint archives, currently consisting of:
 
-
-```{r oai-bioone-count, echo = FALSE, warning = FALSE}
+```{r archive-scanning, echo = FALSE, warning = FALSE}
 
 df_tx_searchterm <- df_tx %>%
   select(link, search_term) %>%
   distinct() %>%
   collect()
-
-df_tx_oai <- df_tx_searchterm %>%
-  filter(str_detect(search_term, '^OAI')) %>%
-  transmute(Society = str_remove(search_term, '^OAI: ')) %>%
-  group_by(Society) %>%
-  summarise(Count = n())
-
-df_oai <- tbl(conn, 'oai') %>%
-  collect()
-
-inner_join(df_oai, df_tx_oai, by = 'Society') %>%
-  arrange(desc(Count)) %>%
-  knitr::kable(format = "html", 
-               format.args = list(big.mark = ','),
-               table.attr = "style='width:100%;'")
-```
-
-
-#### Step 3: preprint archives
-
-Similar to step 1, except that instead of using a commercial search engine, queries are made directly to a set of preprint archives, currently consisting of:
-
-```{r archive-scanning, echo = FALSE, warning = FALSE}
 
 df_archiv <- tbl(conn, 'archiv') %>%
   collect() %>%
@@ -298,14 +274,58 @@ inner_join(df_archiv, df_tx_archiv, by = 'label') %>%
                table.attr = "style='width:100%;'")
 ```
 
-<p> In the URLs above, 'search_term' is selected from a <a href="https://github.com/billoxbury/blitscan/blob/main/data/searchterms_restricted.csv">list of scientific genus names containing vulnerable species</a> (that is, having red-list status not _LC_ or _EX_).
-
+<p>
 URLs returned from this process are stored and mined individually after all of steps 1-4 have completed. 
+
+
+#### Step 3: <a href='https://openalex.org/'>OpenAlex</a> and <a href="http://www.openarchives.org/OAI/openarchivesprotocol.html">OAI</a>
+
+These are centralised services that collect research metadata, including titles/abstracts, from institutions and publishers around the world. On the one hand, they protect providers from cyber threats if they permit web crawling directly to their servers; on the other hand, they greatly simplify the process for data consumers by providing a single format across a very wide community of providers.
+
+As of June 2022 there are 5,616 listed providers to OAI. Most of these are not relevant to conservation biology, and we are currently using OAI for access to just one provider <a href='https://bioone.org'>BioOne</a>. Journals published by BioOne that we're using as relevant to BirdLife are the following. (The count is the number of articles, from OAI access, currently in the BlitScan database.)
+
+```{r oai-bioone-count, echo = FALSE, warning = FALSE}
+
+df_tx_oai <- df_tx_searchterm %>%
+  filter(str_detect(search_term, '^OAI')) %>%
+  transmute(Society = str_remove(search_term, '^OAI: ')) %>%
+  group_by(Society) %>%
+  summarise(Count = n())
+
+df_oai <- tbl(conn, 'oai') %>%
+  collect()
+
+inner_join(df_oai, df_tx_oai, by = 'Society') %>%
+  arrange(desc(Count)) %>%
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:100%;'")
+```
+
+<p>
+OpenAlex is more recent, launching in early 2022 but claiming <a href='https://docs.openalex.org/about-the-data-1'>100M's of documents across a wide range of sources</a>. From OpenAlex the BlitScan database links to:
+
+```{r openalex-doc-types, echo = FALSE, warning = FALSE}
+
+df_oa <- tbl(conn, 'openalex')
+
+df_oa %>% 
+  group_by(type) %>%
+  summarise(Count = n()) %>%
+  select(DocType = type, Count) %>%
+  collect() %>%
+  arrange(desc(Count)) %>%
+  knitr::kable(format = "html", 
+               format.args = list(big.mark = ','),
+               table.attr = "style='width:50%;'")
+
+```
+
 
 
 #### Step 4: journal contents listings
 
-To add completeness beyond the quite general searches above, this step explicitly scans the tables of contents for recent issues of key journals. Those currently scanned are the following.
+This step explicitly scans the tables of contents for recent issues of key journals. Those currently scanned are the following.
 
 ```{r scanned-journals, echo = FALSE, warning = FALSE}
 

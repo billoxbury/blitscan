@@ -166,10 +166,13 @@ shinyServer(
       <hr>
       <h3>Getting started</h3>
       <p>
-      This site identifies scientific articles of relevance to Red List assessments for birds undertaken by BirdLife International. It covers articles published in a number of primarily open-access journals.
+      This site identifies scientific articles of relevance to Red List assessments for birds undertaken by BirdLife International. 
       </p>
       <p>
-      The database was last updated <b>%s</b> and currently contains <b>%s articles</b>, covering <b>%s species</b> from the <b color='red'>past 6 years</b>.
+      It covers articles published in a number of primarily open-access journals, preprints listed on <a href='https://www.biorxiv.org/'>bioRxiv</a> and other preprint servers, and various document types indexed by <a href='https://openalex.org/'>OpenAlex</a>.
+      </p>
+      <p>
+      The database was last updated <b>%s</b> and currently represents <b>%s documents</b> published in the <b color='red'>past 6 years</b>, covering <b>%s species</b>.
               </p>
               <p>
               The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.
@@ -182,7 +185,7 @@ shinyServer(
               <p>Recent articles should appear here daily.</p> 
               <p>Search <b>by keyword/phrase</b> (followed by return).</p>
               <p>
-              <a href='%s'>More information can be found here.</a>
+              <b><a href='%s'>More information can be found here.</a></b>
               </p>
               <hr>
               ", 
