@@ -37,14 +37,15 @@ conn <- DBI::dbConnect(
   password = PGPASSWORD,
   dbname = PGDATABASE)
 
-
-df <- tbl(conn, 'links')
-df_tx <- df %>% filter(GOTTEXT == 1 & 
-                         BADLINK == 0 & 
-                         score > LOGZERO &
-                         (is.na(date) | date > start_date) 
-                       )
-                         
+df_dois <- tbl(conn, 'dois') %>%
+  select(doi, container.title, publisher)
+df_master <- tbl(conn, 'links')
+df_tx <- df_master %>% 
+  full_join(df_dois, by = 'doi') %>%
+  filter(GOTTEXT == 1 & 
+           BADLINK == 0 & 
+           score > LOGZERO &
+           (is.na(date) | date > start_date) ) 
 ```
 
 
@@ -87,9 +88,7 @@ cat("Number of species:", format( progress_species, big.mark = ','), '\n')
 
 ```{r nr-journals-SQL, echo=FALSE, warning=FALSE}
 
-df_dois <- tbl(conn, 'dois')
-
-title_dois <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
+title_dois <- df_tx %>%
   select(Journal = container.title) %>%
   filter(!is.na(Journal)) %>%
   distinct() %>%
@@ -111,8 +110,7 @@ cat("Number of journals/proceedings:",
 
 ```{r nr-publishers, echo=FALSE, warning=FALSE}
 
-
-publishers <- inner_join(df_dois, df_tx, by = c('doi','doi')) %>%
+publishers <- df_tx %>%
   select(publisher) %>%
   distinct() %>%
   collect()
@@ -387,7 +385,7 @@ We aim to grow the coverage of non-English language sources by taking advantage 
 
 ```{r languages, echo=FALSE}
 
-lang_all <- df %>% 
+lang_all <- df_master %>% 
   filter(GOTTEXT == 1) %>%
   mutate(language = str_remove(language, '\\|en$|^en\\|')) %>%
   group_by(language) %>%
@@ -588,13 +586,13 @@ We've indicated above ('Step 1 revisited') that not all domains consistently per
 ```{r compare-responsive-domains, echo=FALSE, warning=FALSE}
 # which (responsive) domains can I get text from?
 
-problem_domains <- df %>% 
+problem_domains <- df_master %>% 
   group_by(domain) %>%
   summarise(count = sum(GOTTEXT, na.rm = TRUE)) %>%
   filter(count == 0) %>%
   pull(domain) 
 
-df %>% 
+df_master %>% 
   filter(!(domain %in% problem_domains))%>% 
   mutate(Domain = str_remove(domain, '^www\\.')) %>%
   mutate(Domain = str_remove(Domain, '/.+$')) %>%
@@ -672,7 +670,7 @@ CrossRef then allows us to query all of the known DOIs in the Blitscan database 
 
 ```{r journals-via-crossref, echo=FALSE}
 
-df_out <- inner_join(df_dois, df_tx, by = 'doi') %>%
+df_out <- df_tx %>%
   select(Journal = container.title, 
          Publisher = publisher) %>%
   filter(!is.na(Journal)) %>%

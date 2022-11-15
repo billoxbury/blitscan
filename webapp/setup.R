@@ -9,7 +9,7 @@ library(lubridate)
 #########################################################################
 # Postgres private parameters
 
-LOCAL <- FALSE
+LOCAL <- TRUE
 
 SHAREPATH <- if(LOCAL){
   '/Volumes/blitshare'
@@ -39,17 +39,39 @@ connPG <- DBI::dbConnect(
   user = PGUSER,
   password = PGPASSWORD,
   dbname = PGDATABASE)
+
+# DOI look-up
+df_dois <- tbl(connPG, 'dois') %>%
+  select(doi, container.title, publisher)
+
+# master table
 df_master <- tbl(connPG, 'links')
-df_tx <- df_master %>% filter(GOTTEXT == 1 & 
-                                BADLINK == 0 & 
-                                score > LOGZERO &
-                                (is.na(date) | date > start_date) )
+
+# working table for the web app
+df_tx <- df_master %>% 
+  full_join(df_dois, by = 'doi') %>%
+  filter(GOTTEXT == 1 & 
+           BADLINK == 0 & 
+           score > LOGZERO &
+           (is.na(date) | date > start_date) ) %>%
+  select(date, 
+         title, 
+         title_translation,
+         abstract, 
+         abstract_translation,
+         pdftext,
+         score, 
+         link, 
+         domain, 
+         doi, 
+         container.title)
+
+# current stats from progress table
 df_progress <- tbl(connPG, 'progress') %>%
   collect() %>%
   mutate(date = as_date(date))
+# ==>
 last <- which(df_progress$date == max(df_progress$date))
-
-# current nr docs, species
 updated <- df_progress$date[last]
 ndocs <- df_progress$docs[last]
 nspecies <- df_progress$species[last]
@@ -62,18 +84,6 @@ nspecies <- df_progress$species[last]
 #  as.numeric()
 #df_tx <- df_tx %>%
 #  filter(score > minscore)
-
-# given a DOI, find publisher from OpenAlex table
-find_publisher <- function(doi){
-  query <- sprintf('SELECT publisher FROM openalex WHERE doi = \'%s\'', doi)
-  df <- DBI::dbGetQuery(connPG, query)
-  # return
-  if(nrow(df) > 0){
-    as.character(df)
-  } else{
-    'doi.org'
-  }
-}
 
 # domain logos
 domainlogo <- function(domain){

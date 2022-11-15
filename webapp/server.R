@@ -42,29 +42,17 @@ shinyServer(
       filter(!is.na(date)) %>%
       mutate(date = as_date(date)) %>%
       filter(as.integer(today() - date) <= RECENT_DAYS) %>%
-      select(date, title, abstract, score, link, domain, doi) %>%
       arrange(desc(score)) %>%
       collect()
     
-    # decouple query term from live text input
-    query <- reactive({
-      #if(str_detect(input$search, '\n')){
-      #  str_remove(input$search, '\n')
-      #} else {
-      #  ''
-      #}
-      input$search
-    })
-    
     # pull data frame in response to search term
     df_returned <- reactive({
-      if(query() == ""){
+      if(input$search == ""){
         df_recent
       } else {
-        st <- query() %>% tolower()
+        st <- input$search %>% tolower()
         df_out <- if(input$pdfsearch) { df_tx %>%
-            filter(str_detect(tolower(pdftext), st) |
-                     str_detect(tolower(pdftext_translation), st)) 
+            filter(str_detect(tolower(pdftext), st)) 
         } else {
           df_tx %>%
             filter(str_detect(tolower(title), st) |
@@ -74,7 +62,6 @@ shinyServer(
         }
         # return
         df_out %>%
-          select(date, title, abstract, score, link, domain, doi) %>%
           arrange(desc(score)) %>%
           collect() 
       }
@@ -90,7 +77,6 @@ shinyServer(
         searchInput(label = "Search", 
                     inputId = "search", 
                     placeholder = "",
-                    #btnSearch = icon("magnifying-glass"),
                     width = "500px"
         ),
         checkboxInput("pdfsearch",
@@ -106,25 +92,31 @@ shinyServer(
       
       # components to display
       date <- df_out$date
+      container <- sapply(df_out$container.title, function(x) if(is.na(x)) '' else x)
+      domain <- if(nresults > 0){
+        sapply(1:nresults,
+               function(i) if(df_out$domain[i] %in% c('', 'doi.org') ){
+                 container[i] 
+               }else{
+                 df_out$domain[i]
+               })
+      } else { 
+        c()  
+      }
       #doi <- df_out$doi
-      domain <- df_out$domain
       title <- df_out$title
       link <- df_out$link
       score <- df_out$score
       abstract <- df_out$abstract %>% 
         str_replace_all("<\\/?[a-z][0-9]?>", " ") 
-      #publisher <- sapply(1:nresults, function(i){
-      #  if(domain[i] == 'doi.org') find_publisher(doi[i])
-      #  else domain[i]
-      #})
-      
+
       # mark up search terms
-      if(query() != ""){
+      if(input$search != ""){
         title <- title %>% 
-          str_replace_all(regex(query(), ignore_case = TRUE), 
+          str_replace_all(regex(input$search, ignore_case = TRUE), 
                           sprintf("<mark>%s</mark>", input$search))
         abstract <- abstract %>% 
-          str_replace_all(regex(query(), ignore_case = TRUE), 
+          str_replace_all(regex(input$search, ignore_case = TRUE), 
                           sprintf("<mark>%s</mark>", input$search))
       } 
       
@@ -138,7 +130,7 @@ shinyServer(
       text_out <- str_c(c("<table>", paste0(s2,s3,s4,s5,s6), "</table>"), collapse="")
       
       # return
-      if(query() == ""){
+      if(input$search == ""){
         sprintf("<h3>Recent articles</h3> 
                 %s",
                 text_out)
@@ -172,7 +164,7 @@ shinyServer(
       It covers articles published in a number of primarily open-access journals, preprints listed on <a href='https://www.biorxiv.org/'>bioRxiv</a> and other preprint servers, and various document types indexed by <a href='https://openalex.org/'>OpenAlex</a>.
       </p>
       <p>
-      The database was last updated <b>%s</b> and currently represents <b>%s documents</b> published in the <b color='red'>past 6 years</b>, covering <b>%s species</b>.
+      The database was last updated <b>%s</b> and currently represents <b>%s documents</b> published in the past <b color='red'>6 years</b>, covering <b>%s species</b>.
               </p>
               <p>
               The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.
