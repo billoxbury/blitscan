@@ -7,7 +7,7 @@ E.g.
 
 open -g $AZURE_VOLUME
 pgfile="/Volumes/blitshare/pg/param.txt"
-birdfile='/Volumes/blitshare/BirdLife_species_list_Jan_2022.xlsx'
+birdfile='/Volumes/blitshare/data/BirdLife_species_list_Jan_2022.xlsx'
 
 ./process/find_species.py $pgfile $birdfile
 

@@ -108,8 +108,8 @@ for(i in idx){
     res <- oa_fetch(
       entity = "works",
       abstract.search = query_term,
-      from_publication_date = from_date,
-      to_publication_date = to_date,
+      #from_publication_date = from_date,  # OPTIONAL
+      #to_publication_date = to_date,      # OPTIONAL
       endpoint = "https://api.openalex.org/",
       count_only = TRUE,
       verbose = FALSE

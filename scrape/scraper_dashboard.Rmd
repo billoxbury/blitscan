@@ -69,7 +69,7 @@ cat("Number of articles:", format(progress_docs, big.mark = ','), '\n')
 
 species <- df_tx %>% 
   select(species) %>%
-  filter(!is.na(species)) %>%
+  filter(!is.na(species) & species != '') %>%
   collect() 
 
 species_nonunique <- species$species %>%
@@ -81,7 +81,6 @@ species_unique <-  species_nonunique %>%
   unique() 
 
 progress_species <- length(species_unique)
-
 
 cat("Number of species:", format( progress_species, big.mark = ','), '\n')
 ```
@@ -125,34 +124,30 @@ More detail on journals and publishers is given below. A full list of journals/p
 
 ### Species coverage
 
-The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier and classified by red-list status) referenced in the database, versus those occuring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
+The counts in the table below are the numbers of species (normalised to _SISRecID_ identifier and classified by red-list status) referenced in the database, versus those occurring in the <a href="http://datazone.birdlife.org/home">BirdLife DataZone</a>.
 
 ```{r red-list, echo=FALSE, warning=FALSE}
 
 df_redlist <- tbl(conn, 'species') %>%
   select(SISRecID, name_com, name_sci, status) %>%
   collect()
+df_redlist$status[is.na(df_redlist$status)] <- 'unknown'
 
 # status counts
 df_status <- df_redlist %>%
-  filter(!is.na(status)) %>%
   group_by(status) %>%
   summarise(OutOf = n())
-
 # status counts for the blitscan list
 df_tx_species <- tibble(SISRecID = species_unique)
 df_blit <- inner_join(df_tx_species, df_redlist,
                       by = 'SISRecID') %>%
-  filter(!is.na(status)) %>%
   group_by(status) %>%
   summarise(Count = n())
-
 # join the two
 df_out <- full_join(df_blit, df_status, by = 'status') %>%
   mutate(Percent = round( 100*Count/OutOf, 1)) %>%
   rename(Status = status) %>%
   arrange(desc(OutOf))
-
 progress_lc <- df_out$Count[which(df_out$Status == 'LC')]
 progress_nt <- df_out$Count[which(df_out$Status == 'NT')]
 progress_vu <- df_out$Count[which(df_out$Status == 'VU')]
@@ -162,14 +157,13 @@ progress_ex <- df_out$Count[which(df_out$Status == 'EX')]
 progress_dd <- df_out$Count[which(df_out$Status == 'DD')]
 progress_pe <- df_out$Count[which(df_out$Status == 'PE')]
 progress_ew <- df_out$Count[which(df_out$Status == 'EW')]
-
 df_out %>%
   knitr::kable(format = "html", 
                format.args = list(big.mark = ','),
                table.attr = "style='width:50%;'")
 ```
 <p>
-(Note that the numbers in the _Count_ column are underestimates and may not add up to the species count given above - this is because red-list status cannot always be ascertained. The numbers in the _OutOf_ column are estimated by a crawl of DataZone pages.)
+(The ~13,000 species in the _OutOf_ column (via _SISRecID_) correspond to those listed in a Birdlife species spreadsheet provided by Stu Butchart. However, status was ascertained by crawling _DataZone_ pages and was not contained in the spreadsheet. The 2,027 species with 'unknown' status are simply those not included in the crawl. Their status should be known but is not currently present in the database.)
 
 <p>
 How many journal articles are we seeing per-species? (Each 'dot' below is a species. We emphasise this by labelling the top-represented species in each group.)
@@ -181,7 +175,7 @@ article_counts <- tibble(SISRecID = species_nonunique) %>%
   summarise(count = n())
 
 df_blit <- inner_join(article_counts, df_redlist, by = 'SISRecID') %>%
-  filter(!is.na(status))
+  filter(status != 'unknown')
 
 #status <- factor( c('LC', 'NT', 'VU', 'EN', 'CR', 'PE', 'EW', 'EX', 'DD') )
 winners <- df_blit %>% 

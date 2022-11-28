@@ -9,7 +9,7 @@ library(lubridate)
 #########################################################################
 # Postgres private parameters
 
-LOCAL <- TRUE
+LOCAL <- FALSE
 
 SHAREPATH <- if(LOCAL){
   '/Volumes/blitshare'
@@ -135,6 +135,6 @@ domainlogo <- function(domain){
     # return
     sprintf("<img src='%s' width=100>", icon)
   } else {
-    sprintf("<b>%s</b>", domain)
+    sprintf("<small><b>%s</b></small>", domain)
   }
 }
