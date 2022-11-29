@@ -23,7 +23,7 @@ source(pgfile)
 MAXSEARCHES <- 500 # sample size from species list
 MAXCOUNT <- 500    # upper bound on nr returns for a single search term in OA
 
-MAX_DAYS <- 2200
+MAX_DAYS <- 10000
 from_date <- as.character(today() - MAX_DAYS)
 to_date <- as.character(today())
 
@@ -108,8 +108,8 @@ for(i in idx){
     res <- oa_fetch(
       entity = "works",
       abstract.search = query_term,
-      #from_publication_date = from_date,  # OPTIONAL
-      #to_publication_date = to_date,      # OPTIONAL
+      from_publication_date = from_date,  
+      to_publication_date = to_date,      
       endpoint = "https://api.openalex.org/",
       count_only = TRUE,
       verbose = FALSE
