@@ -64,6 +64,9 @@ fields0 <- tbl(conn, 'dois') %>%
   names()
 fields <- fields0
 
+# disconnect database for now
+DBI::dbDisconnect(conn)
+
 ########################################################
 # MAIN LOOP
 # ... query CrossRef for the new DOIs
@@ -125,9 +128,19 @@ df_tmp <- read_csv(tmpfile, show_col_types = FALSE) %>%
          issued = as.character(issued)
          )
 
-DBI::dbWriteTable(conn, 'dois', df_tmp, append = TRUE)
+# re-open database connection
+conn <- DBI::dbConnect(
+  RPostgres::Postgres(),
+  bigint = 'integer',
+  host = PGHOST,
+  port = 5432,
+  user = PGUSER,
+  password = PGPASSWORD,
+  dbname = PGDATABASE)
+
 cat(sprintf("Adding %d records to DOI table ...\n",
             nrow(df_tmp)))
+DBI::dbWriteTable(conn, 'dois', df_tmp, append = TRUE)
 system('rm tmp.csv')
 
 ########################################################
