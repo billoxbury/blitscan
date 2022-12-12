@@ -25,7 +25,7 @@ IMGNAME='blitscanpg'
 # - processes in blocks (default size 50), max 1000 DOIs before writing to d/b
 
 # !! RUN LOCALLY - STILL DOESN'T WORK ON AVM
-for i in {1..1} # <--- SET AS NEEDED
+for i in {1..4} # <--- SET AS NEEDED
 do
     Rscript ./scrape/update_DOI_data.R $pgfile
 done 

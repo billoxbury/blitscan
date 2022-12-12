@@ -22,7 +22,7 @@ library(purrr, warn.conflicts=FALSE)
 library(lubridate, warn.conflicts=FALSE)
 library(ggplot2, warn.conflicts=FALSE)
 
-MAX_DAYS <- 2200
+MAX_DAYS <- 30*365
 start_date <- today() - MAX_DAYS
 LOGZERO <- -18.0
 
