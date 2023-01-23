@@ -34,13 +34,9 @@ done
 python3 ./scrape/get_wiley_pdf.py $pgfile $wileypdf
 
 # scraper metrics (R markdown)
-# Mac OS
-R -e "Sys.setenv(RSTUDIO_PANDOC='/Applications/RStudio.app/Contents/MacOS/quarto/bin/tools');
-    rmarkdown::render('./scrape/scraper_dashboard.Rmd', 
+R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', 
                     rmarkdown::html_document(toc = TRUE)
                     )"
-# Ubuntu
-#R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', rmarkdown::html_document(toc = TRUE))"
 
 #cp $reportpath/scraper_dashboard-$today.html $dockerpath/www/scraper_dashboard.html
 cp ./scrape/scraper_dashboard.html $dockerpath/www
@@ -49,26 +45,28 @@ mv ./scrape/scraper_dashboard.html $reportpath/scraper_dashboard-$today.html
 ########################
 # WEBAPP DEPLOYMENT
 # build docker image(s)
-docker build -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath 
+docker build -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath
 
 ########################
 # TO TEST LOCALLY:
 
-#docker build --no-cache -t $IMGNAME $dockerpath 
-#docker build -t $IMGNAME $dockerpath 
-#open -g $AZURE_VOLUME
-#docker run --rm \
-#    -dp 3838:3838 \
-#    -v /Volumes/blitshare:/srv/shiny-server/blitshare \
-#    -w /srv/shiny-server \
-#    -v $(pwd):/srv/shiny-server \
-#    $IMGNAME
+dir=`pwd`
+cd $dockerpath
+docker build -t $IMGNAME . 
+open -g $AZURE_VOLUME
+docker run --rm \
+    -dp 3838:3838 \
+    -v /Volumes/blitshare:/srv/shiny-server/blitshare \
+    -v $(pwd):/srv/shiny-server \
+    -w /srv/shiny-server \
+   $IMGNAME
 
-#dockerid=`docker ps | cut -d' ' -f1 | tail -n 1`
+dockerid=`docker ps | cut -d' ' -f1 | tail -n 1`
 #docker exec -ti $dockerid /bin/bash
 
-#docker kill $dockerid
-#docker rmi -f $IMGNAME
+docker kill $dockerid
+docker rmi -f $IMGNAME
+cd $dir
 
 # NOTE the argument --no-cache solved a thorny conflict which prevented installation of libpq-dev. 
 ########################

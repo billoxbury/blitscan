@@ -23,7 +23,7 @@ source(PARAM_FILE)
 # app parameters
 
 MAX_DAYS <- 2200
-start_date <- today() - MAX_DAYS
+start_date <- "1980-01-01" #today() - MAX_DAYS
 RECENT_DAYS <- 14
 LOGZERO <- -18.0
 #SCORE_Q_THRESHOLD <- 0.1
@@ -51,9 +51,9 @@ df_master <- tbl(connPG, 'links')
 df_tx <- df_master %>% 
   full_join(df_dois, by = 'doi') %>%
   filter(GOTTEXT == 1 & 
-           BADLINK == 0 & 
-           score > LOGZERO &
-           (is.na(date) | date > start_date) ) %>%
+           BADLINK == 0 &
+           (is.na(date) | date > start_date) & 
+           score > LOGZERO ) %>%
   select(date, 
          title, 
          title_translation,

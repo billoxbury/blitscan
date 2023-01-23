@@ -22,8 +22,8 @@ library(purrr, warn.conflicts=FALSE)
 library(lubridate, warn.conflicts=FALSE)
 library(ggplot2, warn.conflicts=FALSE)
 
-MAX_DAYS <- 30*365
-start_date <- today() - MAX_DAYS
+MAX_DAYS <- 2200
+start_date <- "1980-01-01" #today() - MAX_DAYS
 LOGZERO <- -18.0
 
 source('/Volumes/blitshare/pg/param.txt')
@@ -44,8 +44,8 @@ df_tx <- df_master %>%
   full_join(df_dois, by = 'doi') %>%
   filter(GOTTEXT == 1 & 
            BADLINK == 0 & 
-           score > LOGZERO &
-           (is.na(date) | date > start_date) ) 
+           (is.na(date) | date > start_date) &
+           score > LOGZERO ) 
 ```
 
 

@@ -12,7 +12,6 @@ shinyServer(
       }
     })
     
-    
     # set traffic light points
     score <- df_tx %>%
       pull(score)
@@ -45,6 +44,24 @@ shinyServer(
       arrange(desc(score)) %>%
       collect()
     
+    output$header <- renderText({
+      "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
+      <i>&#946 version</i><hr>"
+    })
+    
+    output$search <- renderUI({
+      tagList(
+        searchInput(label = "Search", 
+                    inputId = "search", 
+                    placeholder = "",
+                    width = "500px"
+        ),
+        checkboxInput("pdfsearch",
+                      label = "Search full PDF text", 
+                      value = FALSE)
+      )
+    })
+    
     # pull data frame in response to search term
     df_returned <- reactive({
       if(input$search == ""){
@@ -65,24 +82,6 @@ shinyServer(
           arrange(desc(score)) %>%
           collect() 
       }
-    })
-    
-    output$header <- renderText({
-      "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
-      <i>&#946 version</i><hr>"
-    })
-    
-    output$search <- renderUI({
-      tagList(
-        searchInput(label = "Search", 
-                    inputId = "search", 
-                    placeholder = "",
-                    width = "500px"
-        ),
-        checkboxInput("pdfsearch",
-                      label = "Search full PDF text", 
-                      value = FALSE)
-      )
     })
     
     output$search_info <- renderText({
@@ -123,7 +122,7 @@ shinyServer(
       # create output HTML
       s2 <- paste0("<tr><td width=100><font size=2.0>", date, "</font></td>")
       s3 <- paste0("<td width=100>", sapply(domain, domainlogo), "</td>")
-      s4 <- paste0("<td width=800><a href='", link, "'>", title, "</td>")
+      s4 <- paste0("<td width=800><a href='", link, "' target='_blank'>", title, "</td>")
       s5 <- paste0("<td>", sapply(score, trafficlight), "</td></tr>")
       s6 <- paste0("<tr><td></td><td></td><td><p style='line-height:1.0'><font size=2.0>", abstract, "</font></p></td><td></td></tr>")
       
@@ -164,7 +163,7 @@ shinyServer(
       It covers articles published in a number of primarily open-access journals, preprints listed on <a href='https://www.biorxiv.org/'>bioRxiv</a> and other preprint servers, and various document types indexed by <a href='https://openalex.org/'>OpenAlex</a>.
       </p>
       <p>
-      The database was last updated <b>%s</b> and currently represents <b>%s documents</b> published in the past <b color='red'>6 years</b>, covering <b>%s species</b>.
+      The database was last updated <b>%s</b> and currently represents <b>%s documents</b> covering <b>%s species</b>.
               </p>
               <p>
               The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.

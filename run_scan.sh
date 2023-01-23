@@ -25,7 +25,7 @@ pgfile="$pgpath/param.txt"
 # Scrape I: collect URLs
 
 # (1) Bing custom search
-python3 ./scrape/custom_search_bing.py $pgfile
+#python3 ./scrape/custom_search_bing.py $pgfile
 
 # (2) run searches for vulnerable genera against archives (bioRxiv, J-Stage etc) 
 # - maintain source list for this step

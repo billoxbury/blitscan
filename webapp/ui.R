@@ -47,7 +47,7 @@ shinyUI(fluidPage(
       htmlOutput("header"),      # title bar
       uiOutput("search"),        # search input
       htmlOutput("search_info"), # search results
-      htmlOutput("signoff")     # footer
+      htmlOutput("signoff")      # footer
     ),
     sidebarPanel( 
       useShinyjs(), # <-- needed for show/hide capability
