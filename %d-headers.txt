@@ -1,6 +1,0 @@
-HTTP/1.1 500 Internal Server Error
-Content-Type: application/json
-Date: Tue, 24 Jan 2023 14:03:04 GMT
-Content-Length: 187
-Connection: keep-alive
-
