@@ -50,23 +50,23 @@ docker build -t $AZURE_CONTAINER_REGISTRY/$IMGNAME $dockerpath
 ########################
 # TO TEST LOCALLY:
 
-dir=`pwd`
-cd $dockerpath
-docker build -t $IMGNAME . 
-open -g $AZURE_VOLUME
-docker run --rm \
-    -dp 3838:3838 \
-    -v /Volumes/blitshare:/srv/shiny-server/blitshare \
-    -v $(pwd):/srv/shiny-server \
-    -w /srv/shiny-server \
-   $IMGNAME
+#dir=`pwd`
+#cd $dockerpath
+#docker build -t $IMGNAME . 
+#open -g $AZURE_VOLUME
+#docker run --rm \
+#    -dp 3838:3838 \
+#    -v /Volumes/blitshare:/srv/shiny-server/blitshare \
+#    -v $(pwd):/srv/shiny-server \
+#    -w /srv/shiny-server \
+#   $IMGNAME
 
-dockerid=`docker ps | cut -d' ' -f1 | tail -n 1`
+#dockerid=`docker ps | cut -d' ' -f1 | tail -n 1`
 #docker exec -ti $dockerid /bin/bash
 
-docker kill $dockerid
-docker rmi -f $IMGNAME
-cd $dir
+#docker kill $dockerid
+#docker rmi -f $IMGNAME
+#cd $dir
 
 # NOTE the argument --no-cache solved a thorny conflict which prevented installation of libpq-dev. 
 ########################

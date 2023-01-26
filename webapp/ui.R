@@ -52,9 +52,10 @@ shinyUI(fluidPage(
     sidebarPanel( 
       useShinyjs(), # <-- needed for show/hide capability
       checkboxInput(inputId = "togglesidebar", 
-                    label = "Show intro",
+                    label = "Show side panel",
                     value = TRUE),
-      htmlOutput("sidebar")
+      htmlOutput("sidebar"),
+      uiOutput("upload")
     )
   )
 )

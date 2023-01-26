@@ -29,6 +29,19 @@ LOGZERO <- -18.0
 #SCORE_Q_THRESHOLD <- 0.1
 
 #########################################################################
+# PDF path parameters
+
+PDFPATH <- paste(SHAREPATH, "data/pdf", sep="/")
+
+file_transfer <- function(df){
+  for(i in 1:nrow(df)){
+     system(sprintf("mv %s %s",
+                    df$datapath[i],
+                    paste(PDFPATH, df$name[i], sep="/")))
+  }
+}
+
+#########################################################################
 # open PG database
 
 connPG <- DBI::dbConnect(
@@ -89,6 +102,7 @@ nspecies <- df_progress$species[last]
 domainlogo <- function(domain){
   domain <- str_remove(domain, '^www\\.')
   domainset <- c("nature.com",
+                 "PLOS ONE",
                  "journals.plos.org",
                  "conbio.onlinelibrary.wiley.com",
                  "avianres.biomedcentral.com",
@@ -110,6 +124,7 @@ domainlogo <- function(domain){
                  "nisc.co.za",
                  "jstage.jst.go.jp")
   logoset <- c("nature_logo.jpg",
+               "PLOS_logo.jpg",
                "PLOS_logo.jpg",
                "conbio.jpeg",
                "avianres.png",

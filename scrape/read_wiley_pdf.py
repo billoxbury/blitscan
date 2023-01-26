@@ -35,7 +35,7 @@ except:
 	sys.exit(1)
 
 # parameters
-MAXFILES = 50
+MAXFILES = 500
 
 # open connection to database  
 engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
@@ -59,6 +59,8 @@ def doi_pdfname(doi):
     return re.sub('/','_', doi) + ".pdf"
 
 def main():
+    # nlp pipeline
+    nlp = pdf2txt.make_nlp_pipeline()
     # create text update list 
     update_list = []
     # select relevant records
@@ -101,7 +103,6 @@ def main():
                     # get text
                     date = pdf2txt.parse_creation_date(pdf_doc)
                     title = pdf2txt.get_title(pdf_doc)
-                    nlp = pdf2txt.make_nlp_pipeline()
                     text_list = pdf2txt.get_text(nlp, pdf_doc)
                     abstract = pdf2txt.get_abstract(text_list)
                     # verbose output

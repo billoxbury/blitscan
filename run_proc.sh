@@ -22,7 +22,7 @@ blimodelfile="$azurepath/data/bli_model_bow_11107.json"
 python3 ./process/fix_dates.py $pgfile
 
 # (2) pass text to Azure for English translation
-python3 ./process/translate_to_english.py $pgfile
+#python3 ./process/translate_to_english.py $pgfile
 
 # (3) score title/abstract (not pdftext at this stage) on BLI text model
 python3 ./process/score_for_topic.py $pgfile $blimodelfile

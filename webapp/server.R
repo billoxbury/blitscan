@@ -7,8 +7,10 @@ shinyServer(
       
       if(input$togglesidebar){
         shinyjs::show(id = "sidebar")
+        shinyjs::show(id = "upload")
       } else {
         shinyjs::hide(id = "sidebar")
+        shinyjs::hide(id = "upload")
       }
     })
     
@@ -179,12 +181,37 @@ shinyServer(
               <b><a href='%s'>More information can be found here.</a></b>
               </p>
               <hr>
-              ", 
+              <h3>PDF uploads</h3>
+                <p>
+                PDF files can be uploaded here for inclusion in <i>blitscan</i> processing. 
+                <br>
+                Please allow 24 hours for content to be processed.
+              </p>", 
               as.character(updated),
               format(ndocs, big.mark=','),
               format(nspecies, big.mark=','),
               sprintf("scraper_dashboard.html")
       )
     })
+    
+    output$upload <- renderUI({
+      tagList(
+        fileInput("uploadfile", 
+                  label = "",
+                  multiple = TRUE,
+                  accept = "application/pdf",
+                  buttonLabel = "Browse files ..."),
+        renderPrint({
+          if(nrow(input$uploadfile) > 0){
+            input$uploadfile$name
+          } else { "" }
+        }),
+        # perform upload
+        if(!is.null(input$uploadfile)){
+          file_transfer(input$uploadfile)
+        }
+      )
+    })
+    
   }
 )
