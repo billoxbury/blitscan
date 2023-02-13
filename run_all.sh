@@ -10,4 +10,3 @@
 # currently all locally
 az login
 ./run_app_update.sh
-

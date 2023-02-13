@@ -34,7 +34,7 @@ shinyServer(
             "greenlight.png"
           }
       # return
-      sprintf("<img src='%s' width=25>", icon)
+      sprintf("<img src='score/%s' width=25>", icon)
     }
     
     # pull data frame of recent items
@@ -47,7 +47,7 @@ shinyServer(
       collect()
     
     output$header <- renderText({
-      "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
+      "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='logo/birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
       <i>&#946 version</i><hr>"
     })
     
@@ -170,7 +170,7 @@ shinyServer(
               <p>
               The relevance of articles for Red List assessments is estimated based on text analysis using the existing assessments.
               The estimate is indicated on this page by a traffic light 
-              <img src='redlight.png' width=20><img src='amberlight.png' width=20><img src='greenlight.png' width=20>.
+              <img src='score/redlight.png' width=20><img src='score/amberlight.png' width=20><img src='score/greenlight.png' width=20>.
               </p>
               <p>
               The relevance algorithm is under development and doesn't always get it right (yet)! <b>User feedback is welcome</b> to help improve it and to speedily highlight valuable research.

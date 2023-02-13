@@ -63,8 +63,8 @@ df_master <- tbl(connPG, 'links')
 # working table for the web app
 df_tx <- df_master %>% 
   full_join(df_dois, by = 'doi') %>%
-  filter(GOTTEXT == 1 & 
-           BADLINK == 0 &
+  filter(gottext == 1 & 
+           badlink == 0 &
            (is.na(date) | date > start_date) & 
            score > LOGZERO ) %>%
   select(date, 
@@ -148,7 +148,9 @@ domainlogo <- function(domain){
   if(domain %in% domainset){
     icon <- logoset[which(domainset == domain)]
     # return
-    sprintf("<img src='%s' width=100>", icon)
+    sprintf("<img src='logo/%s' width=100>", icon)
+  } else if(domain == 'local') {
+    sprintf("<small><b>File upload</b></small>")
   } else {
     sprintf("<small><b>%s</b></small>", domain)
   }

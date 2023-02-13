@@ -10,6 +10,8 @@ wileypdf="$azurepath/data/wiley/pdf"
 wileyhtml="$azurepath/data/wiley/html"
 tmppath="$azurepath/data/tmp"
 reportpath="$azurepath/reports/scraper"
+pdfpath="$azurepath/data/pdf"
+wwwpath="./webapp/www/upload"
 
 # postgres
 pgpath="$azurepath/pg"
@@ -64,8 +66,14 @@ Rscript ./scrape/get_html_text.R $pgfile
 # (3) get Wiley PDFs
 # both run locally in 'run_app_update.sh'
 
-# (4) scan Wiley PDFs and get text
+# (4a) scan manually uploaded PDFs
+python3 ./scrape/read_pdf_uploads.py $pgfile $pdfpath $wwwpath
+
+# (4b) scan Wiley PDFs and get text
 python3 ./scrape/read_wiley_pdf.py $pgfile $wileypdf
+
+########## OK to here <----------------------------
+
 
 # (5) ... and PDF links for other domains
 python3 ./scrape/get_pdf_text.py $pgfile $tmppath

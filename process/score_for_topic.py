@@ -49,10 +49,10 @@ links = Table('links', metadata_obj,
               Column('title_translation', String),
               Column('abstract_translation', String),
               Column('score', Float),
-              Column('BADLINK', Integer),
-              Column('GOTTEXT', Integer),
-              Column('GOTSCORE', Integer),
-              Column('GOTTRANSLATION', Integer),
+              Column('badlink', Integer),
+              Column('gottext', Integer),
+              Column('gotscore', Integer),
+              Column('gottranslation', Integer),
               Column('language', String)
              )
 
@@ -66,7 +66,7 @@ nlp = spacy.load('en_core_web_md')
 
 # global constants
 LOGZERO = -20.0
-MAXCALLS = 20000
+MAXCALLS = 10
 
 ##########################################################
 # functions
@@ -130,75 +130,74 @@ def main():
     # select database records
     selecter = select(links).\
         where(
-            links.c.GOTTEXT == 1,
-            links.c.GOTSCORE == 0,
-            links.c.BADLINK == 0
+            links.c.gottext == 1,
+            links.c.gotscore == 0,
+            links.c.badlink == 0
             )
     # initialise update list for this domain
     update_list = []
 
     # connect to database
     with engine.connect() as conn:
-        # loop over domains 
         records = conn.execute(selecter)
-        for row in records:
-            # stop if reached MAXCALLS
-            if ncalls >= MAXCALLS:
-                break
-            # filter out bad records
-            if row.title == "" or row.title == None or row.abstract == "" or row.abstract == None:
-                update_list += [{
-                            'linkvalue': row.link,
-                            'scorevalue': LOGZERO, 
-                            'badflagvalue': 1,
-                            'scoreflagvalue' : 1
-                            }]
-                continue
-            ncalls += 1
-            # set text to score
-            try:
-                if row.language != 'en' and row.GOTTRANSLATION == 1:
-                    doc = nlp( row.abstract_translation )
-                    sents = clean_sentences(list(doc.sents)) + [row.title_translation]
-                else:
-                    doc = nlp( row.abstract )
-                    sents = clean_sentences(list(doc.sents)) + [row.title]
-                # ... and score
-                score = sum( [bli_score(s) for s in sents] ) / len(sents)
-                update_list += [{
-                            'linkvalue': row.link,
-                            'scorevalue': score, 
-                            'badflagvalue': 0,
-                            'scoreflagvalue' : 1
-                            }]
-                ngood += 1
-                # verbose 
-                print(f'{ncalls}: {row.title}')
-            except:
-                update_list += [{
-                            'linkvalue': row.link,
-                            'scorevalue': LOGZERO, 
-                            'badflagvalue': 1,
-                            'scoreflagvalue' : 0
-                            }]
-                continue
-            # END OF __for row in records__
-        # finish if no output
-        if update_list == []:
-            print(f'Read {ncalls} records, successfully scored {ngood}')
-            return 0
-        # ... otherwise make update instructions
-        updater = links.update().\
-                where(links.c.link == bindparam('linkvalue')).\
-                values(
-                    score = bindparam('scorevalue'),
-                    BADLINK = bindparam('badflagvalue'),
-                    GOTSCORE = bindparam('scoreflagvalue')
-                    )
-        # ... and commit to remote table
+    for row in records:
+        # stop if reached MAXCALLS
+        if ncalls >= MAXCALLS:
+            break
+        # filter out bad records
+        if row.title == "" or row.title == None or row.abstract == "" or row.abstract == None:
+            update_list += [{
+                        'linkvalue': row.link,
+                        'scorevalue': LOGZERO, 
+                        'badflagvalue': 1,
+                        'scoreflagvalue': 1
+                        }]
+            continue
+        ncalls += 1
+        # set text to score
+        try:
+            if row.language != 'en' and row.gottranslation == 1:
+                doc = nlp( row.abstract_translation )
+                sents = clean_sentences(list(doc.sents)) + [row.title_translation]
+            else:
+                doc = nlp( row.abstract )
+                sents = clean_sentences(list(doc.sents)) + [row.title]
+            # ... and score
+            score = sum( [bli_score(s) for s in sents] ) / len(sents)
+            update_list += [{
+                        'linkvalue': row.link,
+                        'scorevalue': score, 
+                        'badflagvalue': 0,
+                        'scoreflagvalue': 1
+                        }]
+            ngood += 1
+            # verbose 
+            print(f'{ncalls}: {row.score} {row.title}')
+        except:
+            update_list += [{
+                        'linkvalue': row.link,
+                        'scorevalue': LOGZERO, 
+                        'badflagvalue': 1,
+                        'scoreflagvalue': 1
+                        }]
+    # END OF __for row in records__
+    # finish if no output
+    if update_list == []:
+        print(f'No updates to make - read {ncalls} records, successfully scored {ngood}')
+        return 0
+    # ... otherwise make update instructions
+    updater = links.update().\
+            where(links.c.link == bindparam('linkvalue')).\
+            values(
+                score = bindparam('scorevalue'),
+                badlink = bindparam('badflagvalue'),
+                gotscore = bindparam('scoreflagvalue')
+                )
+    # ... and commit to remote table
+    with engine.connect() as conn:
         conn.execute(updater, update_list)
 
-        print(f'Read {ncalls} records, successfully scored {ngood}')
+    print(f'Read {ncalls} records, successfully scored {ngood}')
     return 0
 
 ##########################################################
