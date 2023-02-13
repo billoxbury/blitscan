@@ -31,7 +31,8 @@ do
 done 
 
 # (3) download Wiley SCB pdf files
-python3 ./scrape/get_wiley_pdf.py $pgfile $wileypdf
+# NEEDS EDITING TO AVOID STORING PDFS
+#python3 ./scrape/get_wiley_pdf.py $pgfile $wileypdf
 
 # scraper metrics (R markdown)
 R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', 

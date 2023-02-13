@@ -186,7 +186,9 @@ for(i in idx){
   }
 }
 
-# clean up resulting data frame 
+# repair URLs and clean up resulting data frame 
+nourl <- (is.na(df_oa$url))
+df_oa$url[nourl] <- df_oa$id[nourl]
 df_oa$id <- str_remove(df_oa$id, '^https://openalex.org/')
 df_oa$so_id <- str_remove(df_oa$so_id, '^https://openalex.org/')
 df_oa$doi <- str_remove(df_oa$doi, '^https://doi.org/')

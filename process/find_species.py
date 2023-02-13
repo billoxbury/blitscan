@@ -51,14 +51,14 @@ links = Table('links', metadata_obj,
               Column('abstract', String),
 			  Column('pdftext', String),
 			  Column('species', String),
-              Column('BADLINK', Integer),
-              Column('GOTTEXT', Integer),
-              Column('GOTSPECIES', Integer)
+              Column('badlink', Integer),
+              Column('gottext', Integer),
+              Column('gotspecies', Integer)
              )
 
-# global variable - id_dict will assign species id to commmon/scientific names
+# global variables - id_dict will assign species id to commmon/scientific names
 id_dict = dict()
-
+MAXCALLS = 2000
 
 ##########################################################
 # functions
@@ -166,68 +166,74 @@ def main():
     # select database records
     selecter = select(links).\
         where(
-            links.c.GOTTEXT == 1,
-            links.c.GOTSPECIES == 0,
-            links.c.BADLINK == 0
+            links.c.gottext == 1,
+            links.c.gotspecies == 0,
+            links.c.badlink == 0
             )
     # initialise update list for this domain
     update_list = []
 
     # connect to database
     with engine.connect() as conn:
-        # loop over domains 
         records = conn.execute(selecter)
-        for row in records:
-            ncalls += 1
-            # set text to search
-            if row.title != None:
-                txt = row.title
-            else:
-                txt = ''
-            if row.abstract != None:
-                txt = '\n'.join([txt, row.abstract])
-            if row.pdftext != None:
-                txt = '\n'.join([txt, row.pdftext])
-            if txt == '':
-                continue
-            # otherwise proceed
-            txt = clean_text(txt)
-            doc = nlp(txt)
-            ents = [ent.label_ for ent in doc.ents]
-            if 'comName' in ents or 'sciName' in ents:
-                sp_list = [ent.text.lower() for ent in doc.ents if ent.label_ in ['comName','sciName']]
-                id_list = [id_dict[s] for s in sp_list]
-                id_list = list(set(id_list))
-                sp_list = list(set(sp_list)) # only used for verbose output
-                id_string = '|'.join(id_list)
-            else:
-                sp_list = []
-                id_string = ""
-            update_list += [{
-                            'linkvalue': row.link,
-                            'speciesvalue': id_string, 
-                            'speciesflagvalue': 1
-                            }]
-            if len(sp_list) > 0:
-                ngood += 1
-                print(f'{ncalls}: {id_string} {sp_list}')
+    # MAIN LOOP  
+    for row in records:
+        thislink = row.link
+        ncalls += 1
+        # stop if reached MAXCALLS
+        if ncalls > MAXCALLS:
+            break
+        # set text to search
+        if row.title != None:
+            txt = row.title
+        else:
+            txt = ''
+        if row.abstract != None:
+            txt = '\n'.join([txt, row.abstract])
+        if row.pdftext != None:
+            txt = '\n'.join([txt, row.pdftext])
+        if txt == '':
+            continue
+        # otherwise proceed
+        txt = clean_text(txt)
+        doc = nlp(txt)
+        ents = [ent.label_ for ent in doc.ents]
+        if 'comName' in ents or 'sciName' in ents:
+            sp_list = [ent.text.lower() for ent in doc.ents if ent.label_ in ['comName','sciName']]
+            id_list = [id_dict[s] for s in sp_list]
+            id_list = list(set(id_list))
+            sp_list = list(set(sp_list)) # only used for verbose output
+            id_string = '|'.join(id_list)
+        else:
+            sp_list = []
+            id_string = ""
+        update_list += [{
+                        'linkvalue': thislink,
+                        'speciesvalue': id_string, 
+                        'speciesflagvalue': 1
+                        }]
+        if len(sp_list) > 0:
+            ngood += 1
+            print(f'{ncalls}: {id_string} {sp_list}')
+    # END OF MAIN LOOP 
 
-            # END OF __for row in records__
-        # finish if no output
-        if update_list == []:
-            print(f'Read {ncalls} records, found species in {ngood}')
-            return 0
-        # ... otherwise make update instructions
-        updater = links.update().\
-                    where(links.c.link == bindparam('linkvalue')).\
-                    values(
-                        species = bindparam('speciesvalue'),
-                        GOTSPECIES = bindparam('speciesflagvalue')
-                    )
-        # ... and commit to remote table
-        conn.execute(updater, update_list)
-
+    # finish if no output
+    if update_list == []:
         print(f'Read {ncalls} records, found species in {ngood}')
+        return 0
+    # ... otherwise make update instructions
+    updater = links.update().\
+                where(links.c.link == bindparam('linkvalue')).\
+                values(
+                    species = bindparam('speciesvalue'),
+                    gotspecies = bindparam('speciesflagvalue')
+                )
+    # ... and commit to remote table
+    with engine.connect() as conn:
+        conn.execute(updater, update_list)
+        conn.commit()
+
+    print(f'Read {ncalls} records, found species in {ngood}')
     return 0
 
 ##########################################################

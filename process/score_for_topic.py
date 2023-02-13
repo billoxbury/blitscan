@@ -66,7 +66,7 @@ nlp = spacy.load('en_core_web_md')
 
 # global constants
 LOGZERO = -20.0
-MAXCALLS = 10
+MAXCALLS = 2000
 
 ##########################################################
 # functions
@@ -141,13 +141,14 @@ def main():
     with engine.connect() as conn:
         records = conn.execute(selecter)
     for row in records:
+        thislink = row.link
         # stop if reached MAXCALLS
         if ncalls >= MAXCALLS:
             break
         # filter out bad records
         if row.title == "" or row.title == None or row.abstract == "" or row.abstract == None:
             update_list += [{
-                        'linkvalue': row.link,
+                        'linkvalue': thislink,
                         'scorevalue': LOGZERO, 
                         'badflagvalue': 1,
                         'scoreflagvalue': 1
@@ -165,22 +166,23 @@ def main():
             # ... and score
             score = sum( [bli_score(s) for s in sents] ) / len(sents)
             update_list += [{
-                        'linkvalue': row.link,
+                        'linkvalue': thislink,
                         'scorevalue': score, 
                         'badflagvalue': 0,
                         'scoreflagvalue': 1
                         }]
             ngood += 1
             # verbose 
-            print(f'{ncalls}: {row.score} {row.title}')
+            print(f'{ncalls}: {row.title}')
         except:
             update_list += [{
-                        'linkvalue': row.link,
+                        'linkvalue': thislink,
                         'scorevalue': LOGZERO, 
                         'badflagvalue': 1,
                         'scoreflagvalue': 1
                         }]
     # END OF __for row in records__
+
     # finish if no output
     if update_list == []:
         print(f'No updates to make - read {ncalls} records, successfully scored {ngood}')
