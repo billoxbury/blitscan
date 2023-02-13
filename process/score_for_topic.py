@@ -196,6 +196,7 @@ def main():
     # ... and commit to remote table
     with engine.connect() as conn:
         conn.execute(updater, update_list)
+        conn.commit()
 
     print(f'Read {ncalls} records, successfully scored {ngood}')
     return 0

@@ -72,9 +72,6 @@ python3 ./scrape/read_pdf_uploads.py $pgfile $pdfpath $wwwpath
 # (4b) scan Wiley PDFs and get text
 python3 ./scrape/read_wiley_pdf.py $pgfile $wileypdf
 
-########## OK to here <----------------------------
-
-
 # (5) ... and PDF links for other domains
 python3 ./scrape/get_pdf_text.py $pgfile $tmppath
 

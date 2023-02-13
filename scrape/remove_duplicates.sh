@@ -17,7 +17,7 @@ update='
             (SELECT link,
                     ROW_NUMBER() OVER (PARTITION BY title,abstract ORDER BY doi) AS row_num 
             FROM links
-            WHERE "GOTTEXT" = 1) tab 
+            WHERE gottext = 1) tab 
         WHERE tab.row_num > 1)'
 
 # send commmand

@@ -5,7 +5,7 @@ update 'links' table; delete PDF.
 
 E.g.
 
-pgfile="/Volumes/blitshare/pg/param.R"
+pgfile="/Volumes/blitshare/pg/param.txt"
 pdfpath="data/tmp"
 
 ./scrape/get_pdf_text.py $pgfile $pdfpath
@@ -14,7 +14,6 @@ pdfpath="data/tmp"
 
 import os, sys
 import re
-import fitz
 import requests
 import pdf2txt
 from sqlalchemy import create_engine, update, select, bindparam
@@ -81,9 +80,15 @@ links = Table('links', metadata_obj,
               Column('title', String),
               Column('abstract', String),
               Column('pdftext', String),
-              Column('BADLINK', Integer),
-              Column('GOTTEXT', Integer),
-              Column('DONEPDF', Integer)
+              # flags:
+              Column('badlink', Integer),
+              Column('gottext', Integer),
+              Column('gotscore', Integer),
+              Column('gotspecies', Integer),
+              Column('gottranslation', Integer),
+              Column('donepdf', Integer),
+              Column('donecrossref', Integer),
+              Column('datecheck', Integer)
              )
 domains = Table('domains', metadata_obj,
               Column('domain', String),
@@ -93,7 +98,8 @@ domains = Table('domains', metadata_obj,
 def main():
     # initialise counters
     totalcalls = 0
-    ngood = 0
+    totalfiles = 0
+    totalgood = 0
 
     # make NLP model/pipeline
     nlp = pdf2txt.make_nlp_pipeline()
@@ -105,7 +111,7 @@ def main():
     # get domains from database
     with engine.connect() as conn:
         domain_set = conn.execute(domain_selecter)
-    # loop over domains 
+    # LOOP over domains 
     for drow in domain_set:
         thisdomain = drow.domain    
         print(f'Domain {thisdomain} ...')
@@ -115,111 +121,122 @@ def main():
         link_selecter = select(links).\
             where(
                 links.c.domain.like(f'%{thisdomain}%'),
-                links.c.BADLINK == 0,
-                links.c.DONEPDF == 0,
+                links.c.badlink == 0,
+                links.c.donepdf == 0,
                 links.c.pdf_link != None
             )
-        # loop over links for this domain
+        # LOOP over links for this domain
         ncalls = 0
+        nfiles = 0
+        ngood = 0
         with engine.connect() as conn:
             link_set = conn.execute(link_selecter)
         for lrow in link_set:
             # check how many calls made to this domain
             if ncalls >= MAXCALLS:
                 totalcalls += ncalls
+                totalfiles += nfiles
                 break
             # download file
-            dp = download_path(lrow.pdf_link)
-            res = run_download(lrow.pdf_link)
+            pdflink = lrow.pdf_link
+            infile = download_path(pdflink)
+            res = run_download(pdflink)
             ncalls += 1
-            print(f'{res} {dp}')
+            # skip if not got new file
+            if res < 0:
+                continue
+            nfiles += 1
             # get text from file
             try:
-                pdf_doc = fitz.open(dp)
-            except:
-                update_list += [{
-                        'pdfvalue': lrow.pdf_link,
-                        'datevalue': lrow.date, 
-                        'titlevalue': lrow.title,
-                        'abstractvalue': lrow.abstract,
-                        'pdftextvalue': "",
-                        'textflagvalue': lrow.GOTTEXT,
-                        'pdfflagvalue': 0,
-                        'badlinkvalue': 1
-                        }]
-                continue
-            try:
-                date = pdf2txt.parse_creation_date(pdf_doc)
-                text_list = pdf2txt.get_text(nlp, pdf_doc)
-                # keep title/abstract if already got them from HTML
-                if lrow.GOTTEXT == 1:
-                    title = lrow.title
-                    abstract = lrow.abstract
-                else:
-                    title = pdf2txt.get_title(pdf_doc)
-                    abstract = pdf2txt.get_abstract(text_list)
+                date = pdf2txt.parse_creation_date(infile)
+                title = pdf2txt.get_title(infile)
+                text_list = pdf2txt.get_text(nlp, infile)
+                if title == "":
+                    title = pdf2txt.guess_title(text_list)
+                abstract = pdf2txt.guess_abstract(text_list)
                 # verbose output
-                print()
-                print(f'{ncalls}: {dp}')
                 print(date)
                 print(title)
-                print()
+                print('--->')
                 print(abstract)
                 print()
+                ngood += 1
                 # record updates
                 update_list += [{
-                            'pdfvalue': lrow.pdf_link,
-                            'datevalue': date, 
-                            'titlevalue': title,
-                            'abstractvalue': abstract,
-                            'pdftextvalue': '\n'.join(text_list),
-                            'textflagvalue': 1,
-                            'pdfflagvalue': 1,
-                            'badlinkvalue': 0
-                            }]
-                ngood += 1
+                    'pdflinkvalue': pdflink,
+                    'datevalue': date, 
+                    'titlevalue': title,
+                    'abstractvalue': abstract,
+                    'pdftextvalue': '\n'.join(text_list),
+                    # flags:
+                    'textflagvalue': 1,
+                    'scoreflagvalue': 0,
+                    'speciesflagvalue': 0,
+                    'transflagvalue': 0,
+                    'crflagvalue': 0,
+                    'dateflagvalue': 1,
+                    'pdfflagvalue': 1,
+                    'badlinkvalue': 0
+                }]
             except:
                 update_list += [{
-                        'pdfvalue': lrow.pdf_link,
-                        'datevalue': lrow.date, 
-                        'titlevalue': lrow.title,
-                        'abstractvalue': lrow.abstract,
-                        'pdftextvalue': "",
-                        'textflagvalue': lrow.GOTTEXT,
-                        'pdfflagvalue': 1,
-                        'badlinkvalue': lrow.BADLINK
-                        }]
-                continue
-            totalcalls += ncalls
-            # END OF __for lrow in link_set__
+                    'pdflinkvalue': pdflink,
+                    'datevalue': "", 
+                    'titlevalue': "",
+                    'abstractvalue': "",
+                    'pdftextvalue': "",
+                    # flags:
+                    'textflagvalue': 0,
+                    'scoreflagvalue': 0,
+                    'speciesflagvalue': 0,
+                    'transflagvalue': 0,
+                    'crflagvalue': 0,
+                    'dateflagvalue': 0,
+                    'pdfflagvalue': 1,
+                    'badlinkvalue': 1
+                }]
+        # END OF LOOP over links for this domain
+        print(f'{thisdomain}: {ngood} texts, {nfiles} files, {ncalls} rows')
+        totalcalls += ncalls
+        totalfiles += nfiles
+        totalgood += ngood
 
         # skip to next domain if no output
         if update_list == []:
             continue
-            
-        # make update instructions to capture data this domain
+    
+        # else make update instructions to capture data for this domain
         updater = links.update().\
-                where(links.c.pdf_link == bindparam('pdfvalue')).\
+                where(links.c.pdf_link == bindparam('pdflinkvalue')).\
                 values(
                     date = bindparam('datevalue'), 
                     title = bindparam('titlevalue'),
                     abstract = bindparam('abstractvalue'),
                     pdftext = bindparam('pdftextvalue'),
-                    GOTTEXT = bindparam('textflagvalue'),
-                    DONEPDF = bindparam('pdfflagvalue'),
-                    BADLINK = bindparam('badlinkvalue')  
-                    )
+                    # flags:
+                    gottext = bindparam('textflagvalue'),
+                    gotscore = bindparam('scoreflagvalue'),
+                    gotspecies = bindparam('speciesflagvalue'),
+                    gottranslation = bindparam('transflagvalue'),
+                    donepdf = bindparam('pdfflagvalue'),
+                    badlink = bindparam('badlinkvalue'),
+                    donecrossref = bindparam('crflagvalue'),
+                    datecheck = bindparam('dateflagvalue')
+                    )        
         # ... and commit to remote table
         with engine.connect() as conn:
             conn.execute(updater, update_list)
+            conn.commit()
 
         # clean up ...
         os.system(f'rm {pdfpath}/*')
-        # END OF __for drow in domain_set__
+    # END OF LOOP over domains 
 
     # ... and report
-    print(f'Got text from {ngood} files out of {totalcalls} requests')
+    print(f'Got {totalgood} texts from {totalfiles} files out of {totalcalls} rows')
     return 0
+
+#############################################################
 
 if __name__ == '__main__':
     main()

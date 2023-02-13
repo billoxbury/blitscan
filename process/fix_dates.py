@@ -38,7 +38,7 @@ engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDAT
 date_ct = 0
 count_cmd = '\
     SELECT count(*) FROM links \
-    WHERE NOT "DATECHECK" = 1 \
+    WHERE NOT datecheck = 1 \
     AND \
     EXISTS ( \
         SELECT * \
@@ -52,8 +52,8 @@ update_cmd = '\
                 FROM dois \
                 WHERE dois.doi = links.doi \
                 ), \
-            "DATECHECK" = 1 \
-    WHERE NOT "DATECHECK" = 1 \
+            datecheck = 1 \
+    WHERE NOT datecheck = 1 \
     AND \
     EXISTS ( \
         SELECT * \
@@ -85,6 +85,7 @@ def main():
         # and pass update 
         if date_ct > 0:
             conn.execute(text(update_cmd))
+            conn.commit()
     
     # (2) normalise all dates in main table
     print('Normalising all dates to yyyy-mm-dd format ...')
@@ -126,8 +127,12 @@ def main():
     # ... and commit to database
     with engine.connect() as conn:
         conn.execute(updater, update_list)
+        conn.commit()
+
     print(f"{nupdates} dates needed reformatting out of {ndates}")
     return 0
+
+##########################################################
 
 if __name__ == '__main__':
 	main()
