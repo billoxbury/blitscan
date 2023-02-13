@@ -82,14 +82,14 @@ df_new <- tibble(
 df_new['language'] <- 'en'
 df_new['query_date'] <- as.character(today())
 df_new['domain'] <- 'conbio.onlinelibrary.wiley.com'
-df_new['BADLINK'] <- 0
-df_new['DONEPDF'] <- 0
-df_new['GOTTEXT'] <- 0
-df_new['GOTSCORE'] <- 0
-df_new['GOTSPECIES'] <- 0
-df_new['GOTTRANSLATION'] <- 0
-df_new['DONECROSSREF'] <- 0
-df_new['DATECHECK'] <- 0
+df_new['badlink'] <- 0
+df_new['donepdf'] <- 0
+df_new['gottext'] <- 0
+df_new['gotscore'] <- 0
+df_new['gotspecies'] <- 0
+df_new['gottranslation'] <- 0
+df_new['donecrossref'] <- 0
+df_new['datecheck'] <- 0
 
 ##########################################################
 # write to disk

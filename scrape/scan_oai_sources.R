@@ -146,14 +146,14 @@ df_new <- tibble(
   doi = character(),
   search_term = character(), 
   query_date = character(),
-  BADLINK = integer(),
-  DONEPDF = integer(),
-  GOTTEXT = integer(),
-  GOTSCORE = integer(),
-  GOTSPECIES = integer(),
-  GOTTRANSLATION = integer(),
-  DONECROSSREF = integer(),
-  DATECHECK = integer()
+  badlink = integer(),
+  donepdf = integer(),
+  gottext = integer(),
+  gotscore = integer(),
+  gotspecies = integer(),
+  gottranslation = integer(),
+  donecrossref = integer(),
+  datecheck = integer()
 )
 
 doi_prefix <- "https://doi.org/"
@@ -179,14 +179,14 @@ for(i in 1:nrow(df_oai)){
         search_term = str_c('OAI: ', df_oai$society[i]), 
         # use 'society' not 'journal' as it's more reliably present
         query_date = as.character(today()),
-        BADLINK = 0,
-        DONEPDF = 0,
-        GOTTEXT = 1,
-        GOTSCORE = 0,
-        GOTSPECIES = 0,
-        GOTTRANSLATION = 0,
-        DONECROSSREF = 0,
-        DATECHECK = 0
+        badlink = 0,
+        donepdf = 0,
+        gottext = 1,
+        gotscore = 0,
+        gotspecies = 0,
+        gottranslation = 0,
+        donecrossref = 0,
+        datecheck = 0
       )
 }
 

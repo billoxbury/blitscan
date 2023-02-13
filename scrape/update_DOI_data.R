@@ -40,7 +40,7 @@ conn <- DBI::dbConnect(
 # find & normalise new blitscan DOIs not yet in DOI database
 
 newdoi <- tbl(conn, 'links') %>%
-  filter(DONECROSSREF == 0 & !is.na(doi)) %>%
+  filter(donecrossref == 0 & !is.na(doi)) %>%
   pull(doi) 
 cat(sprintf("Found %d new DOIs\n", 
             length(newdoi)))
@@ -148,7 +148,7 @@ system('rm tmp.csv')
 
 # DONECROSSREF flag
 cat("Updating links table ...")
-flag_statements <- paste0('UPDATE links SET "DONECROSSREF" = 1 WHERE doi = \'', 
+flag_statements <- paste0('UPDATE links SET donecrossref = 1 WHERE doi = \'', 
                           newdoi, 
                           '\'')
 for(s in flag_statements){

@@ -4,18 +4,20 @@ update 'links' table.
 
 E.g.
 
-pgfile="/Volumes/blitshare/pg/param.R"
-pdfpath="/Volumes/blitshare/wiley/pdf"
+pgfile="/Volumes/blitshare/pg/param.txt"
+pdfpath="/Volumes/blitshare/data/wiley/pdf"
 
 open -g $AZURE_VOLUME
-./scrape/read_wiley_pdf_v2.py $pgfile $pdfpath
+python3 ./scrape/read_wiley_pdf.py $pgfile $pdfpath
+python3 ./read_wiley_pdf.py $pgfile $pdfpath
 
 """
 
 import os, sys
 import re
-import fitz
 import pdf2txt
+from os.path import isfile
+from datetime import datetime
 from sqlalchemy import create_engine, update, select, bindparam
 from sqlalchemy import Table, Column, String, Integer, MetaData
 
@@ -37,6 +39,9 @@ except:
 # parameters
 MAXFILES = 500
 
+# date routines
+today = str( datetime.now().date() )
+
 # open connection to database  
 engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
@@ -50,9 +55,17 @@ links = Table('links', metadata_obj,
               Column('title', String),
               Column('abstract', String),
               Column('pdftext', String),
-              Column('BADLINK', Integer),
-              Column('GOTTEXT', Integer),
-              Column('DONEPDF', Integer)
+              Column('query_date', String),
+              Column('search_term', String),
+              # flags:
+              Column('badlink', Integer),
+              Column('gottext', Integer),
+              Column('gotscore', Integer),
+              Column('gotspecies', Integer),
+              Column('gottranslation', Integer),
+              Column('donepdf', Integer),
+              Column('donecrossref', Integer),
+              Column('datecheck', Integer)
              )
 
 def doi_pdfname(doi):
@@ -67,81 +80,89 @@ def main():
     selecter = select(links).\
         where(
             links.c.domain.like('conbio.onlinelibrary.wiley%'),
-            links.c.DONEPDF == 0,
-            links.c.BADLINK == 0
+            links.c.donepdf == 0,
+            links.c.badlink == 0
             )
-    # process results
     with engine.connect() as conn:
         result = conn.execute(selecter)
-        totalfiles = MAXFILES
-        nfiles = 0
-        nres = 0
-        ngood = 0
-        for row in result:
-            if nfiles >= MAXFILES:
-                break
-            nres += 1
-            filename = pdfpath + '/' + doi_pdfname(row.doi)
-            check = os.path.isfile(filename)
-            if check:
-                nfiles += 1
-                try:
-                    pdf_doc = fitz.open(filename)
-                except:
-                    update_list += [{
-                        'doivalue': row.doi,
-                        'datevalue': row.date, 
-                        'titlevalue': row.title,
-                        'abstractvalue': row.abstract,
-                        'pdftextvalue': "",
-                        'textflagvalue': row.GOTTEXT,
-                        'pdfflagvalue': 0,
-                        'badlinkvalue': 1
-                        }]
-                    continue
-                try:
-                    # get text
-                    date = pdf2txt.parse_creation_date(pdf_doc)
-                    title = pdf2txt.get_title(pdf_doc)
-                    text_list = pdf2txt.get_text(nlp, pdf_doc)
-                    abstract = pdf2txt.get_abstract(text_list)
-                    # verbose output
-                    print(f'{totalfiles - nfiles + 1} remaining:')
-                    print(date)
-                    print(title)
-                    print(row.doi)
-                    print(abstract)
-                    print()
-                    # record updates
-                    update_list += [{
-                        'doivalue': row.doi,
-                        'datevalue': date, 
-                        'titlevalue': title,
-                        'abstractvalue': abstract,
-                        'pdftextvalue': '\n'.join(text_list),
-                        'textflagvalue': 1,
-                        'pdfflagvalue': 1,
-                        'badlinkvalue': 0
-                        }]
-                    ngood += 1
-                except:
-                    update_list += [{
-                        'doivalue': row.doi,
-                        'datevalue': "", 
-                        'titlevalue': "",
-                        'abstractvalue': "",
-                        'pdftextvalue': "",
-                        'textflagvalue': 0,
-                        'pdfflagvalue': 1,
-                        'badlinkvalue': 1
-                        }]
-                    continue
+    
+    # process results
+    nrows = 0
+    nfiles = 0
+    ngood = 0
+    # MAIN LOOP
+    for row in result:
+        nrows += 1
+        # find file
+        infile = pdfpath + '/' + doi_pdfname(row.doi)
+        check = os.path.isfile(infile)
+        if not check:
+            continue
+        nfiles += 1
+        # check file limit
+        if nfiles > MAXFILES:
+            break
+        # proceed to file content/metadata
+        try:
+            date = pdf2txt.parse_creation_date(infile)
+            title = pdf2txt.get_title(infile)
+            text_list = pdf2txt.get_text(nlp, infile)
+            if title == "":
+                title = pdf2txt.guess_title(text_list)
+            abstract = pdf2txt.guess_abstract(text_list)
+            # verbose output
+            print(date)
+            print(title)
+            print('--->')
+            print(abstract)
+            print()
+            ngood += 1
+            # record updates
+            update_list += [{
+                'doivalue': row.doi,
+                'datevalue': date, 
+                'titlevalue': title,
+                'abstractvalue': abstract,
+                'pdftextvalue': '\n'.join(text_list),
+                'qdatevalue': today,
+                'stermvalue': "wiley_access",
+                # flags:
+                'textflagvalue': 1,
+                'scoreflagvalue': 0,
+                'speciesflagvalue': 0,
+                'transflagvalue': 0,
+                'crflagvalue': 0,
+                'dateflagvalue': 1,
+                'pdfflagvalue': 1,
+                'badlinkvalue': 0
+            }]
+        except:
+            update_list += [{
+                'doivalue': row.doi,
+                'datevalue': "", 
+                'titlevalue': "",
+                'abstractvalue': "",
+                'pdftextvalue': "",
+                'qdatevalue': today,
+                'stermvalue': "wiley_access",
+                # flags:
+                'textflagvalue': 0,
+                'scoreflagvalue': 0,
+                'speciesflagvalue': 0,
+                'transflagvalue': 0,
+                'crflagvalue': 0,
+                'dateflagvalue': 0,
+                'pdfflagvalue': 1,
+                'badlinkvalue': 1
+            }]
+            continue
+    # END OF MAIN LOOP
 
     # quit if no output
     if update_list == []:
-        print(f'Got text from {ngood} out of {nfiles} files from {nres} DOIs')
+        print(f'Got text from {ngood} out of {nfiles} files from {nrows} DOIs')
         return 0
-    
+
     # make update instructions 
     updater = links.update().\
         where(links.c.doi == bindparam('doivalue')).\
@@ -150,18 +171,28 @@ def main():
             title = bindparam('titlevalue'),
             abstract = bindparam('abstractvalue'),
             pdftext = bindparam('pdftextvalue'),
-            GOTTEXT = bindparam('textflagvalue'),
-            DONEPDF = bindparam('pdfflagvalue'),
-            BADLINK = bindparam('badlinkvalue')  
+            query_date = bindparam('qdatevalue'),
+            search_term = bindparam('stermvalue'),
+            # flags:
+            gottext = bindparam('textflagvalue'),
+            gotscore = bindparam('scoreflagvalue'),
+            gotspecies = bindparam('speciesflagvalue'),
+            gottranslation = bindparam('transflagvalue'),
+            donepdf = bindparam('pdfflagvalue'),
+            badlink = bindparam('badlinkvalue'),
+            donecrossref = bindparam('crflagvalue'),
+            datecheck = bindparam('dateflagvalue')
             )
-    
+
     # ... and commit to remote table
     with engine.connect() as conn:
         conn.execute(updater, update_list)
-    # report
-    print(f'Got text from {ngood} out of {nfiles} files from {nres} DOIs')
+        conn.commit()
 
+    print(f'Got text from {ngood} out of {nfiles} files from {nrows} DOIs')
     return 0
+
+#############################################################
 
 if __name__ == '__main__':
     main()

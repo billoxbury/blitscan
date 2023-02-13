@@ -75,6 +75,7 @@ def main():
     # ... and commit to remote table
     with engine.connect() as conn:
         conn.execute(updater, convert_list)
+        conn.commit()
     print("... and written to database")
 
     return 0

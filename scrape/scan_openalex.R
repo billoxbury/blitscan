@@ -246,14 +246,14 @@ df_links <- tibble(
   doi = character(),
   search_term = character(), 
   query_date = character(),
-  BADLINK = integer(),
-  DONEPDF = integer(),
-  GOTTEXT = integer(),
-  GOTSCORE = integer(),
-  GOTSPECIES = integer(),
-  GOTTRANSLATION = integer(),
-  DONECROSSREF = integer(),
-  DATECHECK = integer()
+  badlink = integer(),
+  donepdf = integer(),
+  gottext = integer(),
+  gotscore = integer(),
+  gotspecies = integer(),
+  gottranslation = integer(),
+  donecrossref = integer(),
+  datecheck = integer()
 )
 
 for(i in 1:nrow(df_oa)){
@@ -272,14 +272,14 @@ for(i in 1:nrow(df_oa)){
       domain = '',
       search_term = df_oa$search_term[i],
       query_date = as.character(today()),
-      BADLINK = 0,
-      DONEPDF = 0,
-      GOTTEXT = 1,
-      GOTSCORE = 0,
-      GOTSPECIES = 0,
-      GOTTRANSLATION = 0,
-      DONECROSSREF = 0,
-      DATECHECK = 1
+      badlink = 0,
+      donepdf = 0,
+      gottext = 1,
+      gotscore = 0,
+      gotspecies = 0,
+      gottranslation = 0,
+      donecrossref = 0,
+      datecheck = 1
     )
 }
 
@@ -318,14 +318,14 @@ DBI::dbDisconnect(conn)
 #                  domain,
 #                  search_term,
 #                  query_date,
-#                  "BADLINK",
-#                  "GOTTEXT",
-#                  "DONEPDF",
-#                  "GOTSCORE",
-#                  "GOTSPECIES",
-#                  "GOTTRANSLATION",
-#                  "DONECROSSREF",
-#                  "DATECHECK")
+#                  "badlink",
+#                  "gottext",
+#                  "donepdf",
+#                  "gotscore",
+#                  "gotspecies",
+#                  "gottranslation",
+#                  "donecrossref",
+#                  "datecheck")
 #  SELECT 
 #    id,
 #    publication_date,
@@ -336,14 +336,14 @@ DBI::dbDisconnect(conn)
 #    'doi.org',
 #    'openalex-species-scan',
 #    '2022-10-29',
-#    0 AS "BADLINK",
-#    1 AS "GOTTEXT",
-#    0 AS "DONEPDF",
-#    0 AS "GOTSCORE",
-#    0 AS "GOTSPECIES",
-#    0 AS "GOTTRANSLATION",
-#    0 AS "DONECROSSREF",
-#    1 AS "DATECHECK"
+#    0 AS "badlink",
+#    1 AS "gottext",
+#    0 AS "donepdf",
+#    0 AS "gotscore",
+#    0 AS "gotspecies",
+#    0 AS "gottranslation",
+#    0 AS "donecrossref",
+#    1 AS "datecheck"
 #  FROM openalex;
 
 

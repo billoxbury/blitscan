@@ -42,8 +42,8 @@ df_dois <- tbl(conn, 'dois') %>%
 df_master <- tbl(conn, 'links')
 df_tx <- df_master %>% 
   full_join(df_dois, by = 'doi') %>%
-  filter(GOTTEXT == 1 & 
-           BADLINK == 0 & 
+  filter(gottext == 1 & 
+           badlink == 0 & 
            (is.na(date) | date > start_date) &
            score > LOGZERO ) 
 ```
@@ -380,7 +380,7 @@ We aim to grow the coverage of non-English language sources by taking advantage 
 ```{r languages, echo=FALSE}
 
 lang_all <- df_master %>% 
-  filter(GOTTEXT == 1) %>%
+  filter(gottext == 1) %>%
   mutate(language = str_remove(language, '\\|en$|^en\\|')) %>%
   group_by(language) %>%
   summarize(OutOf = n())
@@ -578,11 +578,10 @@ All of the above statistics refer to articles in the Blitscan database for which
 We've indicated above ('Step 1 revisited') that not all domains consistently permit web crawling. Among responsive domains, the following counts show URLs from which text was retrieved:
 
 ```{r compare-responsive-domains, echo=FALSE, warning=FALSE}
-# which (responsive) domains can I get text from?
 
 problem_domains <- df_master %>% 
   group_by(domain) %>%
-  summarise(count = sum(GOTTEXT, na.rm = TRUE)) %>%
+  summarise(count = sum(gottext, na.rm = TRUE)) %>%
   filter(count == 0) %>%
   pull(domain) 
 
@@ -591,9 +590,9 @@ df_master %>%
   mutate(Domain = str_remove(domain, '^www\\.')) %>%
   mutate(Domain = str_remove(Domain, '/.+$')) %>%
   group_by(Domain) %>%
-  summarise(GotText = sum(GOTTEXT, na.rm = TRUE),
+  summarise(GotText = sum(gottext, na.rm = TRUE),
             OutOf = n(),
-            Percent = round(1.0*sum(GOTTEXT, na.rm = TRUE)/n() * 100.0, 1)) %>%
+            Percent = round(1.0*sum(gottext, na.rm = TRUE)/n() * 100.0, 1)) %>%
   arrange(desc(GotText)) %>%
   collect() %>%
   knitr::kable(format = "html", 

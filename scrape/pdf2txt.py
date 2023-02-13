@@ -4,12 +4,15 @@ Package of routines for PDF text extraction
 
 import spacy
 import re
-from spacy.matcher import Matcher                                                                                                                                                                                         
+import fitz
+from spacy.matcher import Matcher                                                                                                
+from spacypdfreader import pdf_reader
+                                                              
 
 ##############################################################
 # parameters
 
-ABSTRACT_COUNT = 10
+ABSTRACT_COUNT = 15
 
 # regex to filter out stuff we're not interested in
 # used in is_good_chunk() below
@@ -45,19 +48,47 @@ filter_patt = re.compile(filter_string)
 
 
 ##############################################################
+# general string functions
+
+def _is_good_chunk(txt, patt = filter_patt):
+    """
+    Private
+    txt is string
+    """
+    condition = bool( len(txt.split()) <= 5 ) or bool(patt.search(txt))
+    return (not condition)
+
+def guess_abstract(text_list):
+    """
+    Public
+    text_list as output by get_text()
+    """
+    return ' '.join(text_list[:ABSTRACT_COUNT])
+
+def guess_title(text_list):
+    """
+    Public
+    text_list as output by get_text()
+    """
+    return '\n'.join([str(s) for s in text_list[:2]])
+
+
+##############################################################
 # fitz-dependent functions
 
-def parse_creation_date(pdf_doc):
+def parse_creation_date(filepath):
     """
-    pdf_doc as output by fitz.open(_filename_)
+    Public
     """
+    pdf_doc = fitz.open(filepath)
     date = pdf_doc.metadata['creationDate']
     return f'{date[2:6]}-{date[6:8]}-{date[8:10]}'
 
-def get_title(pdf_doc):
+def get_title(filepath):
     """
-    pdf_doc as output by fitz.open(_filename_)
+    Public
     """
+    pdf_doc = fitz.open(filepath)
     formal_title = ""
     guess_title = ""
     if 'title' in pdf_doc.metadata:
@@ -78,55 +109,31 @@ def get_title(pdf_doc):
 
 def make_nlp_pipeline(model = 'en_core_web_md'):
     """
+    Public
     ... or use different model
     """
     nlp = spacy.load(model) 
     nlp.add_pipe('sentencizer')
     return nlp
 
-def make_sentence_list(nlp_doc):
+def _make_sentence_list(nlp_doc):
     """
+    Private
     nlp_doc as output by nlp()
+    Ouputs list of strings
     """
-    sentences = list(nlp_doc.sents)
-    return sentences
+    sent1 = list(nlp_doc.sents)
+    sent2 = [str(s) for s in sent1]
+    groups = [s.split('\n\n') for s in sent2]
+    return [s.replace('\n', ' ') for s in sum(groups, []) if _is_good_chunk(s)]
 
-def verbs(nlp, sent):
+def get_text(nlp, filepath):
     """
+    Public
     nlp as output by make_nlp_pipeline()
-    sent = sentence list
     """
-    pattern=[
-        {'POS': 'VERB', 'OP': '?'},
-        {'POS': 'ADV', 'OP': '*'},
-        {'POS': 'VERB', 'OP': '+'}
-    ]
-    # instantiate a Matcher instance
-    matcher = Matcher(nlp.vocab) 
-    # add pattern to matcher
-    matcher.add('verb-phrases', [pattern])
-    d = nlp(sent.text)
-    # call the matcher to find matches 
-    matches = matcher(d)
-    spans = [d[start:end] for _, start, end in matches] 
-    return spans
-
-def clean_sentences(nlp, sents):
-    sentences = [str(s).replace('- ','') for s in sents if len(verbs(nlp, s)) > 0 and
-                    len(s) > 3]
-    return sentences
-
-def get_text(nlp, pdf_doc):
-    """
-    nlp as output by make_nlp_pipeline()
-    pdf_doc as output by fitz.open(_filename_)
-    """
-    pages = [pdf_doc[i].get_text('blocks') for i in range(pdf_doc.page_count)]
-    all_blocks = sum(pages, [])
-    raw_text = ''.join([b[4] for b in all_blocks]).replace('\n', ' ')
-    doc = nlp(raw_text)
-    sents = clean_sentences(nlp, make_sentence_list(doc))
-    text = [s for s in sents if is_good_chunk(s)]
+    doc = pdf_reader(filepath, nlp)
+    text = _make_sentence_list(doc)
     # so far so good - now locate start of the abstract
     idx = -1
     for i in range(len(text)):
@@ -140,19 +147,3 @@ def get_text(nlp, pdf_doc):
     if idx >= 0:
         text = [init.capitalize()] + text[(idx+1):]
     return text
-
-##############################################################
-# general string functions
-
-def is_good_chunk(txt, patt = filter_patt):
-    """
-    txt is string
-    """
-    condition = bool( len(txt.split()) <= 5 ) or bool(patt.search(txt))
-    return (not condition)
-
-def get_abstract(text_list):
-    """
-    text_list as output by get_text()
-    """
-    return ' '.join(text_list[:ABSTRACT_COUNT])

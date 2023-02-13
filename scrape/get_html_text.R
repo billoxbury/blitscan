@@ -123,7 +123,7 @@ add_day_to_month <- function(date){
 domains <- xpr$domain[xpr$minable == 1]
 select_prefix <- 'SELECT * FROM links' 
 delete_prefix <- 'DELETE FROM links'
-condition_prefix <- 'WHERE "BADLINK"=0 AND "GOTTEXT"=0 AND domain LIKE'
+condition_prefix <- 'WHERE badlink=0 AND gottext=0 AND domain ILIKE'
 update_count <- 0
 domain_count <- 0
 
@@ -180,8 +180,8 @@ for(domain in domains){
           domain_df$abstract[i] <- out$abstract
           # if both title and abstract then set GOTTEXT
           if(!is.na(out$title)){
-            domain_df$GOTTEXT[i] <- 1
-            domain_df$BADLINK[i] <- 0
+            domain_df$gottext[i] <- 1
+            domain_df$badlink[i] <- 0
           }
         }
         if(VERBOSE){ print(out) }
