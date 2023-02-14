@@ -25,10 +25,12 @@ python3 ./process/fix_dates.py $pgfile
 #python3 ./process/translate_to_english.py $pgfile
 
 # (3) score title/abstract (not pdftext at this stage) on BLI text model
-python3 ./process/score_for_topic.py $pgfile $blimodelfile
-
+for i in {1..5} 
+do
+    python3 ./process/score_for_topic.py $pgfile $blimodelfiledone
 # (4) find species references in all text
-python3 ./process/find_species.py $pgfile $birdfile
+    python3 ./process/find_species.py $pgfile $birdfile
+done 
 
 # report 
 echo "Processing complete."

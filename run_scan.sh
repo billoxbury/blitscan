@@ -19,7 +19,6 @@ pgfile="$pgpath/param.txt"
 
 ########################
 # open access to Azure file share (Mac OS)
-
 #open -g $AZURE_VOLUME
 
 ########################
