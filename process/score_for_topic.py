@@ -140,6 +140,7 @@ def main():
     # connect to database
     with engine.connect() as conn:
         records = conn.execute(selecter)
+    # MAIN LOOP
     for row in records:
         thislink = row.link
         # stop if reached MAXCALLS
@@ -181,7 +182,7 @@ def main():
                         'badflagvalue': 1,
                         'scoreflagvalue': 1
                         }]
-    # END OF __for row in records__
+    # END OF MAIN LOOP
 
     # finish if no output
     if update_list == []:

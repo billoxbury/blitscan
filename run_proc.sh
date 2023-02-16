@@ -25,7 +25,7 @@ python3 ./process/fix_dates.py $pgfile
 python3 ./process/detect_language.py $pgfile
 
 # (2b) pass non-English text to Azure for translation
-#python3 ./process/translate_to_english.py $pgfile
+python3 ./process/translate_to_english.py $pgfile
 
 # (3) score title/abstract (not pdftext at this stage) on BLI text model
 python3 ./process/score_for_topic.py $pgfile $blimodelfile
