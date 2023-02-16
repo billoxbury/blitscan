@@ -117,7 +117,7 @@ def main():
     with engine.connect() as conn:
         conn.execute(updater, update_list)
         conn.commit()
-    print(len(update_list))
+    
     print(f'Read {ncalls} records, successful language-id {ngood}')
     return 0
 

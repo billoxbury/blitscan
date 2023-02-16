@@ -1,14 +1,14 @@
 """
 Take database records for which language field is not 'en' and GOTTRANSLATION is not yet set;
-make Azure Translator query for fields 'title', 'abstract', 'pdftext'; and populate the 
-translation fields 'title_translation', 'abstract_translation', 'pdftext_translation'.
+make Azure Translator query for fields 'title', 'abstract'; and populate the 
+translation fields 'title_translation', 'abstract_translation'.
 
 E.g. 
 
 open -g $AZURE_VOLUME
 pgfile="/Volumes/blitshare/pg/param.txt"
 
-./process/translate_to_english.py $pgfile
+python3 ./process/translate_to_english.py $pgfile
 
 """
 
@@ -30,6 +30,9 @@ try:
 except:
 	print(f'Cannot open file {pgfile}')
 	sys.exit(1)
+
+# global constants
+MAXCALLS = 1000
 
 # Subscription key endpoint, parameters etc
 subscription_key = os.environ['AZURE_TRANSLATION_SUBSCRIPTION_KEY']
@@ -58,8 +61,10 @@ links = Table('links', metadata_obj,
               Column('abstract', String),
               Column('title_translation', String),
               Column('abstract_translation', String),
-              Column('GOTTEXT', Integer),
-              Column('GOTTRANSLATION', Integer),
+              Column('gottext', Integer),
+              Column('gottranslation', Integer),
+              Column('gotspecies', Integer),
+              Column('species', String),
               Column('language', String)
              )
 
@@ -68,85 +73,94 @@ def main():
     ncalls = 0
     ngood = 0
 
-    # select database records
+    # select database records - restrict to those known to be non-English and to contain species mentions
     selecter = select(links).\
         where(
-            links.c.GOTTEXT == 1,
-            links.c.GOTTRANSLATION == 0,
-            links.c.language != 'en'
+            links.c.gottext == 1,
+            links.c.gotspecies == 1,
+            links.c.gottranslation == 0,
+            links.c.language != 'en',
+            links.c.species != '',
+            links.c.species != None
             )
     # initialise update list for this domain
     update_list = []
 
     # connect to database
     with engine.connect() as conn:
-        # loop over records
         records = conn.execute(selecter)
-        for row in records:
-            thislink = row.link
-			# verbose
-            print(thislink)
-            ncalls += 1
-            thislink = row.link
-            # package text for translation
-            body = [
-                {'text': row.title},
-                {'text': row.abstract},
-                ]
-            try:
-                request = requests.post(constructed_url, params=params, headers=headers, json=body)
-                response = request.json()
-                langs = [r['detectedLanguage']['language'] for r in response]
-                language = '|'.join(list(set(langs)))
-                # skip next bit if language is all English
-                if language == 'en':
-                    update_list += [{
-                            'linkvalue': row.link,
-                            'ttransvalue': '',
-                            'atransvalue': '', 
-                            'langvalue': 'en',
-                            'transflagvalue': 1
-                            }]
-                    continue
-                # otherwise proceed
-                title_translation = response[0]["translations"][0]["text"]
-                abstract_translation = response[1]["translations"][0]["text"]
-                transflag = 1
-                ngood += 1
-                # verbose
-                print(row.title)
-                print(f'{language} --> {title_translation}')
-            except Exception as ex:
-                print(response['error']['message'])
-                title_translation = ""
-                abstract_translation = ""
-                language = row.language
-                transflag = 0
+    # MAIN LOOP
+    for row in records:
+        thislink = row.link
+        # stop if reached MAXCALLS
+        if ncalls >= MAXCALLS:
+            break
+        # skip bad records
+        if row.title == "" or row.title == None or row.abstract == "" or row.abstract == None:
+            continue
+        ncalls += 1
+        # package text for translation
+        body = [
+            {'text': row.title},
+            {'text': row.abstract},
+            ]
+        try:
+            request = requests.post(constructed_url, params=params, headers=headers, json=body)
+            response = request.json()
+            langs = [r['detectedLanguage']['language'] for r in response]
+            language = '|'.join(list(set(langs)))
+            # skip next bit if language is all English
+            if language == 'en':
+                update_list += [{
+                        'linkvalue': thislink,
+                        'ttransvalue': '',
+                        'atransvalue': '', 
+                        'langvalue': 'en',
+                        'transflagvalue': 1
+                        }]
                 continue
-            # record updates
-            update_list += [{
-                            'linkvalue': row.link,
-                            'ttransvalue': title_translation,
-                            'atransvalue': abstract_translation, 
-                            'langvalue': language,
-                            'transflagvalue': transflag
-                            }]
-            # END OF __for row in records__
-        # finish if no output
-        if update_list == []:
-            print(f'Made total {ngood} translations out of {ncalls} calls')
-            return 0
-        # ... otherwise make update instructions
-        updater = links.update().\
-                where(links.c.link == bindparam('linkvalue')).\
-                values(
-                    language = bindparam('langvalue'),
-                    title_translation = bindparam('ttransvalue'),
-                    abstract_translation = bindparam('atransvalue'),
-                    GOTTRANSLATION = bindparam('transflagvalue')
-                    )
-        # ... and commit to remote table
+            # otherwise proceed
+            title_translation = response[0]["translations"][0]["text"]
+            abstract_translation = response[1]["translations"][0]["text"]
+            transflag = 1
+            ngood += 1
+            # verbose
+            print(f'{ncalls}: {row.title}')
+            print(f'{language} --> {title_translation}')
+        except Exception as ex:
+            print(response['error']['message'])
+            title_translation = ""
+            abstract_translation = ""
+            language = row.language
+            transflag = 0
+            continue
+        # record updates
+        update_list += [{
+                        'linkvalue': row.link,
+                        'ttransvalue': title_translation,
+                        'atransvalue': abstract_translation, 
+                        'langvalue': language,
+                        'transflagvalue': transflag
+                        }]
+    # END OF MAIN LOOP
+    # finish if no output
+    if update_list == []:
+        print(f'Made total {ngood} translations out of {ncalls} calls')
+        return 0
+
+    # ... otherwise make update instructions
+    updater = links.update().\
+            where(links.c.link == bindparam('linkvalue')).\
+            values(
+                language = bindparam('langvalue'),
+                title_translation = bindparam('ttransvalue'),
+                abstract_translation = bindparam('atransvalue'),
+                gottranslation = bindparam('transflagvalue')
+                )
+    # ... and commit to remote table
+    with engine.connect() as conn:
         conn.execute(updater, update_list)
+        conn.commit()
 
     print(f'Made total {ngood} translations out of {ncalls} calls')
     return 0
