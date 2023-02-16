@@ -21,7 +21,10 @@ blimodelfile="$azurepath/data/bli_model_bow_11107.json"
 # (1) date correction from (CrossRef) 'dois' table and normalisation
 python3 ./process/fix_dates.py $pgfile
 
-# (2) pass text to Azure for English translation
+# (2a) language detection using SpaCy
+python3 ./process/detect_language.py $pgfile
+
+# (2b) pass non-English text to Azure for translation
 #python3 ./process/translate_to_english.py $pgfile
 
 # (3) score title/abstract (not pdftext at this stage) on BLI text model

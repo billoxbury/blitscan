@@ -47,7 +47,7 @@ shinyServer(
       collect()
     
     output$header <- renderText({
-      "<h1 id='logo'><a href='https://www.birdlife.org/'><img src='logo/birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
+      "<h1 id='logo'><a href='https://www.birdlife.org/' target='_blank'><img src='logo/birdlifeinternational.jpg' alt='logo' width=160></a> LitScan</h1>
       <i>&#946 version</i><hr>"
     })
     
@@ -178,7 +178,7 @@ shinyServer(
               <p>Recent articles should appear here daily.</p> 
               <p>Search <b>by keyword/phrase</b> (followed by return).</p>
               <p>
-              <b><a href='%s'>More information can be found here.</a></b>
+              <b><a href='%s' target='_blank'>More information can be found here.</a></b>
               </p>
               <hr>
               <h3>PDF uploads</h3>
