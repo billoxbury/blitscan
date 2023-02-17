@@ -141,9 +141,10 @@ shinyServer(
                 %s",
                   text_out)
         } else {
-          sprintf("<h3>Found %d results</h3> 
+          sprintf("<h3>Found %s results</h3> 
                 %s",
-                  nresults, text_out)
+                  format(nresults, big.mark=','), 
+                  text_out)
         }
       }
     })

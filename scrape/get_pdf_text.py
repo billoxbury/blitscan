@@ -8,7 +8,7 @@ E.g.
 pgfile="/Volumes/blitshare/pg/param.txt"
 pdfpath="data/tmp"
 
-./scrape/get_pdf_text.py $pgfile $pdfpath
+python3 ./scrape/get_pdf_text.py $pgfile $pdfpath
 
 """
 
@@ -229,7 +229,7 @@ def main():
             conn.commit()
 
         # clean up ...
-        os.system(f'rm {pdfpath}/*')
+        os.system(f'rm {pdfpath}/*.pdf')
     # END OF LOOP over domains 
 
     # ... and report
