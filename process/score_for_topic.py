@@ -155,6 +155,10 @@ def main():
                         'scoreflagvalue': 1
                         }]
             continue
+        # skip for now if non-English with no translation
+        if row.language != 'en' and row.gottranslation == 0:
+            continue
+        # ... otherwise proceed
         ncalls += 1
         # set text to score
         try:
