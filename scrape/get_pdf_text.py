@@ -36,7 +36,7 @@ except:
 	sys.exit(1)
 
 # parameters
-MAXCALLS = 100
+MAXCALLS = 2
 MAXFNAMESIZE = 128
 
 #  global constants - filename regex
