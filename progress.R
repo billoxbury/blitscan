@@ -65,10 +65,3 @@ ggplot(d_redlist, aes(x=date,
   labs(y= "Count", x = "") + 
   theme(axis.text.x = element_text(angle = 45, vjust = 0.5, hjust=1))
 
-
-### TEMP
-
-p = 0.458333; 
-p = 8.5/12
-(2 * 1.029 ^ p * 150 + 1.0271 ^ p * 150 + 1.023 ^ p * 75 + 1.0255 ^ p * 150) - 675
-
