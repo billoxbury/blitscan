@@ -112,25 +112,22 @@ while(TRUE){
   })
 }
 
-# reduce fields to base set
-df_doi <- df_doi[intersect(fields, fields0)] 
+# reduce fields to base set, dedupe on DOI
+df_doi <- df_doi[intersect(fields, fields0)] %>%
+  distinct(doi, .keep_all = TRUE)
 
 ########################################################
 # update 'dois' table
-# THIS IS A HACK because DBI::dbWriteTable()
-# had issues with the data frame 'df_doi'
-# that I wasn't able to resolve ...
 
-tmpfile <- 'tmp.csv'
-write_csv(df_doi, tmpfile)
-
-df_tmp <- read_csv(tmpfile, show_col_types = FALSE) %>%
-  distinct(doi, .keep_all = TRUE) %>%
+DBI::dbWriteTable(conn, 'temp', df_doi, overwrite = TRUE)
+df_doi <- tbl(conn, 'temp') %>%
+  anti_join(tbl(conn, 'dois'), by='doi') %>%
+  collect() %>%
   mutate(created = as.character(created),
          deposited = as.character(deposited),
          indexed = as.character(indexed),
          issued = as.character(issued)
-         )
+  )
 
 # re-open database connection
 conn <- DBI::dbConnect(
@@ -143,9 +140,8 @@ conn <- DBI::dbConnect(
   dbname = PGDATABASE)
 
 cat(sprintf("Adding %d records to DOI table ...\n",
-            nrow(df_tmp)))
-DBI::dbWriteTable(conn, 'dois', df_tmp, append = TRUE)
-system('rm tmp.csv')
+            nrow(df_doi)))
+DBI::dbWriteTable(conn, 'dois', df_doi, append = TRUE)
 
 ########################################################
 # update 'links' table
