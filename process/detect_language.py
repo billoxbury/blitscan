@@ -105,7 +105,7 @@ def main():
 
     # finish if no output
     if update_list == []:
-        print(f'No updates to make - read {ncalls} records')
+        print(f'No language updates to make - read {ncalls} records')
         return 0
     # ... otherwise make update instructions
     updater = links.update().\

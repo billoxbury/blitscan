@@ -39,22 +39,13 @@ conn <- DBI::dbConnect(
 ########################################################
 # find & normalise new blitscan DOIs not yet in DOI database
 
-# TEMP
-#dois <- tbl(conn, 'dois')
-#links <- tbl(conn, 'links') %>%
-#  filter(donecrossref == 0 & !is.na(doi))
+dois <- tbl(conn, 'dois')
+links <- tbl(conn, 'links') %>%
+  filter(donecrossref == 0 & !is.na(doi))
 
-#anti_join(links, dois, by = c('doi')) %>%
-#  pull(doi)
-  
-#################
-
-olddoi <- tbl(conn, 'dois') %>%
-  pull(doi) 
-# get new ones:
-newdoi <- tbl(conn, 'links') %>%
-  filter(donecrossref == 0 & !is.na(doi) & !(doi %in% olddoi)) %>%
-  pull(doi) 
+# find DOIs not already in the database:
+newdoi <- anti_join(links, dois, by = c('doi')) %>%
+  pull(doi)
 cat(sprintf("Found %d new DOIs\n", 
             length(newdoi)))
 if(length(newdoi) > MAX_NR_DOIS){
@@ -121,9 +112,8 @@ while(TRUE){
   })
 }
 
-# reduce fields to base set, filter out DOIs already known
-df_doi <- df_doi[intersect(fields, fields0)] %>%
-  filter(!(doi %in% olddoi)) 
+# reduce fields to base set
+df_doi <- df_doi[intersect(fields, fields0)] 
 
 ########################################################
 # update 'dois' table

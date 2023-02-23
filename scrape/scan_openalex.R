@@ -20,7 +20,7 @@ pgfile <- args[1]
 source(pgfile)
 
 # global variables
-MAXSEARCHES <- 500 # sample size from species list
+MAXSEARCHES <- 1000 # sample size from species list
 MAXCOUNT <- 500    # upper bound on nr returns for a single search term in OA
 
 MAX_DAYS <- 10000
@@ -75,6 +75,7 @@ conn <- DBI::dbConnect(
 
 # read species table for creating search terms
 df_species <- tbl(conn, 'species') %>%
+  filter(recog == 'R') %>%
   select(status, name_com, name_sci) %>%
   collect()
 df_species$weight <- sapply(df_species$status, weighting)
