@@ -129,6 +129,7 @@ The counts in the table below are the numbers of species (normalised to _SISRecI
 ```{r red-list, echo=FALSE, warning=FALSE}
 
 df_redlist <- tbl(conn, 'species') %>%
+  filter(recog == 'R') %>%
   select(SISRecID, name_com, name_sci, status) %>%
   collect()
 df_redlist$status[is.na(df_redlist$status)] <- 'unknown'
@@ -162,8 +163,6 @@ df_out %>%
                format.args = list(big.mark = ','),
                table.attr = "style='width:50%;'")
 ```
-<p>
-(The ~13,000 species in the _OutOf_ column (via _SISRecID_) correspond to those listed in a Birdlife species spreadsheet provided by Stu Butchart. However, status was ascertained by crawling _DataZone_ pages and was not contained in the spreadsheet. The 2,027 species with 'unknown' status are simply those not included in the crawl. Their status should be known but is not currently present in the database.)
 
 <p>
 How many journal articles are we seeing per-species? (Each 'dot' below is a species. We emphasise this by labelling the top-represented species in each group.)

@@ -118,7 +118,7 @@ for(i in idx){
     ct <- as.integer(res['count'])
     if(ct > 0){
       df_species$count_sci[i] <- ct
-      cat(sprintf("%s --> %s\n", query_term, ct))
+      cat(sprintf("%d: %s --> %s\n", i, query_term, ct))
     }
   })
   if(INCLUDE_COMNAME){
@@ -136,7 +136,7 @@ for(i in idx){
       ct <- as.integer(res['count'])
       if(ct > 0){
         df_species$count_com[i] <- ct
-        cat(sprintf("%s --> %s\n", query_term, ct))
+        cat(sprintf("%d: %s --> %s\n", i, query_term, ct))
       }
     })
   }
@@ -286,6 +286,9 @@ for(i in 1:nrow(df_oa)){
     )
 }
 
+# dedupe on link
+df_links <- df_links %>%
+  distinct(link, .keep_all = TRUE)
 
 ##########################################################
 # write results to disk
@@ -294,10 +297,11 @@ for(i in 1:nrow(df_oa)){
 DBI::dbWriteTable(conn, 'openalex', df_oa, append = TRUE)
 
 # update the 'links' table
-link_list <- tbl(conn, 'links') %>%
-  pull(link)
-df_links <- df_links %>%
-  filter(!(link %in% id_list))
+DBI::dbWriteTable(conn, 'temp', df_links, overwrite = TRUE)
+df_links <- tbl(conn, 'temp') %>%
+  anti_join(tbl(conn, 'links'), by='link') %>%
+  collect()
+
 cat(sprintf("Found %d new links\n", nrow(df_links)))
 
 # add rest of data frame to the database
