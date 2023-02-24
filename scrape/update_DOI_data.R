@@ -117,18 +117,6 @@ df_doi <- df_doi[intersect(fields, fields0)] %>%
   distinct(doi, .keep_all = TRUE)
 
 ########################################################
-# update 'dois' table
-
-DBI::dbWriteTable(conn, 'temp', df_doi, overwrite = TRUE)
-df_doi <- tbl(conn, 'temp') %>%
-  anti_join(tbl(conn, 'dois'), by='doi') %>%
-  collect() %>%
-  mutate(created = as.character(created),
-         deposited = as.character(deposited),
-         indexed = as.character(indexed),
-         issued = as.character(issued)
-  )
-
 # re-open database connection
 conn <- DBI::dbConnect(
   RPostgres::Postgres(),
@@ -139,6 +127,16 @@ conn <- DBI::dbConnect(
   password = PGPASSWORD,
   dbname = PGDATABASE)
 
+# update 'dois' table
+DBI::dbWriteTable(conn, 'temp', df_doi, overwrite = TRUE)
+df_doi <- tbl(conn, 'temp') %>%
+  anti_join(tbl(conn, 'dois'), by='doi') %>%
+  collect() %>%
+  mutate(created = as.character(created),
+         deposited = as.character(deposited),
+         indexed = as.character(indexed),
+         issued = as.character(issued)
+  )
 cat(sprintf("Adding %d records to DOI table ...\n",
             nrow(df_doi)))
 DBI::dbWriteTable(conn, 'dois', df_doi, append = TRUE)
