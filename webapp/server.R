@@ -71,18 +71,22 @@ shinyServer(
       } else {
         st <- input$search %>% tolower()
         df_out <- if(input$pdfsearch) { df_tx %>%
-            filter(str_detect(tolower(pdftext), st)) 
+            filter(str_detect(tolower(pdftext), st)) %>%
+            collect()
         } else {
           df_tx %>%
             filter(str_detect(tolower(title), st) |
                      str_detect(tolower(title_translation), st) |
                      str_detect(tolower(abstract), st) |
-                     str_detect(tolower(abstract_translation), st)) 
+                     str_detect(tolower(abstract_translation), st)) %>%
+            collect()
+            
         }
+        # cheat score for file uploads
+        df_out$score[df_out$domain=='local'] <- -4.0
         # return
         df_out %>%
-          arrange(desc(score)) %>%
-          collect() 
+          arrange(desc(score)) 
       }
     })
     
@@ -110,7 +114,7 @@ shinyServer(
       score <- df_out$score
       abstract <- df_out$abstract %>% 
         str_replace_all("<\\/?[a-z][0-9]?>", " ") 
-
+    
       # mark up search terms
       if(input$search != ""){
         title <- title %>% 
