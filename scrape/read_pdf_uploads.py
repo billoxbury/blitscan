@@ -19,7 +19,7 @@ import pdf2txt
 from os import listdir
 from os.path import isfile, join
 from datetime import datetime
-from sqlalchemy import create_engine, update, insert, bindparam
+from sqlalchemy import create_engine, select, update, insert, bindparam
 from sqlalchemy import Table, Column, String, Integer, MetaData
 
 # read command line
@@ -51,7 +51,7 @@ today = str( datetime.now().date() )
 # open connection to database  
 engine = create_engine(f"postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:5432/{PGDATABASE}", echo=False)
 
-# create SQL table
+# create SQL tables
 metadata_obj = MetaData()
 links = Table('links', metadata_obj,
               Column('link', String, primary_key=True),
@@ -77,20 +77,47 @@ links = Table('links', metadata_obj,
 # find files to process
 filelist = [f for f in listdir(pdfpath) if isfile(join(pdfpath, f)) and bool(pdf_patt.search(f))]
 
-# set NLP pipeline
-nlp = pdf2txt.make_nlp_pipeline()
+def get_local_list():
+    '''
+    get current list of local files
+    ''' 
+    local_list = []
+    selecter = select(links).\
+        where(
+            links.c.domain == 'local',
+            )
+    with engine.connect() as conn:
+        uploads = conn.execute(selecter)
+    for row in uploads:
+        local_list += [row.link.lstrip("upload/")]
+    return local_list
 
 def main():
-    # initialise
+    # check we have files to process
+    if len(filelist) == 0:
+        print('No uploads found')
+        return 0
+
+    # otherwise proceed - get filenames already in the database
+    local_list = get_local_list()   
+
+    # set NLP pipeline
+    nlp = pdf2txt.make_nlp_pipeline()
+
+    # initialise for main loop
     update_list = []
     nfiles = 0
+    ngood = 0
 
     # main loop
     for file in filelist:
         # check next file
+        if file in local_list:
+            continue
         infile = join(pdfpath, file)
         if not isfile(infile):
             continue
+
         # check file limit
         if nfiles >= MAXFILES:
             break
@@ -98,50 +125,56 @@ def main():
             # set outfile locations
             wwwfile = join(wwwpath, file)
             outfile = join(outpath, file)
-        nfiles += 1
+            print(f'Processing {infile}')
+            nfiles += 1
         # proceed to file content/metadata
-        link = 'upload/' + file
-        date = pdf2txt.parse_creation_date(infile)
-        title = pdf2txt.get_title(infile)
-        text_list = pdf2txt.get_text(nlp, infile)
-        if title == "":
-            title = pdf2txt.guess_title(text_list)
-        abstract = pdf2txt.guess_abstract(text_list)
-        # verbose output
-        print(date)
-        print(link)
-        print('--->')
-        print(abstract)
-        print()
-        # record updates
-        update_list += [{
-            'linkvalue': link,
-            'datevalue': date, 
-            'titlevalue': title,
-            'abstractvalue': abstract,
-            'pdftextvalue': '\n'.join(text_list),
-            'qdatevalue': today,
-            'stermvalue': "file_upload",
-            'domainvalue': "local",
-            'langvalue': 'en',
-            # flags:
-            'textflagvalue': 1,
-            'scoreflagvalue': 0,
-            'speciesflagvalue': 0,
-            'transflagvalue': 1,
-            'crflagvalue': 0,
-            'dateflagvalue': 1,
-            'pdfflagvalue': 1,
-            'badlinkvalue': 0
-        }]
+        try:
+            link = 'upload/' + file
+            date = pdf2txt.parse_creation_date(infile)
+            title = pdf2txt.get_title(infile)
+            text_list = pdf2txt.get_text(nlp, infile)
+            if title == "":
+                title = pdf2txt.guess_title(text_list)
+            abstract = pdf2txt.guess_abstract(text_list)
+            # verbose output
+            print(date)
+            print(link)
+            print('--->')
+            print(abstract)
+            print()
+            # record updates
+            update_list += [{
+                'linkvalue': link,
+                'datevalue': date, 
+                'titlevalue': title,
+                'abstractvalue': abstract,
+                'pdftextvalue': '\n'.join(text_list),
+                'qdatevalue': today,
+                'stermvalue': "file_upload",
+                'domainvalue': "local",
+                'langvalue': '',
+                # flags:
+                'textflagvalue': 1,
+                'scoreflagvalue': 0,
+                'speciesflagvalue': 0,
+                'transflagvalue': 1,
+                'crflagvalue': 0,
+                'dateflagvalue': 1,
+                'pdfflagvalue': 1,
+                'badlinkvalue': 0
+            }]
+            ngood += 1
+        except:
+            print(f'Broken file {infile}') 
         # move file to out-tray
         res1 = os.system(f'cp {infile} {wwwfile}')
         res2 = os.system(f'mv {infile} {outfile}')
+        res3 = os.system(f'chmod 644 {wwwpath}/*')
     # END OF main loop
 
     # quit if no output
     if update_list == []:
-        print(f'Got text from {nfiles} files')
+        print(f'Got text from {ngood} out of {nfiles} files')
         return 0
         
     # make update instructions 
@@ -172,7 +205,7 @@ def main():
         conn.execute(updater, update_list)
         conn.commit()
     # report
-    print(f'Got text from {nfiles} files')
+    print(f'Got text from {ngood} out of {nfiles} files')
     return 0
 
 #############################################################
