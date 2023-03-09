@@ -82,9 +82,10 @@ def get_tokens(doc):
                and token.is_alpha]
     return list(set(txt_words))
 
-def bli_score(sentence):
+def bli_score(sentence, MINWORDS = 6):
     """
-    compute score of a sentence
+    Compute score of a sentence.
+    Override if length is less than MINWORDS
     """
     if isinstance(sentence, str):
         doc = nlp(sentence)
@@ -92,12 +93,15 @@ def bli_score(sentence):
         doc = sentence
     tokens = get_tokens(doc)
     ct = 0
-    for tok in tokens:
-        if tok in bli_loglik.keys():
-            ct += bli_loglik[tok]
-        else:
-            ct += LOGZERO
-    return ct / len(tokens)
+    if len(tokens) < MINWORDS:
+        return LOGZERO
+    else:
+        for tok in tokens:
+            if tok in bli_loglik.keys():
+                ct += bli_loglik[tok]
+            else:
+                ct += LOGZERO
+        return ct / len(tokens)
 
 def verbs(sent):
     pattern=[

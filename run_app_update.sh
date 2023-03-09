@@ -25,10 +25,7 @@ IMGNAME='blitscanpg'
 # - processes in blocks (default size 50), max 1000 DOIs before writing to d/b
 
 # !! RUN LOCALLY - STILL DOESN'T WORK ON AVM
-for i in {1..2} # <--- SET AS NEEDED
-do
-    Rscript ./scrape/update_DOI_data.R $pgfile
-done 
+Rscript ./scrape/update_DOI_data.R $pgfile
 
 # (3) download Wiley SCB pdf files
 # NEEDS EDITING TO AVOID STORING PDFS
