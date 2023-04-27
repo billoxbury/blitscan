@@ -96,11 +96,13 @@ _progress_ records metrics from processing, indexed by date, and has structure:
     Indexes:
         "progress_pk" PRIMARY KEY, btree (date)
 
+The file _pg\_views.sh_ in this directory: contains only informal notes and some examples of views into the database.
+
 ## Azure deployment
 
 Deployment of the whole system is in Microsoft Azure. It lives under a single subscription and is subdivided into three resource groups _scrapeRG_, _procRG_ and _webappRG_. 
 
-Resources common to all three components, such as the database _blitscan-pg_, are hosted under _webappRG_. This also include a storage account _blitstore_, which contains a simngle file share _blitshare_. 
+Resources common to all three components, such as the database _blitscan-pg_, are hosted under _webappRG_. This also include a storage account _blitstore_, which contains a single file share _blitshare_. 
 
 _blitshare_ has a directory structure:
 
@@ -109,4 +111,6 @@ _blitshare_ has a directory structure:
     /pg             - protected PostGres credentials for access to the database
     /reports        - location for reports, including a subdirectory of 'scraper' dashboard files
 
+Code from _scrape_ and _process_ (LitScan stages 1,2) are run in an Ubuntu VM _blitscanVM_. The file _azure\_vm.sh_ in this directory contains all the set-up code for this VM.
 
+The webapp (LitScan stage 3) is deployed as an Azure web app _blitscanapp_, wich runs a Docker container held in the container registry _blitscanappcontainers_. More details can be found in the _scrape_ _README_ file.
