@@ -23,7 +23,7 @@ Hosted in Azure with everything else, the PG database is stores everything. It c
 _links_ is the main table of documents, indexed by filed _link_ which is a URL of the document. Its strucutre is:
 
                            Table "public.links"
-        Column        |       Type       | Collation | Nullable | Default 
+            Column        |       Type       | Collation | Nullable | Default 
     ----------------------+------------------+-----------+----------+---------
     date                 | text             |           |          | 
     link                 | text             |           | not null | 
@@ -59,42 +59,42 @@ The integer fields 'badlink' etc are used as boolean flags for processing contro
 _species_ contains BirdLife International's species information. Its structure is:
 
                 Table "public.species"
-   Column   |  Type   | Collation | Nullable | Default 
-------------+---------+-----------+----------+---------
- link       | text    |           |          | 
- name_com   | text    |           |          | 
- name_sci   | text    |           |          | 
- SISRecID   | integer |           |          | 
- date       | text    |           |          | 
- text_main  | text    |           |          | 
- text_short | text    |           |          | 
- status     | text    |           |          | 
- recog      | text    |           |          | 
- syn        | text    |           |          | 
- alt        | text    |           |          | 
+       Column   |  Type   | Collation | Nullable | Default 
+    ------------+---------+-----------+----------+---------
+    link       | text    |           |          | 
+    name_com   | text    |           |          | 
+    name_sci   | text    |           |          | 
+    SISRecID   | integer |           |          | 
+    date       | text    |           |          | 
+    text_main  | text    |           |          | 
+    text_short | text    |           |          | 
+    status     | text    |           |          | 
+    recog      | text    |           |          | 
+    syn        | text    |           |          | 
+    alt        | text    |           |          | 
 
 _progress_ records metrics from processing, indexed by date, and has structure:
 
                 Table "public.progress"
-   Column   |  Type   | Collation | Nullable | Default 
- ------------+---------+-----------+----------+---------
- date       | text    |           | not null | 
- docs       | integer |           |          | 
- species    | integer |           |          | 
- titles     | integer |           |          | 
- publishers | integer |           |          | 
- LC         | integer |           |          | 
- NT         | integer |           |          | 
- VU         | integer |           |          | 
- EN         | integer |           |          | 
- CR         | integer |           |          | 
- EX         | integer |           |          | 
- DD         | integer |           |          | 
- PE         | integer |           |          | 
- EW         | integer |           |          | 
- pdf        | integer |           |          | 
-Indexes:
-    "progress_pk" PRIMARY KEY, btree (date)
+       Column   |  Type   | Collation | Nullable | Default 
+     ------------+---------+-----------+----------+---------
+     date       | text    |           | not null | 
+    docs       | integer |           |          | 
+    species    | integer |           |          | 
+    titles     | integer |           |          | 
+    publishers | integer |           |          | 
+    LC         | integer |           |          | 
+    NT         | integer |           |          | 
+    VU         | integer |           |          | 
+    EN         | integer |           |          | 
+    CR         | integer |           |          | 
+    EX         | integer |           |          | 
+    DD         | integer |           |          | 
+    PE         | integer |           |          | 
+    EW         | integer |           |          | 
+    pdf        | integer |           |          | 
+    Indexes:
+        "progress_pk" PRIMARY KEY, btree (date)
 
 ## Azure deployment
 
