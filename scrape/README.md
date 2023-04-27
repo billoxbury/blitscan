@@ -35,6 +35,16 @@ The last script _find\_link\_dois.py_ checks all new DOIs that have been found a
 
 ## Stage 2: collect text
 
+The following R and Python scripts are run in sequence:
+
+    get_html_text.R             # use X-path rules to extract title/abstract from new URLs
+    update_DOI_data.R           # use CrossRef to get publication details against new DOIs
+    get_wiley_pdf.py            # check DOI data for new Wiley articles and download PDFs
+    read_pdf_uploads.py         # get text from manually uploaded PDFs (by BirdLife International users)
+    read_wiley_pdf.py           # get text from Wiley PDFs
+    get_pdf_text.py             # for minable domains, download PDF, read text, delete PDF
+    remove_duplicates.sh        # dedupe main table for URL; dedupe DOI table
+
 
 
 
