@@ -18,7 +18,7 @@ For non-English articles, translations are added to the database in the _title\_
 
 It is desirable to extend non-English coverage of LitScan in the future. The benefit of this has been discussed briefly in [this blog](https://medium.com/@oxburybill/language-barriers-in-global-conservation-4bafd3d598d3).
 
-The main innovation of LitScan is its relevance scoring. This uses a bag-of-words model trained on 11,000 BirdLife species assessments. A technical wrote-up of the method is in progress. The model training code is in the directory _./models_, and the model itself is stored as a JSON file: 
+The main innovation of LitScan is its relevance scoring. This uses a bag-of-words model trained on 11,107 BirdLife species assessments. A technical write-up of the method is in progress. The model training code is in the directory _./models_, and the model itself is stored as a JSON file: 
 
     blitshare/bli_model_bow_11107.json
 
