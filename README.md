@@ -24,35 +24,35 @@ _links_ is the main table of documents, indexed by filed _link_ which is a URL o
 
                            Table "public.links"
         Column        |       Type       | Collation | Nullable | Default 
-----------------------+------------------+-----------+----------+---------
- date                 | text             |           |          | 
- link                 | text             |           | not null | 
- link_name            | text             |           |          | 
- snippet              | text             |           |          | 
- language             | text             |           |          | 
- title                | text             |           |          | 
- abstract             | text             |           |          | 
- pdf_link             | text             |           |          | 
- domain               | text             |           |          | 
- search_term          | text             |           |          | 
- query_date           | text             |           |          | 
- badlink              | integer          |           |          | 
- donepdf              | integer          |           |          | 
- gottext              | integer          |           |          | 
- gotscore             | integer          |           |          | 
- gotspecies           | integer          |           |          | 
- score                | double precision |           |          | 
- species              | text             |           |          | 
- doi                  | text             |           |          | 
- title_translation    | text             |           |          | 
- abstract_translation | text             |           |          | 
- gottranslation       | integer          |           |          | 
- donecrossref         | integer          |           |          | 
- pdftext              | text             |           |          | 
- pdftext_translation  | text             |           |          | 
- datecheck            | integer          |           |          | 
-Indexes:
-    "links_pkey" PRIMARY KEY, btree (link)
+    ----------------------+------------------+-----------+----------+---------
+    date                 | text             |           |          | 
+    link                 | text             |           | not null | 
+    link_name            | text             |           |          | 
+    snippet              | text             |           |          | 
+    language             | text             |           |          | 
+    title                | text             |           |          | 
+    abstract             | text             |           |          | 
+    pdf_link             | text             |           |          | 
+    domain               | text             |           |          | 
+    search_term          | text             |           |          | 
+    query_date           | text             |           |          | 
+    badlink              | integer          |           |          | 
+    donepdf              | integer          |           |          | 
+    gottext              | integer          |           |          | 
+    gotscore             | integer          |           |          | 
+    gotspecies           | integer          |           |          | 
+    score                | double precision |           |          | 
+    species              | text             |           |          | 
+    doi                  | text             |           |          | 
+    title_translation    | text             |           |          | 
+    abstract_translation | text             |           |          | 
+    gottranslation       | integer          |           |          | 
+    donecrossref         | integer          |           |          | 
+    pdftext              | text             |           |          | 
+    pdftext_translation  | text             |           |          | 
+    datecheck            | integer          |           |          | 
+    Indexes:
+        "links_pkey" PRIMARY KEY, btree (link)
 
 The integer fields 'badlink' etc are used as boolean flags for processing control.
 
@@ -77,7 +77,7 @@ _progress_ records metrics from processing, indexed by date, and has structure:
 
                 Table "public.progress"
    Column   |  Type   | Collation | Nullable | Default 
-------------+---------+-----------+----------+---------
+ ------------+---------+-----------+----------+---------
  date       | text    |           | not null | 
  docs       | integer |           |          | 
  species    | integer |           |          | 
