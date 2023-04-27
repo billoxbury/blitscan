@@ -1,6 +1,28 @@
 # BirdLife LitScan: web scraper
 
-The function of this service is to crawl the web and publish a database of URLs together with text extracts plus publication date and other metadata.
+The function of this service is to crawl the web and to update the PostGres database with new documents – a document represented by a URL together with title, abstract (sometimes fuller text),  DOI, publication date and other metadata.
+
+The end-to-end scraper service is called by the script _../run\_scan.sh_. It conssits of two stages.
+
+## Stage 1: collect URLs
+
+The following R and Python scripts are run in sequence:
+
+    ./custom_search_bing.py     # currently inacitve due to T&C changes
+    ./archive_indexes.R         # scans bioRxiv, J-Stage
+    ./scan_openalex.R           # scans OpenAlex
+    ./scan_oai_sources.R        # scans BioOne journals using OAI [if date = 0 mod 10]
+    ./journal_indexes.R         # scans named journals explicitly [if date = 0 mod 10]
+    ./scan_conbio.R             # scans blitshare/data/wiley/html for HTML files
+                                                                  [if date = 0 mod 10]
+    ./find_link_dois.py         # checks new results for DOI and adds these to _dois_ database table
+
+## Stage 2: collect text
+
+
+
+
+
 
 ## How it currently works
 

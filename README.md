@@ -4,15 +4,15 @@ This repository contains code for a Birdlife International project [blitscan](ht
 
 The aims of the project are to compile in one place links to web resources (currently that means open access journal articles, but we hope to grow the scope) relevant to the work of BirdLife in making assessments of species' red-list status.
 
-The LitScan process logically has three components:
+The LitScan process logically has three component services:
 
 1. Scan the web for content, which is stored in a PostGres database.
 2. Process text in database: translate to English, score for relevance, locate species mentions.
 3. Web app UI: user access to database results.
 
-Functions under 1,2,3 are treated as independent micro-services. In the current repo, they are represented by code in the directories _scrape_, _process_, _webapp_. Each of these directories has its own _README_ file.
+Functions under 1,2,3 are treated as independent micro-services. In the current repo, they are represented by code in the directories _scrape_, _process_, _webapp_. Each of these directories has its own _README_ file that describes the service in more detail.
 
-Stages 1,2,3 are run as a single end-to-end process by the script _run\_all.sh_. This calls run scripts for each of 1,2,3, more details of which can be found in the respective _README_ files.
+The services 1,2,3 are run as a single end-to-end process by the script _run\_all.sh_. This call a script for each service, more details of which can be found in the respective _README_ files.
 
 We'll say a word in this _README_ about the database and about the Azure deployment of 1,2,3.
 
