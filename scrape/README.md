@@ -1,14 +1,14 @@
 # BirdLife LitScan: web scraper
 
-The function of this service is to crawl the web and to update the PostGres database with new documents – a document represented by a URL together with title, abstract (sometimes fuller text),  DOI, publication date and other metadata.
+The function of this service is to crawl the web and to update the PostGres database with new documents – a document represented by a URL together with title, abstract (sometimes fuller text),  DOI, publication date, PDF link if known, and other metadata.
 
-The end-to-end scraper service is called by the script _../run\_scan.sh_. It conssits of two stages.
+The end-to-end scraper service is called by the script _../run\_scan.sh_. It consists of two stages.
 
 ## Stage 1: collect URLs
 
 The following R and Python scripts are run in sequence:
 
-    ./custom_search_bing.py     # currently inacitve due to T&C changes
+    ./custom_search_bing.py     # currently inactive due to T&C changes
     ./archive_indexes.R         # scans bioRxiv, J-Stage
     ./scan_openalex.R           # scans OpenAlex
     ./scan_oai_sources.R        # scans BioOne journals using OAI [if date = 0 mod 10]
@@ -17,19 +17,28 @@ The following R and Python scripts are run in sequence:
                                                                   [if date = 0 mod 10]
     ./find_link_dois.py         # checks new results for DOI and adds these to _dois_ database table
 
+Some comments:
+
+The first of these scripts uses an Azure resource _blitscanCS_, which is a Bing Custom Search account. This specifies target domains e.g. _www.nature.com_, _journals.plos.org_, _www.orientalbirdclub.org_ etc (about 18 domains currently), and searches for species (scientific) names against these domains. 
+
+However, Bing CS is now inactive because of [API use and display requirements](https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/use-display-requirements) which came into force in January 2023 preventing storage of search returns.
+
+In the first three scripts (_bing_, _archive_ and _openalex_) each runs daily searches against a randomised subset of species scientific names. This subset is currently configured to 500 species, probabilistically weighted toward non-LC, non-EX IUCN categories.
+
+The next two scripts (_oai_, _journal_) hoover up everything new they can find. They consult the database table _domains_ to look up X-path rules by which different domains store date/title/abstract/DOI as HTML metadata.
+
+Some publishers prevent web scraping using services such as CloudFlare. If scraping is allowed, the field _minable_ is set to 1 in the table _domains_.
+
+Wiley is one of the publishers that prohibits web scraping, and download of PDFs (for SCB journals) is allowed by special agreement with BirdLife International. However, locating these PDFs is a part manual process: HTML of recent contents pages is manually downloaded and stored in the directory _blitshare/data/wiley/html_. The script _scan\_conbio.R_ then reads these HTML files, finds all DOIs of new articles and adds these to the database.
+
+The last script _find\_link\_dois.py_ checks all new DOIs that have been found and adds these to a separate database table _dois_ for later use.
+
 ## Stage 2: collect text
 
 
 
 
 
-
-## How it currently works
-
-The current code runs the following steps daily (some in two flavours, Google or Bing):
-
-1. _custom_search_***.py_ Takes a list of web domains, plus a list of search terms (see _data_ directory), and runs a (Google or Bing) custom search against a random subset of the search terms. The top ten responses (consisting of URLs plus metadata) are stored in JSON format, indexed by the pair _(query date, search term)_.
-2. _json_to_csv_***.py_ Scans the new URLs in the JSON file, filtering on some simple rules and adding the 'good' ones to a (CSV) database that will be used in steps 3,4.
 3. _journal_indexes_to_csv.R_ adds more URLs to the CSV database by targeted search of journal listings.
 4. _cs_get_html_text.R_ For each new URL in the database, requests the HTML and attempts to extract publication date, title, abstract and URL of any PDF. To do this, it reads a database _xpath_rules.csv_ from the data directory. This contains the HTML rules needed for each domain visited.
 5. _cs_get_pdf_text.py_ Same as step 3, but this time following URL to PDF documents. 
