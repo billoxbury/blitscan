@@ -20,10 +20,10 @@ We'll say a word in this _README_ about the database and about the Azure deploym
 
 Hosted in Azure with everything else, the PG database is stores everything. It contains various tables, of which three should be mentioned here.
 
-_links_ is the main table of documents, indexed by filed _link_ which is a URL of the document. Its strucutre is:
+_links_ is the main table of documents, indexed by field _link_ which is a URL of the document. Its strucutre is:
 
                            Table "public.links"
-            Column        |       Type       | Collation | Nullable | Default 
+           Column        |       Type       | Collation | Nullable | Default 
     ----------------------+------------------+-----------+----------+---------
     date                 | text             |           |          | 
     link                 | text             |           | not null | 
@@ -59,7 +59,7 @@ The integer fields 'badlink' etc are used as boolean flags for processing contro
 _species_ contains BirdLife International's species information. Its structure is:
 
                 Table "public.species"
-       Column   |  Type   | Collation | Nullable | Default 
+      Column   |  Type   | Collation | Nullable | Default 
     ------------+---------+-----------+----------+---------
     link       | text    |           |          | 
     name_com   | text    |           |          | 
@@ -76,9 +76,9 @@ _species_ contains BirdLife International's species information. Its structure i
 _progress_ records metrics from processing, indexed by date, and has structure:
 
                 Table "public.progress"
-       Column   |  Type   | Collation | Nullable | Default 
-     ------------+---------+-----------+----------+---------
-     date       | text    |           | not null | 
+      Column   |  Type   | Collation | Nullable | Default 
+    ------------+---------+-----------+----------+---------
+    date       | text    |           | not null | 
     docs       | integer |           |          | 
     species    | integer |           |          | 
     titles     | integer |           |          | 
@@ -97,4 +97,16 @@ _progress_ records metrics from processing, indexed by date, and has structure:
         "progress_pk" PRIMARY KEY, btree (date)
 
 ## Azure deployment
+
+Deployment of the whole system is in Microsoft Azure. It lives under a single subscription and is subdivided into three resource groups _scrapeRG_, _procRG_ and _webappRG_. 
+
+Resources common to all three components, such as the database _blitscan-pg_, are hosted under _webappRG_. This also include a storage account _blitstore_, which contains a simngle file share _blitshare_. 
+
+_blitshare_ has a directory structure:
+
+    /costing        - contains some cost estimate reports
+    /data           - mainly temporary storage for PDF processing; some legacy data sets
+    /pg             - protected PostGres credentials for access to the database
+    /reports        - location for reports, including a subdirectory of 'scraper' dashboard files
+
 
