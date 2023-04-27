@@ -517,16 +517,21 @@ df_score <- df_tx %>%
 
 qs <- quantile(df_score$score, na.rm=TRUE)
 
+#pts <- c(-3.781, -4.171, -5.0,-6.0, -7.0,-8.0,-9.0,-10.0,-11.001,-12.003, -13.004)
+
 df_score %>% 
   ggplot(aes(score)) +
   geom_histogram(binwidth = 0.4,
-                 colour = "blue",
+                 colour = "white",
                  fill = "lightblue") +
+  #geom_rug(data = tibble(pts),
+  #         aes(x = pts), 
+  #         col = "red") +
   geom_rug(data = tibble(qs)[2:4,],
            aes(x = qs), 
            col = "red") +
   labs(x = "Relevance score",
-       y = "URL count")
+       y = "Document count")
 ```
 
 This score then provides a basis for comparing domains. (Note that the red quartile markers are those for the overall distribution and are the same for all subplots.) For clarity we only show domains exceeding a count threshold:

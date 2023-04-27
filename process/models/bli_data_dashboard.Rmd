@@ -77,7 +77,9 @@ We can look at both word count and sentence count. The following plot shows that
 
 ```{r words-per-sentence, fig.height = 4, fig.width = 8, echo=FALSE, warning = FALSE}
 
-df %>% ggplot(aes(y = wsize, 
+df %>%
+  filter(!is.na(status)) %>%
+  ggplot(aes(y = wsize, 
                   x = ssize,
                   color = status)) +
   geom_point(
