@@ -63,7 +63,7 @@ The Docker container needs access to the Azure file share _blitshare_, in order 
 
 In terms of Azure resources: the Docker image is uploaded to the Container Registry _blitscanappcontainers_ as the 'repository' _blitscanpg_. This repository is called by the web app _blitscanapp_, with the _blitshare_ mount configured under 'path mappings'.
 
-For debugging the app at development time, the process is: first debug in R running locally (with the _LOCAL_ variable set to _TRUE_); once working in R, degug the Docker container running locally (there are command lines for this commented out in the script _run\_app\_update.sh_); finally, if there are problems running the trusted container from the web app, one should consult the Azure logs for _blitscanapp_.
+For debugging the app at development time, the process is: first debug in R running locally (with the _LOCAL_ variable set to _TRUE_); once changes work correctly in R, debug the Docker container running locally (there are command lines for this commented out in the script _run\_app\_update.sh_); finally, if there are problems running the (now trusted) container from the web app, one should consult the Azure logs for _blitscanapp_.
 
 Finally, a remark about the folder _www/_. This is not visible in GitHub, but has contents:
 
@@ -84,11 +84,11 @@ The Azure resources in use for basic deployment of the web app have been discuss
     blitstore               # storage account containing file share
     blitscan-pg             # PostGres database
 
-With these resources the running app can be accessed at a URL listed in the web app's control pane. However, this is not sufficient for secure deployment to the BirdLife domain running behind the BirdLife firewall. For this the following networking resources are also needed:
+With these resources, the running app can be accessed at a URL listed in the web app's control pane. However, this is not sufficient for secure deployment to the BirdLife domain running behind the BirdLife firewall. For this the following networking resources are also needed:
 
     BlitAG                  # Application Gateway
     blitIP                  # Public IP address assigned to the gateway
-    blitVN                  # Virtual Network with subnets hosting the web app and the app gateway
+    blitVN                  # Virtual Network with subnets hosting the web app and the application gateway
 
 The BirdLife firewall is then linked to the application gateway via the public IP address.
 
