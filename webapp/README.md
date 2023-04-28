@@ -13,6 +13,10 @@ As to functionality: this is kept as lean as possible, and although by default r
 All results are presented in descending score order, i.e. most relevant at the top. The traffic light indicators are based on score quantiles (green = top 25%, amber = middle 50%, red = bottom 25%). 
 
 
+## Dashboard
+
+The file _dashboard.Rmd_ is run as part of the process. It automatically generates the HTML file _dashboard.html_ in reports.
+
 ## Design thoughts
 
 The main function currently wanting is interaction with the user, and especially: 

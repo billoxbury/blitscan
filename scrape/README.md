@@ -50,7 +50,3 @@ At the end of this process, the database has been update with new document text.
 Text extraction from PDF is imperfect and uses routines in _./pdf2txt.py_ (which uses libraries _PyMuPDF_ and _spaCy_). 
 
 (Comment: the position of _update\_DOI\_data.R_ in the above sequence is logical, though in practice it currently runs elsewhere because of a bug that needs fixing which prevents the library _rcrossref_ running on the Ubuntu VM.)
-
-## Metrication
-
-The file _scraper_dashboard.Rmd_ is now run in a later part of the process. It automatically generates the HTML file  _scraper\_dashboard.html_ in _reports_ and is described in the _webapp_ _README_.
