@@ -1,6 +1,6 @@
 # BirdLife LitScan: web scraper
 
-The function of this service is to crawl the web and to update the PostGres database with new documents – a document represented by a URL together with title, abstract (sometimes fuller text),  DOI, publication date, PDF link if known, and other metadata.
+The function of this service is to crawl the web and to update the PostGres database with new documents. A document is represented by a URL together with title, abstract (sometimes fuller text),  DOI, publication date, PDF link if known, and other metadata.
 
 The end-to-end scraper service is called by the script _../run\_scan.sh_. It consists of two stages.
 
@@ -21,9 +21,9 @@ Some comments:
 
 The first of these scripts uses an Azure resource _blitscanCS_, which is a Bing Custom Search account. This specifies target domains e.g. _www.nature.com_, _journals.plos.org_, _www.orientalbirdclub.org_ etc (about 18 domains currently), and searches for species (scientific) names against these domains. 
 
-However, Bing CS is now inactive because of [API use and display requirements](https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/use-display-requirements) which came into force in January 2023 preventing storage of search returns.
+However, Bing CS is now inactive because of [API use and display requirements](https://learn.microsoft.com/en-us/bing/search-apis/bing-web-search/use-display-requirements) which came into force in January 2023 prohibiting storage of search returns.
 
-In the first three scripts (_bing_, _archive_ and _openalex_) each runs daily searches against a randomised subset of species scientific names. This subset is currently configured to 500 species, probabilistically weighted toward non-LC, non-EX IUCN categories.
+The first three scripts (_bing_, _archive_ and _openalex_) each run daily searches against a randomised subset of species scientific names. This subset is currently configured to 500 species, probabilistically weighted toward non-LC, non-EX IUCN categories.
 
 The next two scripts (_oai_, _journal_) hoover up everything new they can find. They consult the database table _domains_ to look up X-path rules by which different domains store date/title/abstract/DOI as HTML metadata.
 
@@ -45,8 +45,8 @@ The following R and Python scripts are run in sequence:
     get_pdf_text.py             # for minable domains, download PDF, read text, delete PDF
     remove_duplicates.sh        # dedupe main table for URL; dedupe DOI table
 
-At the end of this process, the database has been update with new document text. This text is title plus abstract only if, as in the lajority of cases, these are available from metadata. Where text is not available from metadata, we download and extract text from PDF if we have a link. Or we extract text from PDF is where we have no choice (e.g. Wiley, manually uploaded PDFs).
+At the end of this process, the database has been update with new document text. This text is title plus abstract only if, as in the majority of cases, these are available from metadata. Where text is not available from metadata, we download and extract text from PDF if we have a link. Or we extract text from PDF is where we have no choice (e.g. Wiley, manually uploaded PDFs).
 
-Text extraction from PDF is imperfect and uses routines in _./pdf2txt.py_ (which uses libraries _PyMuPDF_ and _spaCy_). 
+Text extraction from PDF is imperfect and uses routines in _./pdf2txt.py_ (which in turn calls libraries _PyMuPDF_ and _spaCy_). 
 
 (Comment: the position of _update\_DOI\_data.R_ in the above sequence is logical, though in practice it currently runs elsewhere because of a bug that needs fixing which prevents the library _rcrossref_ running on the Ubuntu VM.)

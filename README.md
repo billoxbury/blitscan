@@ -20,7 +20,7 @@ We'll say a word in this _README_ about the database and about the Azure deploym
 
 All three services talk to a PG database. It contains various tables, of which two should be mentioned here.
 
-_links_ is the main table of documents, indexed by field _link_ which is a URL of the document. Its strucutre is:
+_links_ is the main table of documents, indexed by field _link_ which is a URL of the document. Its structure is:
 
                            Table "public.links"
            Column        |       Type       | Collation | Nullable | Default 
