@@ -1,12 +1,12 @@
 # BirdLife LitScan
 
-This repository contains code for a Birdlife International project [blitscan](https://blitscan.birdlife.org) on search/information discovery from the scientific literature. 
+This repository contains code for a Birdlife International project [LitScan](https://litscan.birdlife.org) on search/information discovery from the scientific literature. 
 
-The aims of the project are to compile in one place links to web resources (currently that means open access journal articles, but we hope to grow the scope) relevant to the work of BirdLife in making assessments of species' red-list status.
+The aims of the project are to compile in one place links to web resources relevant to the work of BirdLife in making assessments of species' IUCN red-list status.
 
-The LitScan process logically has three component services:
+The LitScan codebase divides into three component services:
 
-1. Scan the web for content, which is stored in a PostGres database.
+1. Scan the web for content, which gets stored in a PostGres database.
 2. Process text in database: translate to English, score for relevance, locate species mentions.
 3. Web app UI: user access to database results.
 
