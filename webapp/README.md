@@ -72,15 +72,23 @@ Finally, a remark about the folder _www/_. This is not visible in GitHub, but ha
     www/score/
     www/upload/
 
-The first has been discussed; the second and third contain images used by the app (e.g. traffic lights). The last _www/upload/_ contains all PDFs uploaded via the file upload widget in the app. This is inefficient as the the whole set of PDFs has to uploaded with the Docker image at every update. _It needs to be replaced by a mechanism by which the app accesses a static PDF repository in blitshare._
+The first has been discussed; the second and third contain images used by the app (e.g. traffic lights). The last _www/upload/_ contains all PDFs uploaded via the file upload widget in the app. This is inefficient as the the whole set of PDFs has to be uploaded with the Docker image at every update. _It needs to be replaced by a mechanism by which the app accesses a static PDF repository in blitshare._
 
 ## Azure architecture
 
+The Azure resources in use for basic deployment of the web app have been discussed: 
 
+    blitscanapp             # Web App
+    blitscanASP             # App Service Plan (where Azure manages the app)
+    blitscanappcontainers   # container registry hosting Docker image
+    blitstore               # storage account containing file share
+    blitscan-pg             # PostGres database
 
-## TO-DO
+With these resources the running app can be accessed at a URL listed in the web app's control pane. However, this is not sufficient for secure deployment to the BirdLife domain running behind the BirdLife firewall. For this the following networking resources are also needed:
 
-- Add a button to toggle between original and translated text for non-English content. 
-- Replace the static date with a writable field that the user can manually overwrite.
-- Replace the static traffic light with a dynamic one that can be 'rolled' to a different position.
-- Build a pipeline of user input (date, score or free text) as a pub-sub service to the _process_ phase.
+    BlitAG                  # Application Gateway
+    blitIP                  # Public IP address assigned to the gateway
+    blitVN                  # Virtual Network with subnets hosting the web app and the app gateway
+
+The BirdLife firewall is then linked to the application gateway via the public IP address.
+
