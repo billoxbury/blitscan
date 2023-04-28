@@ -7,18 +7,18 @@ The aims of the project are to compile in one place links to web resources relev
 The LitScan codebase divides into three component services:
 
 1. Scan the web for content, which gets stored in a PostGres database.
-2. Process text in database: translate to English, score for relevance, locate species mentions.
-3. Web app UI: user access to database results.
+2. Process text in the database: translate to English, score for relevance, locate species mentions.
+3. Web app: UI for access to database results, plus dashboard.
 
 Functions under 1,2,3 are treated as independent micro-services. In the current repo, they are represented by code in the directories _scrape_, _process_, _webapp_. Each of these directories has its own _README_ file that describes the service in more detail.
 
-The services 1,2,3 are run as a single end-to-end process by the script _run\_all.sh_. This call a script for each service, more details of which can be found in the respective _README_ files.
+The services 1,2,3 are run as a single end-to-end process by the script _run\_all.sh_. This calls a script for each service, more details of which can be found in the respective _README_ files.
 
-We'll say a word in this _README_ about the database and about the Azure deployment of 1,2,3.
+We'll say a word in this _README_ about the database and about the Azure deployment.
 
 ## PostGres database
 
-Hosted in Azure with everything else, the PG database is stores everything. It contains various tables, of which three should be mentioned here.
+All three services talk to a PG database. It contains various tables, of which two should be mentioned here.
 
 _links_ is the main table of documents, indexed by field _link_ which is a URL of the document. Its strucutre is:
 
@@ -73,36 +73,13 @@ _species_ contains BirdLife International's species information. Its structure i
     syn        | text    |           |          | 
     alt        | text    |           |          | 
 
-_progress_ records metrics from processing, indexed by date, and has structure:
-
-                Table "public.progress"
-      Column   |  Type   | Collation | Nullable | Default 
-    ------------+---------+-----------+----------+---------
-    date       | text    |           | not null | 
-    docs       | integer |           |          | 
-    species    | integer |           |          | 
-    titles     | integer |           |          | 
-    publishers | integer |           |          | 
-    LC         | integer |           |          | 
-    NT         | integer |           |          | 
-    VU         | integer |           |          | 
-    EN         | integer |           |          | 
-    CR         | integer |           |          | 
-    EX         | integer |           |          | 
-    DD         | integer |           |          | 
-    PE         | integer |           |          | 
-    EW         | integer |           |          | 
-    pdf        | integer |           |          | 
-    Indexes:
-        "progress_pk" PRIMARY KEY, btree (date)
-
-The file _pg\_views.sh_ in this directory: contains only informal notes and some examples of views into the database.
+The file _pg\_views.sh_ in this directory contains informal notes and some examples of views into the database.
 
 ## Azure deployment
 
 Deployment of the whole system is in Microsoft Azure. It lives under a single subscription and is subdivided into three resource groups _scrapeRG_, _procRG_ and _webappRG_. 
 
-Resources common to all three components, such as the database _blitscan-pg_, are hosted under _webappRG_. This also include a storage account _blitstore_, which contains a single file share _blitshare_. 
+Resources common to all three components, such as the database _blitscan-pg_, are hosted under _webappRG_. This also includes a storage account _blitstore_, which contains a single file share _blitshare_. 
 
 _blitshare_ has a directory structure:
 
@@ -111,6 +88,6 @@ _blitshare_ has a directory structure:
     /pg             - protected PostGres credentials for access to the database
     /reports        - location for reports, including a subdirectory of 'scraper' dashboard files
 
-Code from _scrape_ and _process_ (LitScan stages 1,2) are run in an Ubuntu VM _blitscanVM_. The file _azure\_vm.sh_ in this directory contains all the set-up code for this VM.
+Code from _scrape_ and _process_ (LitScan services 1,2) are run in an Ubuntu virtual machine _blitscanVM_. The file _azure\_vm.sh_ in this directory contains code for installing the necessary software stack in this VM.
 
 The webapp (LitScan stage 3) is deployed as an Azure web app _blitscanapp_, wich runs a Docker container held in the container registry _blitscanappcontainers_. More details can be found in the _scrape_ _README_ file.
