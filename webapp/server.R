@@ -195,7 +195,7 @@ shinyServer(
               as.character(updated),
               format(ndocs, big.mark=','),
               format(nspecies, big.mark=','),
-              sprintf("scraper_dashboard.html")
+              sprintf("dashboard.html")
       )
     })
     

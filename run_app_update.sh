@@ -31,14 +31,13 @@ Rscript ./scrape/update_DOI_data.R $pgfile
 # NEEDS EDITING TO AVOID STORING PDFS
 #python3 ./scrape/get_wiley_pdf.py $pgfile $wileypdf
 
-# scraper metrics (R markdown)
-R -e "rmarkdown::render('./scrape/scraper_dashboard.Rmd', 
+# dashboard (R markdown)
+R -e "rmarkdown::render('./webapp/dashboard.Rmd', 
                     rmarkdown::html_document(toc = TRUE)
                     )"
 
-#cp $reportpath/scraper_dashboard-$today.html $dockerpath/www/scraper_dashboard.html
-cp ./scrape/scraper_dashboard.html $dockerpath/www
-mv ./scrape/scraper_dashboard.html $reportpath/scraper_dashboard-$today.html
+cp ./webapp/dashboard.html $dockerpath/www
+mv ./webapp/dashboard.html $reportpath/dashboard-$today.html
 
 ########################
 # WEBAPP DEPLOYMENT
