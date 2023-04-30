@@ -22,7 +22,10 @@ The main innovation of LitScan is its relevance scoring. This uses a bag-of-word
 
     blitshare/bli_model_bow_11107.json
 
+## Tasks (processing)
 
+With the caveat that these are essentially research tasks and need not fall under software support costs.
 
-
-
+- Incorporate active learning loop to scoring
+- Add geo extraction and functionality
+- Explore use of DL-based text analysis and/or use of LLM for fine-grained information discovery

@@ -1,4 +1,4 @@
-# BirdLife LitScan: web scraper
+# BirdLife LitScan: scanner
 
 The function of this service is to crawl the web and to update the PostGres database with new documents. A document is represented by a URL together with title, abstract (sometimes fuller text),  DOI, publication date, PDF link if known, and other metadata.
 
@@ -50,3 +50,12 @@ At the end of this process, the database has been update with new document text.
 Text extraction from PDF is imperfect and uses routines in _./pdf2txt.py_ (which in turn calls libraries _PyMuPDF_ and _spaCy_). 
 
 (Comment: the position of _update\_DOI\_data.R_ in the above sequence is logical, though in practice it currently runs elsewhere because of a bug that needs fixing which prevents the library _rcrossref_ running on the Ubuntu VM.)
+
+## Tasks (scanner)
+
+- Review Bing storage with Microsoft
+- Review Google Scholar API and usage
+- Add new sources in response to user requests
+- Monitor per-domain format and x-paths [ongoing]
+- Expand non-English coverage (e.g. in partnership with Queensland team)
+- Refine and improve the PDF processing

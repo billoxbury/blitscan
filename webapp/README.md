@@ -90,5 +90,16 @@ With these resources, the running app can be accessed at a URL listed in the web
     blitIP                  # Public IP address assigned to the gateway
     blitVN                  # Virtual Network with subnets hosting the web app and the application gateway
 
-The BirdLife firewall is then linked to the application gateway via the public IP address.
+The BirdLife firewall is then linked to the application gateway via the _blitIP_, and the routing table at the gateway configured with a BirdLife TLS certificate.
 
+## Tasks (web app)
+
+_Recommendation:_ all work on the UI should be fully integrated with the user team.
+
+- Fix PDF upload at the firewall (currently works up to AG)
+- Move uploaded PDFs to static location in _blitshare_
+- Display citation info, not just title
+- Add feedback functionality (score, date initially)
+- Add translation toggle
+- Dashboard: refresh (database) dashboard design 
+- Design & implement species view coupled to DataZone

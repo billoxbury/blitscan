@@ -91,3 +91,14 @@ _blitshare_ has a directory structure:
 Code from _scrape_ and _process_ (LitScan services 1,2) are run in an Ubuntu virtual machine _blitscanVM_. The file _azure\_vm.sh_ in this directory contains code for installing the necessary software stack in this VM.
 
 The webapp (LitScan stage 3) is deployed as an Azure web app _blitscanapp_, wich runs a Docker container held in the container registry _blitscanappcontainers_. More details can be found in the _scrape_ _README_ file.
+
+## Tasks (system)
+
+- Complete migration to Azure VM
+- Design log files/system analytics
+- Automated with daily cron job
+- System dashboard: metrication of LitScan successes/failures and cost monitoring
+- Network: monitor TLS certificates (sometimes they expire and the system breaks!)
+- Agree BirdLife adoption route
+
+The last point refers to the fact that LitScan is currently hosted in an isolated Azure subscription. (For example, this prevents BirdLife access to LitScan file shares.) So a plan is needed on the expected resourcing for operational management of the tool. This in turn will affect requirements for the Azure architecture.
