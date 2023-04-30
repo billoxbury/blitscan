@@ -96,7 +96,7 @@ The webapp (LitScan stage 3) is deployed as an Azure web app _blitscanapp_, wich
 
 - Complete migration to Azure VM
 - Design log files/system analytics
-- Automated with daily cron job
+- Automate with daily cron job
 - System dashboard: metrication of LitScan successes/failures and cost monitoring
 - Network: monitor TLS certificates (sometimes they expire and the system breaks!)
 - Agree BirdLife adoption route
