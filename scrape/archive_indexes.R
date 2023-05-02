@@ -1,4 +1,4 @@
-# coordinate preprint archive scrapers
+# coordinate archive scanners 
 
 library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)

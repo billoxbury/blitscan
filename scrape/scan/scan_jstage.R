@@ -1,4 +1,8 @@
-# Bespoke scanner for Ostrich web pages
+# Bespoke scanner for J-Stage
+
+# NOTE there is currently an issue witrh DOI parsing. 
+# If all are present then they are recorded;
+# if not they are ignored to avoid the problem of assigning them correctly
 
 # URLs
 jstage_prefix <- "https://www.jstage.jst.go.jp"
@@ -43,6 +47,8 @@ single_search <- function(searchterm){
   }
   search_term <- rep(searchterm, length(link))
   # check whether we have all DOIs
+  # NEEDS TO CORRECTLY ASSIGN DOIS WHEN ONLY A SUBSET ARE PRESENT
+  # - current hack ignores all in this situation
   if(length(doi) < length(link)){
     doi <- rep("", length(link))
   }
