@@ -342,7 +342,7 @@ link_list <- tbl(conn, 'links') %>%
 
 # ... and filter them out
 df_new <- df_new %>%
-  filter(!(link %in% link_list))
+  filter(!is.na(link) & !(link %in% link_list))
 cat(sprintf("Found %d new items\n", nrow(df_new)))
 
 # add rest of data frame to the database
