@@ -35,17 +35,20 @@ single_search <- function(searchterm){
     link <- titlepath %>%
       html_elements('a') %>%
       html_attr('href')
-    doi <- nodes %>% 
+    doi <- titlepath %>% 
       html_elements(xpath = '//div[@class="result-doi-wrap"]') %>%
       html_elements('a') %>%
       html_attr('href') %>%
       str_remove('https://doi.org/')
   }
   search_term <- rep(searchterm, length(link))
+  # check whether we have all DOIs
+  if(length(doi) < length(link)){
+    doi <- rep("", length(link))
+  }
   # return
   tibble(link, doi, title, search_term)
 }
-
 
 # loop through a set of search terms
 scan_jstage <- function(searchset){
