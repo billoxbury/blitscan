@@ -1,5 +1,14 @@
 # runs query for DOI, abstract etc against OAI sources (currently BioOne)
 
+# CURRENT ISSUE: 
+# the URL 'https://bioone.org/action/oai' has a self-signed SSL certificate and wget 
+# requires option --no-check-certificate.
+# However, I'm not sure how to configure url() in R to use this option, so the 
+# call gets blocked in the Ubuntu VM.
+# Somehow, this problem is ignored in the R installation on my local mac OS X, so the 
+# script works fine there.
+# TASK: sort out the issue in Ubuntu!
+
 library(rvest, warn.conflicts=FALSE)
 library(stringr, warn.conflicts=FALSE)
 library(dplyr, warn.conflicts=FALSE)
