@@ -115,7 +115,7 @@ for(i in idx){
       count_only = TRUE,
       verbose = FALSE
     )
-    ct <- as.integer(res['count'])
+    ct <- as.integer(res[1,1])
     if(ct > 0){
       df_species$count_sci[i] <- ct
       cat(sprintf("%d: %s --> %s\n", i, query_term, ct))
@@ -130,10 +130,10 @@ for(i in idx){
         from_publication_date = from_date,
         to_publication_date = to_date,
         endpoint = "https://api.openalex.org/",
-        count_only = TRUE,
-        verbose = FALSE
+        verbose = FALSE,
+        count_only = TRUE
       )
-      ct <- as.integer(res['count'])
+      ct <- as.integer(res[1,1])
       if(ct > 0){
         df_species$count_com[i] <- ct
         cat(sprintf("%d: %s --> %s\n", i, query_term, ct))
@@ -156,8 +156,8 @@ for(i in idx){
         from_publication_date = from_date,
         to_publication_date = to_date,
         endpoint = "https://api.openalex.org/",
-        count_only = FALSE,
-        verbose = FALSE
+        verbose = FALSE,
+        count_only = FALSE
       )
       res['search_term'] <- query_term
       df_oa <- rbind(df_oa, res)

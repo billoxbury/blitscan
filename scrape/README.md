@@ -37,13 +37,13 @@ The last script _find\_link\_dois.py_ checks all new DOIs that have been found a
 
 The following R and Python scripts are run in sequence:
 
-    get_html_text.R             # use X-path rules to extract title/abstract from new URLs
-    update_DOI_data.R           # use CrossRef to get publication details against new DOIs
-    get_wiley_pdf.py            # check DOI data for new Wiley articles and download PDFs
-    read_pdf_uploads.py         # get text from manually uploaded PDFs (by BirdLife International users)
-    read_wiley_pdf.py           # get text from Wiley PDFs
-    get_pdf_text.py             # for minable domains, download PDF, read text, delete PDF
-    remove_duplicates.sh        # dedupe main table for URL; dedupe DOI table
+    ./get_html_text.R             # use X-path rules to extract title/abstract from new URLs
+    ./update_DOI_data.R           # use CrossRef to get publication details against new DOIs
+    ./get_wiley_pdf.py            # check DOI data for new Wiley articles and download PDFs
+    ./read_pdf_uploads.py         # get text from manually uploaded PDFs (by BirdLife International users)
+    ./read_wiley_pdf.py           # get text from Wiley PDFs
+    ./get_pdf_text.py             # for minable domains, download PDF, read text, delete PDF
+    ./remove_duplicates.sh        # dedupe main table for URL; dedupe DOI table
 
 At the end of this process, the database has been update with new document text. This text is title plus abstract only if, as in the majority of cases, these are available from metadata. Where text is not available from metadata, we download and extract text from PDF if we have a link. Or we extract text from PDF is where we have no choice (e.g. Wiley, manually uploaded PDFs).
 
@@ -59,3 +59,4 @@ Text extraction from PDF is imperfect and uses routines in _./pdf2txt.py_ (which
 - Monitor per-domain format and x-paths [ongoing]
 - Expand non-English coverage (e.g. in partnership with Queensland team)
 - Refine and improve the PDF processing
+- [_Added 6/7/2023_] OpenAlex scan needs fixing in response to undiagnosed API changes
